@@ -1,0 +1,8 @@
+FROM php:8.2-cli
+#set up the workdir
+WORKDIR /app
+VOLUME /app/var/
+#update and remove useless packages
+RUN apt-get update && apt-get install -y --no-install-recommends \
+	&& rm -rf /var/lib/apt/lists/*
+    
