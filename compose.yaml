@@ -4,10 +4,12 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    stdin_open: true
+    tty: true
     volumes:
-      - ./:/var/www/html:cache
+      - ./symfony:/var/www/html
     ports:
-      - "80:80/tcp"
+      - "8080:8000/tcp"
       - "443:443/tcp"
       - "443:443/udp"
 

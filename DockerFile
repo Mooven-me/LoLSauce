@@ -5,11 +5,28 @@ VOLUME /app/var/
 #update and remove useless packages
 RUN apt-get update && apt-get install -y --no-install-recommends \
 	git \
+    zip \
+    unzip \
 	&& rm -rf /var/lib/apt/lists/*
 
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
-RUN composer require symfony/maker-bundle --dev
-RUN composer require symfony/security-bundle
+#installation de compose au cas où on a besoin d'executer des commandes
+COPY --link ./symfony/ ./
+RUN set -eux; \
+	composer install --no-cache --prefer-dist --no-dev --no-autoloader --no-scripts --no-progress
+
 RUN composer require symfony/webpack-encore-bundle
+RUN composer require symfony/security-bundle
+RUN composer require symfony/maker-bundle --dev
 RUN composer require symfony/serializer-pack
+
+#installation de symfony
+RUN curl -sS https://get.symfony.com/cli/installer | bash
+#permet de pouvoir utiliser la commande sans redémarrer le shell
+ENV PATH="/root/.symfony5/bin:$PATH"
+#permet de créer une nouvelle application si il n'y a rien dans le fichier /var/www/html
+CMD ["/bin/sh", "-c", "if [ -z \"$(ls -A /var/www/html)\" ]; then symfony new /var/www/html --webapp --no-git; fi && symfony server:start --port=8000 --allow-all-ip"]
+RUN symfony server:ca:install
+#on va dans le répertoire /LoLSauce car jsp
+WORKDIR /app/LoLSauce/
