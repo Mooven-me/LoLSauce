@@ -1,0 +1,3 @@
+# Ignore MySQL database directory
+
+database/mysql/
