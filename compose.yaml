@@ -1,6 +1,6 @@
 services:
   LoLSauce-php:
-    image: php:8.2-cli
+    image: php:8.4-cli
     build:
       context: .
       dockerfile: Dockerfile
