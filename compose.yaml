@@ -1,0 +1,16 @@
+services:
+  LoLSauce-php:
+    image: php
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes
+
+  LoLSauce-mysql:
+    image: mysql
+
+  LoLSauce-phpmyadmin: 
+    image: phpmyadmin
+
+  LoLSauce-node:
+    image: node
