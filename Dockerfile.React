@@ -1,3 +1,5 @@
 FROM node
 
-RUN npm install vite
+WORKDIR /app
+COPY ./front/package*.json ./
+RUN npm install
