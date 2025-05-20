@@ -16,7 +16,6 @@ services:
   LoLSauce-mysql:
     image: mysql:8.0
     restart: always
-    container_name: mysql_db
     environment:
       MYSQL_ROOT_PASSWORD: rootpassword
       MYSQL_DATABASE: database
