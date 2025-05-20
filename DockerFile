@@ -1,7 +1,7 @@
 FROM php:8.4-cli
 #set up the workdir
-WORKDIR /app
-VOLUME /app/var/
+WORKDIR /var/www/html/
+VOLUME /var/www/html/var/
 #update and remove useless packages
 RUN apt-get update && apt-get install -y --no-install-recommends \
 	git \
@@ -16,7 +16,6 @@ COPY --link ./symfony/ ./
 RUN set -eux; \
 	composer install --no-cache --prefer-dist --no-dev --no-autoloader --no-scripts --no-progress
 
-RUN composer require symfony/webpack-encore-bundle
 RUN composer require symfony/security-bundle
 RUN composer require symfony/maker-bundle --dev
 RUN composer require symfony/serializer-pack
@@ -28,5 +27,3 @@ ENV PATH="/root/.symfony5/bin:$PATH"
 #permet de créer une nouvelle application si il n'y a rien dans le fichier /var/www/html
 CMD ["/bin/sh", "-c", "if [ -z \"$(ls -A /var/www/html)\" ]; then symfony new /var/www/html --webapp --no-git; fi && symfony server:start --port=8000 --allow-all-ip"]
 RUN symfony server:ca:install
-#on va dans le répertoire /LoLSauce car jsp
-WORKDIR /app/LoLSauce/

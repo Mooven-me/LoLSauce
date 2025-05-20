@@ -32,3 +32,11 @@ services:
 
   LoLSauce-node:
     image: node
+    volumes:
+      - ./front:/app
+    working_dir: /app
+    command: sh -c "npm run dev -- --host"
+    ports:
+    - "5173:5173"
+    stdin_open: true
+    tty: true
