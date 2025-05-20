@@ -18,25 +18,36 @@
   filter: drop-shadow(0 0 2em #61dafbaa);
 }
 
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
-  }
-}
-
 .card {
   padding: 2em;
 }
 
 .read-the-docs {
   color: #888;
+}
+
+.flex-row-column{
+    display: flex;
+    flex-direction: row;
+}
+
+
+
+@media (min-width: 682px){
+  .arrondi-droit{
+    border-top-right-radius:0 !important;
+    border-bottom-right-radius:0 !important;
+  }
+
+  .arrondi-gauche{
+    border-top-left-radius:0 !important;
+    border-bottom-left-radius:0 !important;
+  }
+}
+
+@media (max-width: 681px){
+  .flex-row-column{
+    display: flex;
+    flex-direction: column;
+  }
 }
