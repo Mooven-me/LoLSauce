@@ -39,7 +39,6 @@ export default function Main(params) {
                     </CardBody>
                 </Card>
             </div>
-            <RealtimeChatApp />
         </div>
     </>
     )

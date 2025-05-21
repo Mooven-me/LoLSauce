@@ -25,5 +25,5 @@ RUN curl -sS https://get.symfony.com/cli/installer | bash
 #permet de pouvoir utiliser la commande sans redémarrer le shell
 ENV PATH="/root/.symfony5/bin:$PATH"
 #permet de créer une nouvelle application si il n'y a rien dans le fichier /var/www/html
-CMD ["/bin/sh", "-c", "if [ -z \"$(ls -A /var/www/html)\" ]; then symfony new /var/www/html --webapp --no-git; fi && symfony server:start --port=8000 --allow-all-ip"]
+CMD ["symfony", "server:start", "--allow-all-ip", "--port=8000"]
 RUN symfony server:ca:install
