@@ -16,8 +16,8 @@ export default function Main(params) {
             <div className='position-absolute translate-middle' style={{top:"18vh", left:"50%",fontSize: "10vw"}}>
                 LoLSauce
             </div>
-            <div className="flex-row-column justify-content-around align-items-center gap-5" style={{width:"90vw"}}>
-                <Card style={{padding:0, backgroundColor:"rgb(107, 114, 150)", width:"35%", minWidth:"180px"}}>
+            <div className="flex-row-column justify-content-between align-items-center gap-5 computer-600" style={{width:"40vw"}}>
+                <Card style={{padding:0, backgroundColor:"rgb(107, 114, 150)", width:"100%", minWidth:"180px"}}>
                     <CardBody className='flex-row-column'>
                         <Button color="info" className='shadow-sm border-0 arrondi-droit' onClick={createRoom}>
                             <b style={{color:"rgb(255, 255, 255)", textWrap:"nowrap"}}>Rejoindre</b>
@@ -31,7 +31,7 @@ export default function Main(params) {
                         />
                     </CardBody>
                 </Card>
-                <Card style={{padding:0, backgroundColor:"rgb(107, 114, 150)", width:"35%", minWidth:"180px"}}>
+                <Card style={{padding:0, backgroundColor:"rgb(107, 114, 150)", width:"100%", minWidth:"180px"}}>
                     <CardBody>
                         <Button color="info" className='shadow-sm border-0'>
                             <b style={{color:"rgb(255, 255, 255)", textWrap:"nowrap"}}>Créer une partie</b>

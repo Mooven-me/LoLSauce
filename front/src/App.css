@@ -31,9 +31,12 @@
     flex-direction: row;
 }
 
-
-
+/* computer vision */
 @media (min-width: 682px){
+
+  .computer-600{
+    min-width: 600px;
+  }
   .arrondi-droit{
     border-top-right-radius:0 !important;
     border-bottom-right-radius:0 !important;
@@ -45,6 +48,7 @@
   }
 }
 
+/* phone vision */
 @media (max-width: 681px){
   .flex-row-column{
     display: flex;
