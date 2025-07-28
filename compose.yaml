@@ -39,7 +39,7 @@ services:
     environment:
       MYSQL_DATABASE: ${MYSQL_DATABASE:-app}
       # You should definitely change the password in production
-      MYSQL_RANDOM_ROOT_PASSWORD: "true"
+      MYSQL_ROOT_PASSWORD: ${MYSQL_PASSWORD:-root}
       MYSQL_PASSWORD: ${MYSQL_PASSWORD:-!ChangeMe!}
       MYSQL_USER: ${MYSQL_USER:-app}
     healthcheck:
@@ -55,6 +55,13 @@ services:
 
   LoLSauce-phpmyadmin: 
     image: phpmyadmin
+    environment:
+      PMA_HOST: database
+      MYSQL_ROOT_PASSWORD: "${MYSQL_PASSWORD:-root}"
+    ports:
+      - "8080:80"
+    depends_on:
+      - database
 
   LoLSauce-node:
     image: node
@@ -64,6 +71,7 @@ services:
     volumes:
       - ./symfony/public/build:/app/dist
       - ./front:/app
+      - /app/node_modules
     working_dir: /app
     command: sh -c "npm run dev -- --host"
     ports:
