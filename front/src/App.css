@@ -37,6 +37,11 @@
     flex-direction: row;
 }
 
+.arrondi-gauche{
+  border-top-left-radius:0 !important;
+  border-top-right-radius:0 !important;
+}
+
 /* computer vision */
 @media (min-width: 682px){
 
@@ -49,8 +54,8 @@
   }
 
   .arrondi-gauche{
-    border-top-left-radius:0 !important;
     border-bottom-left-radius:0 !important;
+    border-top-right-radius: 0.5rem !important;
   }
 }
 
@@ -61,3 +66,13 @@
     flex-direction: column;
   }
 }
+
+.card-body > .formulaire {
+  margin-bottom: 0 !important 
+}
+
+.code-highlight::selection {
+  color: rgb(255, 255, 255);
+  background: rgb(24, 31, 129);
+}
+  

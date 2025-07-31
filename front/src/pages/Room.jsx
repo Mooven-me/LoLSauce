@@ -4,32 +4,52 @@ import { RoomPlayerMenu } from '../utils/RoomPlayerMenu';
 import CustomInput from '../utils/CustomInput';
 import { Button, Input, Modal, ModalBody, ModalFooter, ModalHeader } from 'reactstrap';
 import { sendData } from '../utils/utils';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 
 export default function Room(props) {
   let params = useParams()
+  let navigate = useNavigate();
   const eventSourceRef = React.useRef(null);
   const [isGameStarted, setIsGameStarted] = React.useState(false);
-  console.log('props', props)
-  const [users, setUsers] = React.useState([{userId:props.userId, username: props.username, isLeader: props.isLeader}]);
+  const usersRef = React.useRef([]); // Add this ref to avoid problems bro
+  const [users, setUsers] = React.useState([]);
   const [showModal, setShowModal] = React.useState(false)
   const [usernameError, setUsernameError] = React.useState(false)
 
-  
+  React.useEffect(() => {
+    usersRef.current = users;
+  }, [users]);
 
   React.useEffect(() => {
-    console.log("user mis a jour : " + users);
-  },[users])
-
-  const handleConnectWebSocket = () => {
-    console.log(props)
-    if(props.roomId == null && props.userId == null){
-      console.log("not connected")
+    handleConnectWebSocket(props.roomId??params.room_id);
+    if(!props.isLeader){
+      setShowModal(true)
+    }else{
+        setUsers([{userId:props.userId, username: props.username, isLeader: props.isLeader}]);
     }
-    const url = new URL("https://localhost/.well-known/mercure");
-    url.searchParams.append('topic', "https://subrscribed.channel/"+props.roomId+"/room");
-    console.log("envoyé")
 
+    const handleBeforeUnload = () => {
+      if (props.userId) {
+        // Use sendBeacon for reliability during page unload
+        navigator.sendBeacon('/api/leaved', JSON.stringify({user_id: props.userId}));
+      }
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+      if(eventSourceRef.current){
+          eventSourceRef.current.close();
+          console.log(props.userId)
+          sendData({route:"/leaved", method:"POST", data:{user_id:props.userId}})
+        };
+      }
+  }, []) 
+ 
+  const handleConnectWebSocket = (roomId) => {
+    const url = new URL("https://localhost/.well-known/mercure");
+    url.searchParams.append('topic', "https://subrscribed.channel/"+roomId+"/room");
     const es = new EventSource(url.toString(), { withCredentials: true });
     eventSourceRef.current = es;
 
@@ -38,37 +58,25 @@ export default function Room(props) {
     };
 
     es.onerror = (err) => {
-      console.error("Mercure error", err);
-      sendData({route:"/leaved", method:"POST", data:{username:props.username}})
-    };
-
-    return () => {
-      es.close();
-      sendData({route:"/leaved", method:"POST", data:{username:props.username}})
+      console.log('ici')
+      sendData({route:"/leaved", method:"POST", data:{user_id:props.userId}})
     };
   }
-
-  React.useEffect(() => {
-    if(props.isLeader){
-      handleConnectWebSocket();
-    }else{
-      setShowModal(true)
-    }
-  }, []) 
   
   const handleJoinedUser = (data) => {
-    let usersId = users.map((elem) => (elem.userId))
-    console.log('userid', usersId)
+    console.log(data)
+    let usersId = usersRef.current.map((elem) => (elem.user_id))
     if(!usersId.includes(data.user.user_id)){
-      console.log("mauvaise nouvelle")
-      setUsers((old) => ([...old, data.user]))
+      setUsers((old) => [...old, data.user])
     }
   }
 
-  const handleLeavedUser = () => {
-    let usersId = users.map((elem) => (elem.user_id))
+  const handleLeavedUser = (data) => {
+    console.log("users dans le handleLeavedUser", usersRef.current)
+    let usersId = usersRef.current.map((elem) => (elem.user_id))
+    console.log(usersId)
     if(usersId.includes(data.user_id)){
-      let usersCopy = users.filter((user) => user.user_id !== data.user_id);
+      let usersCopy = usersRef.current.filter((user) => user.user_id !== data.user_id);
       setUsers(usersCopy)
     }
   }
@@ -94,7 +102,8 @@ export default function Room(props) {
   }
 
   const handleStartGame = () => {
-    props.sendData('/start_room', "POST", {"user_id": props.userId})
+    navigate("/")
+    props.sendData('/start', "POST", {"user_id": props.userId})
   }
 
   const handleUsernameChange = (e) => {
@@ -104,12 +113,17 @@ export default function Room(props) {
       }
   }
 
+  React.useEffect(() => {
+    console.log("UPDATE DE USERS : ", users);
+  }, [users])
+
   const handleConfirmUser = () => {
       sendData({route:"/joined", method:"POST", data: {username: props.username, room_id: params.room_id}}).then(data => {
-         props.setUserId(data.user_id)
-         props.setRoomId(data.room_id)
-         setShowModal(false);
-         setUsers(data.users)
+        props.setUserId(data.user_id)
+        props.setRoomId(data.room_id)
+        setShowModal(false);
+        console.log("ON A RECU LE WEBSERV DE JOINED", data.users)
+        setUsers(data.users)
       })
   }
 
@@ -124,11 +138,12 @@ export default function Room(props) {
           <Button color="info" className='text-white' onClick={handleConfirmUser}>Confirmer</Button>
         </ModalFooter>
       </Modal>
+
       <div className='d-flex flex-row border border-info h-100'>
         <div className="d-flex flex-column w-100 h-100">
           {props.isLeader &&
             <div className='w-100 h-100 align-content-center'>
-              <Button onClick={() => handleStartGame}> lancer la partie </Button>
+              <Button onClick={() => handleStartGame()}> lancer la partie </Button>
             </div>
           }                                                                                                              
           {isGameStarted &&

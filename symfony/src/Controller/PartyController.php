@@ -98,7 +98,7 @@ final class PartyController extends AbstractController
         return strtoupper($string);
     }
 
-    #[Route('/send_answer', name: 'send_answer', methods: ['POST'])]
+    #[Route('/start', name: 'start', methods: ['POST'])]
     public function startRoom(Request $request, EntityManagerInterface $em, HubInterface $hub){
         $data = json_decode($request->getContent(), true);
         $userId = $data['user_id']??null;
@@ -157,9 +157,8 @@ final class PartyController extends AbstractController
                     'user' => array(
                         'user_id' => $user->getId(),
                         'username' => $user->getUsername(),
-                    )
-                    
-                ))
+                        )
+                    )),
         );
         $hub->publish($update);
 
@@ -172,7 +171,7 @@ final class PartyController extends AbstractController
                     return array(
                         'user_id' => $elem->getId(),
                         'username' => $elem->getUsername(),
-                        'room_id' =>$room->getLeader() === $elem
+                        'is_leader' =>$room->getLeader() === $elem
                     ); 
                 },
                 $room->getUsers()->toArray()
@@ -180,5 +179,40 @@ final class PartyController extends AbstractController
         );
 
         return new JsonResponse(array('error' => 0, 'data' => $result), 200);
+    }
+
+    #[Route('/leaved', name: 'leaved', methods: ['POST'])]
+    public function leavedRoom(Request $request, EntityManagerInterface $em, HubInterface $hub){
+        $data = json_decode($request->getContent(), true);
+        $user_id = $data['user_id']??null;
+
+        if(!$user_id){
+            return new JsonResponse(['error' => '1',  'error_message' => 'user_id is required'], 400);
+        }
+
+        $user = $em->getRepository(User::class)->findOneById($user_id);
+
+        if(!$user){
+            return new JsonResponse(['error' => '1',  'error_message' => 'user not found'], 400);
+        }
+
+        $userId = $user->getId();
+        $room = $user->getRoom();
+
+        //let's see what to do
+
+        print_r('https://subrscribed.channel/'.$room->getId().'/room');
+        $update = new Update(
+            topics: 'https://subrscribed.channel/'.$room->getId().'/room',
+            data: json_encode(
+                array(
+                        'type' => 'leaved',
+                        'user_id' => $userId
+                    )
+                )
+        );
+        $hub->publish($update);
+
+        return new JsonResponse(array('error' => 0), 200);
     }
 }
