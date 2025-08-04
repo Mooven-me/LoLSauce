@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\Room;
 use App\Entity\User;
+use App\PusherNotification\PusherNotification;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -11,6 +12,8 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Mercure\HubInterface;
 use Symfony\Component\Mercure\Update;
+use Symfony\Component\Messenger\MessageBusInterface;
+use Symfony\Component\Messenger\Stamp\DelayStamp;
 use Symfony\Component\Routing\Attribute\Route;
 
 use function PHPSTORM_META\map;
@@ -18,6 +21,11 @@ use function PHPSTORM_META\map;
 #[Route('/api')]
 final class PartyController extends AbstractController
 {
+
+    public function __construct(
+        private MessageBusInterface $bus
+    ){}
+
     #[Route('/create_room', name: 'app_party')]
     public function createRoom(EntityManagerInterface $em, Request $request): Response
     {
@@ -108,7 +116,11 @@ final class PartyController extends AbstractController
         }
 
         $user = $em->getRepository(User::class)->findOneById($userId);
-        $roomId = $user->getRoom();
+        $room = $user->getRoom();
+        $roomId = $room->getId();
+
+        //wait a little bit to start the game
+        $this->handleQuestion($room);
 
         $update = new Update(
             topics: 'https://subrscribed.channel/'.$roomId.'/room',
@@ -153,11 +165,8 @@ final class PartyController extends AbstractController
             topics: 'https://subrscribed.channel/'.$room->getId().'/room',
             data: json_encode(
                 array(
-                    'type' => 'joined',
-                    'user' => array(
-                        'user_id' => $user->getId(),
-                        'username' => $user->getUsername(),
-                        )
+                    'type' => 'usersUpdate',
+                    'users' => $room->getFormattedUsers(),
                     )),
         );
         $hub->publish($update);
@@ -166,16 +175,7 @@ final class PartyController extends AbstractController
         $result = array(
             'room_id' => $room->getId(),
             'user_id'=> $user->getId(),
-            'users' => array_map(
-                function ($elem) use ($room) {
-                    return array(
-                        'user_id' => $elem->getId(),
-                        'username' => $elem->getUsername(),
-                        'is_leader' =>$room->getLeader() === $elem
-                    ); 
-                },
-                $room->getUsers()->toArray()
-            )
+            'users' =>  $room->getFormattedUsers(),
         );
 
         return new JsonResponse(array('error' => 0, 'data' => $result), 200);
@@ -196,23 +196,48 @@ final class PartyController extends AbstractController
             return new JsonResponse(['error' => '1',  'error_message' => 'user not found'], 400);
         }
 
-        $userId = $user->getId();
         $room = $user->getRoom();
+        $room->removeUser($user);
+        $users = $room->getUsers();
 
-        //let's see what to do
+        //if the user is leader, set another one leader
+        if ($room->getLeader() === $user){
+            // if there is other users
+            if(count($users) > 0){
+                $room->setLeader($users[0]);
+            }
+        }
 
-        print_r('https://subrscribed.channel/'.$room->getId().'/room');
+        //delete the user and affect the changes
+        $em->remove($user);
+        $em->flush();
+
         $update = new Update(
             topics: 'https://subrscribed.channel/'.$room->getId().'/room',
             data: json_encode(
                 array(
-                        'type' => 'leaved',
-                        'user_id' => $userId
+                        'type' => 'usersUpdate',
+                        'users' => $room->getFormattedUsers()
                     )
                 )
         );
         $hub->publish($update);
 
         return new JsonResponse(array('error' => 0), 200);
+    }
+
+    public function handleQuestion($room, $time = 2000){
+        $roomId = $room->getId();
+        
+        $this->bus->dispatch(
+            new PusherNotification($roomId, 'question'),
+            [new DelayStamp($time)]
+        );
+        
+        //end of the questions
+        $this->bus->dispatch(
+            new PusherNotification($roomId),
+            [new DelayStamp(10000 + $time)]
+        );
     }
 }

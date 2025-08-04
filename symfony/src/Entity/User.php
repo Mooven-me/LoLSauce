@@ -73,4 +73,11 @@ class User
 
         return $this;
     }
+
+    public function getFormattedUser(): array {
+        return array(
+            'user_id' => $this->id,
+            'username' => $this->username,
+        );
+    }
 }

@@ -1,5 +1,5 @@
 import './App.css'
-import Room from './pages/Room'
+import Room from './pages/Room/Room'
 import {BrowserRouter, Route, Routes} from 'react-router';
 import Main from './pages/Main';
 import CustomNavbar from './utils/CustomNavbar';

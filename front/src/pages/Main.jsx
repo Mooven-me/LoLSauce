@@ -48,9 +48,11 @@ export default function Main(props) {
     }
 
     const handleUsernameChange = (e) => {
-        props.setUsername(() => e.target.value);
-        if(usernameError && e.target.value.trim() !== "") {
-            setUsernameError(false);
+        if(e.target.value.length <=15){
+            props.setUsername(() => e.target.value);
+            if(usernameError && e.target.value.trim() !== "") {
+                setUsernameError(false);
+            }
         }
     }
     
@@ -88,14 +90,15 @@ export default function Main(props) {
                             <FormGroup className={"formulaire"}>
                                 <ButtonGroup vertical={size<682}>
                                     <Button color="info" className='shadow-sm border-0' onClick={createRoom}>
-                                        <b style={{color:"rgb(255, 255, 255)", textWrap:"nowrap"}}>Créer une partie</b>
+                                        <b style={{color:"rgb(255, 255, 255)", textWrap:"nowrap"}}>Créer</b>
                                     </Button>
                                     <Input 
                                         className='shadow-sm arrondi-gauche'
                                         placeholder='Pseudo' 
                                         onKeyUpCapture={(e) => e.key === 'Enter' && createRoom()} 
-                                        onChange={handleUsernameChange}
+                                        onChange={(e) => handleUsernameChange(e)}
                                         invalid={usernameError}
+                                        maxLength={15}
                                     />
                                 </ButtonGroup>
                             </FormGroup>

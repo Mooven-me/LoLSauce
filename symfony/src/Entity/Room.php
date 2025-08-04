@@ -82,4 +82,16 @@ class Room
 
         return $this;
     }
+
+    public function getFormattedUsers(): array {
+        $users = $this->Users;
+        $result = array();
+        foreach($users as $user){
+            $result[]=array(
+                ...$user->getFormattedUser(),
+                'is_leader' => $user == $this->leader
+            );
+        }
+        return $result;
+    }
 }
