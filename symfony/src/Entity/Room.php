@@ -12,11 +12,11 @@ class Room
 {
     #[ORM\Id]
     #[ORM\Column]
-    private ?int $id = null;
+    private int $id;
 
     #[ORM\OneToOne(cascade: ['persist', 'remove'])]
     #[ORM\JoinColumn(nullable: false)]
-    private ?User $leader = null;
+    private User $leader;
 
     /**
      * @var Collection<int, User>

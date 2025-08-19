@@ -17,7 +17,13 @@ export default function Room(props) {
   const [users, setUsers] = React.useState([]);
   const [showModal, setShowModal] = React.useState(false)
   const [usernameError, setUsernameError] = React.useState(false)
-  const [data, setData] = React.useState(false)
+  const [data, _setData] = React.useState(false)
+  const dataRef = React.useRef({})
+
+  const setData = (data) => {
+    dataRef.current = data;
+    _setData(data)
+  }
 
   React.useEffect(() => {
     usersRef.current = users;
@@ -78,7 +84,6 @@ export default function Room(props) {
   }
 
   const handleDispatcher = (data) => {
-    console.log(data)
     setData(data)
     switch (data.type) {
       case "usersUpdate":
@@ -149,7 +154,7 @@ export default function Room(props) {
         <div className="d-flex flex-column w-100 h-100">
           {isGameStarted ?
             <>
-              <Questions {...props} data={data}/>
+              <Questions {...props} data={dataRef}/>
             </>
             :
             props.isLeader &&

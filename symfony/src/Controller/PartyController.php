@@ -226,18 +226,13 @@ final class PartyController extends AbstractController
         return new JsonResponse(array('error' => 0), 200);
     }
 
-    public function handleQuestion($room, $time = 2000){
+    public function handleQuestion($room){
         $roomId = $room->getId();
-        
-        $this->bus->dispatch(
-            new PusherNotification($roomId, 'question'),
-            [new DelayStamp($time)]
-        );
         
         //end of the questions
         $this->bus->dispatch(
-            new PusherNotification($roomId),
-            [new DelayStamp(10000 + $time)]
+            new PusherNotification($roomId, 'answers'),
+            [new DelayStamp(10000 )]
         );
     }
 }

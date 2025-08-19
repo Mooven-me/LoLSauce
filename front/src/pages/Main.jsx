@@ -1,18 +1,21 @@
 import React from 'react';
-import { Button, ButtonGroup, Card, CardBody, FormFeedback, FormGroup, Input } from 'reactstrap';
+import { Button, ButtonGroup, Card, CardBody, Fade, FormFeedback, FormGroup, Input, Navbar } from 'reactstrap';
 import { useNavigate } from 'react-router-dom';
 import { sendData } from '../utils/utils';
+import LoadingButton from '../utils/LoadingButton';
 
 export default function Main(props) {
     const navigate = useNavigate();
     const [usernameError, setUsernameError] = React.useState(false);
     const [joinRoomError, setJoinRoomError] = React.useState(false);
     const [size, setSize] = React.useState(window.innerWidth);
+    const [loading, setLoading] = React.useState(null);
     const roomId = React.useRef(null);
 
     //permet quand quand on est dans une game et qu'on fait retour, le RoomId est vidé
     React.useEffect(() =>{
-        props.setRoomId(() => null)
+        props.setRoomId(null)
+        props.setUsername(null)
         window.addEventListener('resize', () => {
             setSize(window.innerWidth)
         })
@@ -23,18 +26,22 @@ export default function Main(props) {
     },[])
     
     const createRoom = () => {
-        if(!props.username || props.username.trim() === ""){
-            setUsernameError(true);
-            return;
-        } else {
-            setUsernameError(false);
-            sendData({route: '/create_room', method: "POST", data: {"username": props.username}}).then((data) => {
-                console.log(data)
-                navigate('/'+data.room_id)
-                props.setUserId(data.user_id)
-                props.setRoomId(data.room_id)
-                props.setIsLeader(true)
-            })
+        if(!loading){
+            if(!props.username || props.username.trim() === ""){
+                setUsernameError(true);
+                return;
+            } else {
+                setLoading('create')
+                setUsernameError(false);
+                sendData({route: '/create_room', method: "POST", data: {"username": props.username}}).then((data) => {
+                    console.log(data)
+                    navigate('/'+data.room_id)
+                    props.setUserId(data.user_id)
+                    props.setRoomId(data.room_id)
+                    props.setIsLeader(true)
+                    setLoading(null)
+                })
+            }
         }
     }
 
@@ -59,6 +66,12 @@ export default function Main(props) {
     return (
     <>
         <div className='d-flex flex-column h-100 align-items-center'>
+            <Navbar dark fixed={"top"} className='align-items-end'>
+                <div className='w-100 d-flex justify-content-end gap-3'>
+                    <Button onClick={() => navigate('/register')}>Inscription</Button>
+                    <Button onClick={() => navigate('/login')}>Connexion</Button>
+                </div>
+            </Navbar>
             <div className='' style={{fontSize: "10vw", marginTop:"50px"}}>
                 LoLSauce
             </div>
@@ -89,9 +102,9 @@ export default function Main(props) {
                         <CardBody className='flex-row-column'>
                             <FormGroup className={"formulaire"}>
                                 <ButtonGroup vertical={size<682}>
-                                    <Button color="info" className='shadow-sm border-0' onClick={createRoom}>
+                                    <LoadingButton color="info" className='shadow-sm border-0' onClick={createRoom} loading={loading==="create"}>
                                         <b style={{color:"rgb(255, 255, 255)", textWrap:"nowrap"}}>Créer</b>
-                                    </Button>
+                                    </LoadingButton>
                                     <Input 
                                         className='shadow-sm arrondi-gauche'
                                         placeholder='Pseudo' 

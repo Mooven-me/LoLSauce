@@ -8,7 +8,7 @@ use Symfony\Component\Messenger\Attribute\AsMessage;
 class PusherNotification {
     public function __construct(
         private int $roomId,
-        private string $type = 'end_answers',
+        private string $type,
     ){
     }
 

@@ -1,4 +1,4 @@
-export const sendData = async ({route = "/", data = {}, method="GET", isFileDownload = false}) => {
+export const sendData = async ({route = "/", data = {}, method="POST", isFileDownload = false, baseURL='api'}) => {
     let options = {
         method: method,
         headers: {}
@@ -15,7 +15,7 @@ export const sendData = async ({route = "/", data = {}, method="GET", isFileDown
     }
     
     try {
-        const response = await fetch("/api"+route, options);
+        const response = await fetch("/"+baseURL+route, options);
         
         if (response.status === 401 && isLogedIn) {
             logout();

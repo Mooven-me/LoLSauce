@@ -5,6 +5,9 @@ import Main from './pages/Main';
 import CustomNavbar from './utils/CustomNavbar';
 import RealtimeChatApp from './pages/RealtimeChatApp';
 import React from 'react';
+import Login from './pages/Login/Login';
+import Register from './pages/Register/Register';
+import Admin from './pages/Admin/Admin';
 
 function App() {
 
@@ -24,8 +27,20 @@ function App() {
               element={<Main {...{userId, setUserId, roomId, setRoomId, isLeader, setIsLeader, username, setUsername}} />}
             />
             <Route 
+              path="/register"
+              element={<Register {...{userId, setUserId, roomId, setRoomId, isLeader, setIsLeader, username, setUsername}} />}
+            />
+             <Route 
+              path="/login"
+              element={<Login {...{userId, setUserId, roomId, setRoomId, isLeader, setIsLeader, username, setUsername}} />}
+            />
+            <Route 
               path="/:room_id"
               element={<Room {...{userId, setUserId, roomId, setRoomId, isLeader, setIsLeader, username, setUsername}} />}
+            />
+            <Route 
+              path="/admin"
+              element={<Admin />}
             />
             <Route
               path="/test"
