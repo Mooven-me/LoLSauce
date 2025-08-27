@@ -2,17 +2,36 @@
 
 namespace App\Controller;
 
+use App\Service\DataGenerator;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
-final class DataGenerationController extends AbstractController
+#[Route('/api')]
+class DataGenerationController extends AbstractController
 {
-    #[Route('/data/generation', name: 'app_data_generation')]
-    public function index(): Response
+    private $dataGenerator;
+
+    public function __construct(DataGenerator $dataGenerator)
     {
-        return $this->render('data_generation/index.html.twig', [
-            'controller_name' => 'DataGenerationController',
-        ]);
+        $this->dataGenerator = $dataGenerator;
+    }
+
+
+    #[Route('/generateData', name: 'data_generation')]
+    public function generateData(DataGenerator $dataGenerator): JsonResponse
+    {
+        $result = array('error' => 0);
+        try {
+            $dataGenerator->generateDataProcess();
+        } catch (\Exception $e) {
+            $result = array(
+                'error' => 1, 
+                'error_message' => 'A problem occured : '.$e->getMessage(). ' \nstack trace : '.$e->getTraceAsString()
+            );
+        }
+
+        return new JsonResponse($result);
     }
 }

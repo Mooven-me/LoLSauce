@@ -1,0 +1,1 @@
+PowerShell -ExecutionPolicy Bypass -File restart-worker.ps1

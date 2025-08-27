@@ -8,6 +8,7 @@ import React from 'react';
 import Login from './pages/Login/Login';
 import Register from './pages/Register/Register';
 import Admin from './pages/Admin/Admin';
+import { ToastContainer } from 'react-toastify';
 
 function App() {
 
@@ -21,6 +22,7 @@ function App() {
       <BrowserRouter>
         <div className='d-flex flex-column h-100'>
           <CustomNavbar {...{roomId}}/>
+          <ToastContainer />
           <Routes>
             <Route 
               path="/"

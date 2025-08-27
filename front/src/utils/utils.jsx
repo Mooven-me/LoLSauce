@@ -1,3 +1,5 @@
+import { toast } from 'react-toastify';
+
 export const sendData = async ({route = "/", data = {}, method="POST", isFileDownload = false, baseURL='api'}) => {
     let options = {
         method: method,
@@ -77,3 +79,14 @@ export const sendData = async ({route = "/", data = {}, method="POST", isFileDow
         return errorResult;
     }
 }
+
+export const showErrorNotification = (message) => {
+    toast.error(message, {
+            position: "bottom-left",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+        })
+    }

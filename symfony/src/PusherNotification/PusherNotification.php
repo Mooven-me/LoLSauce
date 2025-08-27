@@ -2,21 +2,26 @@
 
 namespace App\PusherNotification;
 
+use App\Entity\Room;
 use Symfony\Component\Messenger\Attribute\AsMessage;
 
 #[AsMessage('async')]
 class PusherNotification {
     public function __construct(
-        private int $roomId,
-        private string $type,
-    ){
+        private Room $room,
+        private array $content,
+        private ?string $type = null
+    ){}
+
+    public function getRoom(): Room {
+        return $this->room;
     }
 
-    public function getRoomId(): int {
-        return $this->roomId;
+    public function getContent(): array {
+        return $this->content;
     }
 
-    public function getType(): string {
+    public function getType(): ?string {
         return $this->type;
     }
 }

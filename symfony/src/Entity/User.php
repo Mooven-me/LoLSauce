@@ -13,13 +13,13 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    private int $id;
+    private ?int $id = null;
 
-    #[ORM\Column(length: 255)]
+    #[ORM\Column(length: 15)]
     private ?string $username = null;
 
     #[ORM\ManyToOne(inversedBy: 'Users')]
-    #[ORM\JoinColumn(nullable: true)]
+    #[ORM\JoinColumn(nullable: true, onDelete:'SET NULL')]
     private ?Room $room = null;
 
     #[ORM\Column]
@@ -33,6 +33,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     #[ORM\Column]
     private array $roles = [];
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $userRoomId = null;
 
     public function getId(): ?int
     {
@@ -144,6 +147,18 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function eraseCredentials(): void 
     {
         //Later
+    }
+
+    public function getUserRoomId(): ?string
+    {
+        return $this->userRoomId;
+    }
+
+    public function setUserRoomId(?string $userRoomId): static
+    {
+        $this->userRoomId = $userRoomId;
+
+        return $this;
     }
 }
 

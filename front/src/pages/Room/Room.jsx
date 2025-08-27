@@ -1,11 +1,10 @@
 import React from 'react';
-import { ShowQuestion } from './Questions/ShowQuestion';
 import { RoomPlayerMenu } from './Player/RoomPlayerMenu';
-import CustomInput from '../../utils/CustomInput';
 import { Button, Form, FormFeedback, FormGroup, Input, Modal, ModalBody, ModalFooter, ModalHeader } from 'reactstrap';
 import { sendData } from '../../utils/utils';
 import { useParams, useNavigate } from 'react-router-dom';
-import Questions from './Questions/Questions';
+import MiddleScene from './MiddleScene/MiddleScene.jsx';
+import LoadingButton from '../../utils/LoadingButton.jsx';
 
 export default function Room(props) {
   let params = useParams()
@@ -19,6 +18,7 @@ export default function Room(props) {
   const [usernameError, setUsernameError] = React.useState(false)
   const [data, _setData] = React.useState(false)
   const dataRef = React.useRef({})
+  const [startGameLoading, setStartGameLoading] = React.useState(false);
 
   const setData = (data) => {
     dataRef.current = data;
@@ -65,7 +65,7 @@ export default function Room(props) {
   }, [])
 
   const handleConnectWebSocket = (roomId) => {
-    const url = new URL("https://localhost/.well-known/mercure");
+    const url = new URL("https://10.243.96.68.nip.io/.well-known/mercure");
     url.searchParams.append('topic', "https://subrscribed.channel/" + roomId + "/room");
     const es = new EventSource(url.toString(), { withCredentials: true });
     eventSourceRef.current = es;
@@ -84,17 +84,26 @@ export default function Room(props) {
   }
 
   const handleDispatcher = (data) => {
-    setData(data)
+    console.log("Room : handeDispatcher")
+    console.log(data)
     switch (data.type) {
       case "usersUpdate":
         handleUsersUpdate(data)
+        break;
+      case "question":
+      case "answer":
+        setData(data)
+        break;
+      case "start":
+        setIsGameStarted(true)
         break;
     }
   }
 
   const handleStartGame = () => {
+    setStartGameLoading(true)
     sendData({ route: '/start', method: "POST", data: { "user_id": props.userId } }).then((data) => {
-        setIsGameStarted(true)
+      setStartGameLoading(false)
     })
   }
 
@@ -117,7 +126,7 @@ export default function Room(props) {
       return;
     }
 
-    sendData({ route: "/joined", method: "POST", data: { username: props.username, room_id: params.room_id } }).then(data => {
+    sendData({ route: "/join", data: { username: props.username, room_id: params.room_id } }).then(data => {
       setShowModal(false);
       setUsers(data.users)
     })
@@ -151,15 +160,19 @@ export default function Room(props) {
       </Modal>
 
       <div className='d-flex flex-row border border-info h-100'>
-        <div className="d-flex flex-column w-100 h-100">
+        <div className="d-flex flex-column w-100 h-100 justify-content-center">
           {isGameStarted ?
             <>
-              <Questions {...props} data={dataRef}/>
+              <MiddleScene {...props} data={data}/>
             </>
             :
-            props.isLeader &&
-            <div className='w-100 h-100 align-content-center'>
-              <Button onClick={() => handleStartGame()}> lancer la partie </Button>
+            props.isLeader ?
+            <div className='w-100 d-flex justify-content-center align-items-center'>
+              <LoadingButton loading={startGameLoading} onClick={() => handleStartGame()}> lancer la partie </LoadingButton>
+            </div>
+            :
+            <div>
+              <i>Le chef configure la game ...</i>
             </div>
           }
         </div>

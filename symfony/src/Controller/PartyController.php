@@ -2,9 +2,12 @@
 
 namespace App\Controller;
 
+use App\Entity\Questions;
 use App\Entity\Room;
 use App\Entity\User;
 use App\PusherNotification\PusherNotification;
+use App\PusherNotification\PusherNotificationHandler;
+use App\Service\QuestionHandler;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -21,10 +24,13 @@ use function PHPSTORM_META\map;
 #[Route('/api')]
 final class PartyController extends AbstractController
 {
+    private PusherNotificationHandler $questionHandler;
 
     public function __construct(
-        private MessageBusInterface $bus
-    ){}
+        PusherNotificationHandler $questionHandler,
+    ){
+        $this->questionHandler = $questionHandler;
+    }
 
     #[Route('/create_room', name: 'app_party')]
     public function createRoom(EntityManagerInterface $em, Request $request): Response
@@ -74,11 +80,15 @@ final class PartyController extends AbstractController
 
         $user = $em->getRepository(user::class)->findOneById($userId);
 
-        $roomId = $user->getRoom()->getId();
+        $room = $user->getRoom();
+        $roomId = $room->getId();
+        $question = $room->getCurrentQuestion();
 
-        if($this->toUpperWithoutAccents($word) == "TROUVE"){ //check si la réponse est bonne
-            $user = $em->getRepository(User::class)->findOneById($userId);
-            $user->setScore($user->getScore() + 1);
+        if($this->toUpperWithoutAccents($word) == $question->getAnswer()){ //check si la réponse est bonne
+            $score = 10;
+            
+            
+            $user->setScore($user->getScore() + $score);
             $update = new Update(
             'https://subrscribed.channel/'.$roomId.'/room',
             json_encode([
@@ -120,7 +130,7 @@ final class PartyController extends AbstractController
         $roomId = $room->getId();
 
         //wait a little bit to start the game
-        $this->handleQuestion($room);
+        $this->questionHandler->handleCreateQuestion($room);
 
         $update = new Update(
             topics: 'https://subrscribed.channel/'.$roomId.'/room',
@@ -131,8 +141,8 @@ final class PartyController extends AbstractController
         return new JsonResponse(array('error' => 0), 200);
     }
 
-    #[Route('/joined', name: 'joined', methods: ['POST'])]
-    public function joinedRoom(Request $request, EntityManagerInterface $em, HubInterface $hub){
+    #[Route('/join', name: 'join', methods: ['POST'])]
+    public function joinRoom(Request $request, EntityManagerInterface $em, HubInterface $hub){
         $data = json_decode($request->getContent(), true);
         $username = $data['username']??null;
         $room_id = $data['room_id']??null;
@@ -157,7 +167,7 @@ final class PartyController extends AbstractController
         $room->addUser($user);
 
         $em->persist($user);
-        $em->persist(object: $room);
+        $em->persist($room);
 
         $em->flush();
 
@@ -197,6 +207,7 @@ final class PartyController extends AbstractController
         }
 
         $room = $user->getRoom();
+        $user->setRoom(null);
         $room->removeUser($user);
         $users = $room->getUsers();
 
@@ -224,15 +235,5 @@ final class PartyController extends AbstractController
         $hub->publish($update);
 
         return new JsonResponse(array('error' => 0), 200);
-    }
-
-    public function handleQuestion($room){
-        $roomId = $room->getId();
-        
-        //end of the questions
-        $this->bus->dispatch(
-            new PusherNotification($roomId, 'answers'),
-            [new DelayStamp(10000 )]
-        );
     }
 }

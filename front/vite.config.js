@@ -11,11 +11,15 @@ export default defineConfig({
   server: {
     port: 5173,
     https: {
-      key: fs.readFileSync('./certs/localhost-key.pem'),
-      cert: fs.readFileSync('./certs/localhost.pem'),
+      key: fs.readFileSync('./certs/tls.key'),
+      cert: fs.readFileSync('./certs/tls.pem'),
     },
-    origin: 'https://localhost:5173',
+    origin: 'https://10.243.96.68.nip.io:5173',
     strictPort: true,
+    cors: {
+      origin: 'https://10.243.96.68.nip.io',
+      credentials: true,
+    },
   },
   build: {
     outDir: 'dist',

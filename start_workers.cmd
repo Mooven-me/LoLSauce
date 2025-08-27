@@ -1,0 +1,1 @@
+docker exec lolsauce-php-1 php bin/console messenger:consume async -vv --memory-limit=128M

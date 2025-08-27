@@ -1,4 +1,3 @@
-import React from 'react';
 import { Button, Fade, Spinner } from 'reactstrap';
 import PropTypes from 'prop-types';
 
