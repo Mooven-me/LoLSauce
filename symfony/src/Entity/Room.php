@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use App\Repository\RoomRepository;
+use DateInterval;
 use DateTime;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -41,12 +42,19 @@ class Room
     #[ORM\Column(nullable: true)]
     private ?\DateTime $questionDate = null;
 
+    /**
+     * @var Collection<int, User>
+     */
+    #[ORM\OneToMany(targetEntity: User::class, mappedBy: 'CorrectAnswerRoom')]
+    private Collection $correctAnswerUsers;
+
     public function __construct()
     {
         $this->id = rand(100000000, 999999999);
         $this->Users = new ArrayCollection();
         $this->settings = new ArrayCollection();
         $this->date = new DateTime();
+        $this->correctAnswerUsers = new ArrayCollection();
     }
 
     public function setId(?int $id): static
@@ -127,7 +135,10 @@ class Room
     {
         $this->currentQuestion = $currentQuestion;
 
-        $this->questionDate = new DateTime();
+        $date = new DateTime('now');
+        $date->add(new DateInterval('PT5S'));
+
+        $this->questionDate = $date;
 
         return $this;
     }
@@ -185,6 +196,36 @@ class Room
     public function setQuestionDate(?\DateTime $questionDate): static
     {
         $this->questionDate = $questionDate;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, User>
+     */
+    public function getCorrrectAnswerUsers(): Collection
+    {
+        return $this->correctAnswerUsers;
+    }
+
+    public function addRoom(User $user): static
+    {
+        if (!$this->correctAnswerUsers->contains($user)) {
+            $this->correctAnswerUsers->add($user);
+            $user->setCorrectAnswerRoom($this);
+        }
+
+        return $this;
+    }
+
+    public function removeRoom(User $user): static
+    {
+        if ($this->correctAnswerUsers->removeElement($user)) {
+            // set the owning side to null (unless already changed)
+            if ($user->getCorrectAnswerRoom() === $this) {
+                $user->setCorrectAnswerRoom(null);
+            }
+        }
 
         return $this;
     }

@@ -13,7 +13,7 @@ export default function Room(props) {
   const [isGameStarted, setIsGameStarted] = React.useState(false);
   const usersRef = React.useRef([]); // Add this ref to avoid problems bro
   const userIdRef = React.useRef(null); // Add this ref to handle disconnected users
-  const [users, setUsers] = React.useState([]);
+  const [users, _setUsers] = React.useState([]);
   const [showModal, setShowModal] = React.useState(false)
   const [usernameError, setUsernameError] = React.useState(false)
   const [data, _setData] = React.useState(false)
@@ -26,8 +26,14 @@ export default function Room(props) {
   }
 
   React.useEffect(() => {
-    usersRef.current = users;
+    console.log("User a changé : ")
+    console.log(users)
   }, [users]);
+
+  const setUsers = (users) => {
+    usersRef.current = users;
+    _setUsers(users)
+  }
 
   React.useEffect(() => {
     userIdRef.current = props.userId;
@@ -38,7 +44,7 @@ export default function Room(props) {
     if (!props.isLeader) {
       setShowModal(true)
     } else {
-      setUsers([{ user_id: props.userId, username: props.username, is_leader: props.isLeader }]);
+      setUsers([{ user_id: props.userId, username: props.username, is_leader: props.isLeader, score:0 }]);
     }
 
     const handleBeforeUnload = () => {
@@ -83,19 +89,58 @@ export default function Room(props) {
     setUsers(data.users)
   }
 
+  const handleResetUsers = () => {
+    setUsers(
+      usersRef.current.map((user) => {
+        return {
+          ...user,
+          time: "",
+          success: false,
+          word: "",
+          score: 0
+        }
+      }
+    ))
+  }
+
   const handleDispatcher = (data) => {
-    console.log("Room : handeDispatcher")
-    console.log(data)
     switch (data.type) {
       case "usersUpdate":
         handleUsersUpdate(data)
         break;
       case "question":
+        setData(data)
+        handleResetUsers()
+        break;
       case "answer":
         setData(data)
         break;
       case "start":
         setIsGameStarted(true)
+        break;
+      case "success":
+        let time = data.time.s + data.time.f
+        setUsers(usersRef.current.map(user => 
+            user.user_id === data.user_id 
+                ? { 
+                  ...user, 
+                  success: true,
+                  time: time.toFixed(3) + 's',
+                  word: "",
+                  score: data.score
+                }
+                : user
+        ))
+        break;
+      case "try":
+        setUsers(usersRef.current.map(user => 
+            user.user_id === data.user_id 
+                ? { 
+                  ...user, 
+                  word: data.word
+                }
+                : user
+        ))
         break;
     }
   }
@@ -113,10 +158,6 @@ export default function Room(props) {
       setUsernameError(false);
     }
   }
-
-  React.useEffect(() => {
-    console.log("UPDATE DE USERS : ", users);
-  }, [users])
 
   const handleConfirmUser = (e) => {
     e.preventDefault();
@@ -176,7 +217,7 @@ export default function Room(props) {
             </div>
           }
         </div>
-        <RoomPlayerMenu {...{ users: users }} />
+        <RoomPlayerMenu users={users} />
       </div>
     </>
   );

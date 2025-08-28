@@ -27,8 +27,8 @@ class PusherNotificationHandler{
     }
 
     public function __invoke(PusherNotification $pn){
-        $room = $pn->getRoom();
-        $roomId = $room->getId();
+
+        $roomId = $pn->getRoomId();
 
         $update = new Update(
             topics: 'https://subrscribed.channel/'.$roomId.'/room',
@@ -38,17 +38,19 @@ class PusherNotificationHandler{
         // prepare the next question
         switch($pn->getType()){
             case 'create_question':
-                $this->handleCreateQuestion($room);
+                $this->handleCreateQuestion($roomId);
                 break;
             case 'show_answer':
-                $this->handleShowNotification($room);
+                $this->handleShowNotification($roomId);
                 break;
         }
 
         $this->hub->publish($update);
     }
 
-    public function handleShowNotification(Room $room){
+    public function handleShowNotification(int $roomId){
+
+        $room = $this->entityManager->getRepository(Room::class)->findOneById($roomId);
         $answer = $room->getCurrentQuestion()->getAnswer();
 
         $result = array(
@@ -58,7 +60,7 @@ class PusherNotificationHandler{
         
         $this->bus->dispatch(
             new PusherNotification(
-                $room, 
+                $roomId, 
                 $result, 
                 'create_question'
                 ),
@@ -66,9 +68,10 @@ class PusherNotificationHandler{
         );
     }
 
-    public function handleCreateQuestion(Room $room){
+    public function handleCreateQuestion(int $roomId){
 
         $stopGame = false;
+        $room = $this->entityManager->getRepository(Room::class)->findOneById($roomId);
 
         // to see if the game is finish
         $roomDatePlusOneHour = clone $room->getDate();
@@ -79,6 +82,8 @@ class PusherNotificationHandler{
         if ($currentDateTime >= $roomDatePlusOneHour) {
             $stopGame = true;
         }
+
+        //check if a user have the max score
         foreach($room->getUsers() as $user){
             if($user->getScore() >= ($room->getSettingByTitle('max_score')?->getValue()??150)){
                 $stopGame = true;
@@ -94,7 +99,7 @@ class PusherNotificationHandler{
             
             $this->bus->dispatch(
                 new PusherNotification(
-                    $room, 
+                    $roomId, 
                     $result
                     ),
                 [new DelayStamp(5000 )]
@@ -109,6 +114,7 @@ class PusherNotificationHandler{
             $question = $questionRepository->findOneRandomEqualy();
 
             $room->setCurrentQuestion($question);
+            $this->entityManager->flush();
 
             $result = array(
                 'type'  => 'question',
@@ -118,7 +124,7 @@ class PusherNotificationHandler{
             // generate the next question
             $this->bus->dispatch(
                 new PusherNotification(
-                    $room, 
+                    $roomId, 
                     $result, 
                     'show_answer'
                     ),

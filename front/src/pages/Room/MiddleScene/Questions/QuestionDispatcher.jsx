@@ -53,13 +53,12 @@ export default function QuestionDispatcher(props) {
 
     const handleAnswerSending = () => {
         if(inputValue.trim()){
-            data = {
+            let data = {
                 'user_id': props.userId,
                 'word': inputValue.trim()
             }
-            sendData({route:'/', data:data}).then((data) => {
-                setInputValue('')
-            })
+            setInputValue('')
+            sendData({route:'/send_answer', data:data})
         }
     }
 
@@ -81,7 +80,10 @@ export default function QuestionDispatcher(props) {
                     style={{textAlign: 'center'}} 
                     autoFocus 
                     value={inputValue}
-                    onChange={(e) => setInputValue(e.target.value)}
+                    onChange={(e) => {
+                        setInputValue(e.target.value) 
+                        console.log(e.target.value)
+                    }}
                     onKeyUpCapture={(e) => e.key === 'Enter' && handleAnswerSending()} 
                 />
             </div>

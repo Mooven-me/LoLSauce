@@ -3,7 +3,6 @@ import Room from './pages/Room/Room'
 import {BrowserRouter, Route, Routes} from 'react-router';
 import Main from './pages/Main';
 import CustomNavbar from './utils/CustomNavbar';
-import RealtimeChatApp from './pages/RealtimeChatApp';
 import React from 'react';
 import Login from './pages/Login/Login';
 import Register from './pages/Register/Register';
@@ -43,10 +42,6 @@ function App() {
             <Route 
               path="/admin"
               element={<Admin />}
-            />
-            <Route
-              path="/test"
-              element={<RealtimeChatApp/>}  
             />
           </Routes>
         </div>

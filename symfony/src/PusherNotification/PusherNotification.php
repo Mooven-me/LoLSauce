@@ -8,13 +8,13 @@ use Symfony\Component\Messenger\Attribute\AsMessage;
 #[AsMessage('async')]
 class PusherNotification {
     public function __construct(
-        private Room $room,
+        private int $roomId,
         private array $content,
         private ?string $type = null
     ){}
 
-    public function getRoom(): Room {
-        return $this->room;
+    public function getRoomId(): int {
+        return $this->roomId;
     }
 
     public function getContent(): array {

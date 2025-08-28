@@ -10,7 +10,7 @@ export function RoomPlayerMenu(props) {
     }
 
     return (
-        <div className="d-flex flex-column align-items-start gap-2 p-1" style={{backgroundColor:"rgb(41, 45, 70)", width:"20vw", minWidth:"100px"}}>
+        <div className="d-flex flex-column align-items-start gap-2 p-1" style={{backgroundColor:"rgb(41, 45, 70)", width:"30vw", minWidth:"100px", maxWidth:"300px"}}>
             {handleRenderUsers()}
         </div>
     )

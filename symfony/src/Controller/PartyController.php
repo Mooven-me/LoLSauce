@@ -8,6 +8,7 @@ use App\Entity\User;
 use App\PusherNotification\PusherNotification;
 use App\PusherNotification\PusherNotificationHandler;
 use App\Service\QuestionHandler;
+use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -78,31 +79,40 @@ final class PartyController extends AbstractController
             return new JsonResponse(['error' => '1',  'error_message' => 'word is required'], 400);
         }
 
-        $user = $em->getRepository(user::class)->findOneById($userId);
+        $user = $em->getRepository(User::class)->findOneById($userId);
 
         $room = $user->getRoom();
         $roomId = $room->getId();
         $question = $room->getCurrentQuestion();
 
         if($this->toUpperWithoutAccents($word) == $question->getAnswer()){ //check si la réponse est bonne
-            $score = 10;
-            
+            $foundedAnswersCount = count($room->getCorrrectAnswerUsers());
+            if($foundedAnswersCount >= 10){
+                $foundedAnswersCount = 9;
+            }
+
+            $score = 10 - $foundedAnswersCount;
             
             $user->setScore($user->getScore() + $score);
+
+            $currentDate = new DateTime();
+
             $update = new Update(
-            'https://subrscribed.channel/'.$roomId.'/room',
-            json_encode([
-                'type' => 'success',
-                'user_id' => $userId
-            ])
+                'https://subrscribed.channel/'.$roomId.'/room',
+                json_encode([
+                    'type' => 'success',
+                    'user_id' => $userId,
+                    'time' => $currentDate->diff($room->getQuestionDate()),
+                    'score' => $user->getScore(),
+                ])
             );
         }else{
             $update = new Update(
             topics: 'https://subrscribed.channel/'.$roomId.'/room',
             data: json_encode([
-                'type' => 'try',
-                'user_id' => $userId,
-                'word'  => $word
+                    'type' => 'try',
+                    'user_id' => $userId,
+                    'word'  => $word
                 ])
             );
         }
@@ -130,7 +140,7 @@ final class PartyController extends AbstractController
         $roomId = $room->getId();
 
         //wait a little bit to start the game
-        $this->questionHandler->handleCreateQuestion($room);
+        $this->questionHandler->handleCreateQuestion($roomId);
 
         $update = new Update(
             topics: 'https://subrscribed.channel/'.$roomId.'/room',
@@ -207,16 +217,22 @@ final class PartyController extends AbstractController
         }
 
         $room = $user->getRoom();
+
         $user->setRoom(null);
         $room->removeUser($user);
+
         $users = $room->getUsers();
 
         //if the user is leader, set another one leader
-        if ($room->getLeader() === $user){
+        if ($room->getLeader() === $user && count($users)>0){
             // if there is other users
             if(count($users) > 0){
                 $room->setLeader($users[0]);
             }
+        }
+
+        if(count($users)===0){
+            $em->remove($room);
         }
 
         //delete the user and affect the changes

@@ -37,6 +37,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $userRoomId = null;
 
+    #[ORM\ManyToOne(inversedBy: 'Room')]
+    private ?Room $CorrectAnswerRoom = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -86,8 +89,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function getFormattedUser(): array {
         return array(
-            'user_id' => $this->id,
-            'username' => $this->username,
+            'user_id'   => $this->id,
+            'username'  => $this->username,
+            'score'     => $this->score
         );
     }
 
@@ -157,6 +161,18 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setUserRoomId(?string $userRoomId): static
     {
         $this->userRoomId = $userRoomId;
+
+        return $this;
+    }
+
+    public function getCorrectAnswerRoom(): ?Room
+    {
+        return $this->CorrectAnswerRoom;
+    }
+
+    public function setCorrectAnswerRoom(?Room $CorrectAnswersUsers): static
+    {
+        $this->CorrectAnswerRoom = $CorrectAnswersUsers;
 
         return $this;
     }

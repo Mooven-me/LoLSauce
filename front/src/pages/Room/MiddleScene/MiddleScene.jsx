@@ -16,7 +16,7 @@ export default function MiddleScene(props) {
         switch(data.type){
             case 'question':
                 console.log("%MiddleSCene : handleRenderScene")
-                result = <QuestionDispatcher data={data.question} />
+                result = <QuestionDispatcher {...props} data={data.question} />
                 break;
             case 'answer':
                 result = 
