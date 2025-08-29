@@ -14,10 +14,10 @@ export default defineConfig({
       key: fs.readFileSync('./certs/tls.key'),
       cert: fs.readFileSync('./certs/tls.pem'),
     },
-    origin: 'https://10.243.96.68.nip.io:5173',
+    origin: 'https://10.10.10.10.nip.io:5173',
     strictPort: true,
     cors: {
-      origin: 'https://10.243.96.68.nip.io',
+      origin: 'https://10.10.10.10.nip.io',
       credentials: true,
     },
   },

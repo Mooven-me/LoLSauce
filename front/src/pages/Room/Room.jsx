@@ -71,7 +71,7 @@ export default function Room(props) {
   }, [])
 
   const handleConnectWebSocket = (roomId) => {
-    const url = new URL("https://10.243.96.68.nip.io/.well-known/mercure");
+    const url = new URL("https://10.10.10.10.nip.io/.well-known/mercure");
     url.searchParams.append('topic', "https://subrscribed.channel/" + roomId + "/room");
     const es = new EventSource(url.toString(), { withCredentials: true });
     eventSourceRef.current = es;

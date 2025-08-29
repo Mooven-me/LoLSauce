@@ -1,3 +1,5 @@
 # Ignore MySQL database directory
-/.env
-/database/*
+.env
+database/*
+symfony/frankenphp/certs/*
+front/certs/*
