@@ -8,7 +8,6 @@ export default function MiddleScene(props) {
 
     React.useEffect(() => {
         setData(props.data);
-        console.log("MiddleScene : useEffect")
     }, [props.data])
 
     const handleRenderScene = () => {

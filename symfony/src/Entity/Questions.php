@@ -5,7 +5,7 @@ namespace App\Entity;
 use App\Repository\QuestionsRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
-use QuestionsTypes;
+use App\Service\enums\QuestionsTypes;
 
 #[ORM\Entity(repositoryClass: QuestionsRepository::class)]
 class Questions

@@ -1,0 +1,12 @@
+database/
+compose*.yaml
+Dockerfile.React
+*.md
+.git/
+front/node_modules/
+/deployToAzure.sh
+#symfony part
+symfony/config/secrets/prod/prod.decrypt.private.php
+symfony/var/
+symfony/vendor
+symfony/files/

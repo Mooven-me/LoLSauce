@@ -21,6 +21,11 @@ class DataGenerator
     private EntityManagerInterface $em;
     private string $version;
     private string $mainPath = '/app/files';
+    private array $championsMapping = 
+        array(
+            'Fiddlesticks' => 'FiddleSticks',
+        );
+        
 
     public function __construct(
             HttpClientInterface $httpClient, 
@@ -83,25 +88,46 @@ class DataGenerator
         return $string;
     }
 
-    public function getChampionData(string $championName){
+    private function getOriginalChampionName(string $filesystemName): string {
+        static $reverseMapping = null;
+        
+        if ($reverseMapping === null) {
+            $reverseMapping = array_flip($this->championsMapping);
+        }
+        
+        return $reverseMapping[$filesystemName] ?? $filesystemName;
+    }
 
+    public function getChampionData(string $championName) {
         $version = $this->getVersion();
 
-        // get the file content
-        $fileContent = file_get_contents($this->mainPath.'/dragontail-'.$version.'/'.$version.'/data/fr_FR/champion/'.$championName.'.json');
+        $originalChampionName = $this->getOriginalChampionName($championName);
+
+        $fileContent = file_get_contents($this->mainPath.'/dragontail-'.$version.'/'.$version.'/data/fr_FR/champion/'.$originalChampionName.'.json');
         
-        return json_decode($fileContent, true)['data'][$championName];
+        return json_decode($fileContent, true)['data'][$originalChampionName];
     }
 
     public function getChampions(): array {
-
-        $version = $this->getVersion();
-
-        $fileContent = file_get_contents($this->mainPath.'/dragontail-'.$version.'/'.$version.'/data/fr_FR/champion.json');
-
-        $content = json_decode($fileContent, true);
+        static $champions = null;
         
-        return array_keys($content['data']);
+        if ($champions !== null) {
+            return $champions;
+        }
+        
+        $version = $this->getVersion();
+        $fileContent = file_get_contents($this->mainPath.'/dragontail-'.$version.'/'.$version.'/data/fr_FR/champion.json');
+        $content = json_decode($fileContent, true);
+        $result = array_keys($content['data']);
+        
+        foreach ($result as $key => $champion) {
+            if (isset($this->championsMapping[$champion])) {
+                $result[$key] = $this->championsMapping[$champion];
+            }
+        }
+        
+        $champions = $result;
+        return $champions;
     }
 
     /**
@@ -127,12 +153,10 @@ class DataGenerator
 
             $fileName = 'dragontail-'.$this->getVersion();
             $fullFilePath = $this->mainPath.'/'.$fileName;
-            print_r("pasa  jour");
 
             // clear the old data
             $files = scandir($this->mainPath);
             foreach($files as $file){
-                print_r($file);
                 if(str_contains($file, 'dragon')){
                     $this->filesystem->remove($this->mainPath.'/'.$file);
                 }
@@ -165,8 +189,8 @@ class DataGenerator
                 throw new ProcessFailedException($process);
             }
 
-            unlink($fullFilePath.'.tar');
             unlink($fullFilePath.'.tgz');
+
 
             // set the new updateVersion
             $this->createVersionFile($this->mainPath.'/assets');

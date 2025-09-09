@@ -1,5 +1,6 @@
 <?php
 
+namespace App\Service\enums; 
 
 enum QuestionsTypes : string {
     case pixel_image = 'pixel_image';

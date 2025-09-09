@@ -94,6 +94,8 @@ final class PartyController extends AbstractController
             $score = 10 - $foundedAnswersCount;
             
             $user->setScore($user->getScore() + $score);
+            $room->addCorrectAnswerUser($user);
+            $em->flush();
 
             $currentDate = new DateTime();
 
@@ -193,9 +195,10 @@ final class PartyController extends AbstractController
 
 
         $result = array(
-            'room_id' => $room->getId(),
-            'user_id'=> $user->getId(),
-            'users' =>  $room->getFormattedUsers(),
+            'room_id'   => $room->getId(),
+            'user_id'   => $user->getId(),
+            'username'  => $username,
+            'users'     =>  $room->getFormattedUsers(),
         );
 
         return new JsonResponse(array('error' => 0, 'data' => $result), 200);

@@ -1,5 +1,7 @@
 # Ignore MySQL database directory
-.env
 database/*
 symfony/frankenphp/certs/*
-front/certs/*
+symfony/files/*
+/.env.dev
+/.env.prod
+/deployToAzure.sh

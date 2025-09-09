@@ -8,6 +8,9 @@ import Login from './pages/Login/Login';
 import Register from './pages/Register/Register';
 import Admin from './pages/Admin/Admin';
 import { ToastContainer } from 'react-toastify';
+import {
+    Badge
+} from 'reactstrap'
 
 function App() {
 
@@ -20,6 +23,7 @@ function App() {
     <>
       <BrowserRouter>
         <div className='d-flex flex-column h-100'>
+          <Badge style={{position:'absolute', top:'10px', left:'10px'}} color='danger'>Beta</Badge>
           <CustomNavbar {...{roomId}}/>
           <ToastContainer />
           <Routes>

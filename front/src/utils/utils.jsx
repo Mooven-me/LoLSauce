@@ -1,6 +1,6 @@
 import { toast } from 'react-toastify';
 
-export const sendData = async ({route = "/", data = {}, method="POST", isFileDownload = false, baseURL='api'}) => {
+export const sendData = async ({route = "/", data = {}, method="POST", isFileDownload = false, basePath='api'}) => {
     let options = {
         method: method,
         headers: {}
@@ -17,7 +17,7 @@ export const sendData = async ({route = "/", data = {}, method="POST", isFileDow
     }
     
     try {
-        const response = await fetch("/"+baseURL+route, options);
+        const response = await fetch("/"+basePath+route, options);
         
         if (response.status === 401 && isLogedIn) {
             logout();

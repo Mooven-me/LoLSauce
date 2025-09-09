@@ -90,9 +90,12 @@ class PusherNotificationHandler{
             }
         }
 
+        // reset the score system
+        $room->removeAllCorrectAnswerUser();
+
         if($stopGame){
             // generate the end of the game
-
+            $this->entityManager->flush();
             $result = array(
                 'type' => 'end',
             );

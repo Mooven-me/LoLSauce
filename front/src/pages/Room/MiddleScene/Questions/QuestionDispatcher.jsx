@@ -76,16 +76,18 @@ export default function QuestionDispatcher(props) {
                 </div>
             </div>
             <div className="my-5 align-self-center" style={{width:"300px"}}>
-                <Input 
-                    style={{textAlign: 'center'}} 
-                    autoFocus 
-                    value={inputValue}
-                    onChange={(e) => {
-                        setInputValue(e.target.value) 
-                        console.log(e.target.value)
-                    }}
-                    onKeyUpCapture={(e) => e.key === 'Enter' && handleAnswerSending()} 
-                />
+                {!props.userFoundAnswer &&
+                    <Input 
+                        style={{textAlign: 'center'}} 
+                        autoFocus 
+                        value={inputValue}
+                        onChange={(e) => {
+                            setInputValue(e.target.value) 
+                            console.log(e.target.value)
+                        }}
+                        onKeyUpCapture={(e) => e.key === 'Enter' && handleAnswerSending()} 
+                    />
+                }
             </div>
         </>
     )

@@ -24,6 +24,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 	git \
 	pigz \
 	tar \
+	supervisor \
 	libgd-dev \
 	&& docker-php-ext-install gd\
 	&& rm -rf /var/lib/apt/lists/*
@@ -84,6 +85,8 @@ FROM frankenphp_base AS frankenphp_prod
 ENV APP_ENV=prod
 
 RUN mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini"
+
+COPY --link ./.env.prod ./.env.prod
 
 COPY --link ./symfony/frankenphp/conf.d/20-app.prod.ini $PHP_INI_DIR/app.conf.d/
 

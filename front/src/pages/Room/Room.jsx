@@ -19,6 +19,7 @@ export default function Room(props) {
   const [data, _setData] = React.useState(false)
   const dataRef = React.useRef({})
   const [startGameLoading, setStartGameLoading] = React.useState(false);
+  const [userFoundAnswer, setUserFoundAnswer] = React.useState(false)
 
   const setData = (data) => {
     dataRef.current = data;
@@ -71,7 +72,7 @@ export default function Room(props) {
   }, [])
 
   const handleConnectWebSocket = (roomId) => {
-    const url = new URL("https://10.10.10.10.nip.io/.well-known/mercure");
+    const url = new URL(import.meta.env.VITE_MERCURE_PUBLIC_URL);
     url.searchParams.append('topic', "https://subrscribed.channel/" + roomId + "/room");
     const es = new EventSource(url.toString(), { withCredentials: true });
     eventSourceRef.current = es;
@@ -97,10 +98,10 @@ export default function Room(props) {
           time: "",
           success: false,
           word: "",
-          score: 0
         }
       }
     ))
+    setUserFoundAnswer(false)
   }
 
   const handleDispatcher = (data) => {
@@ -131,6 +132,9 @@ export default function Room(props) {
                 }
                 : user
         ))
+        if(data.user_id === props.userId){
+          setUserFoundAnswer(true)
+        }
         break;
       case "try":
         setUsers(usersRef.current.map(user => 
@@ -169,7 +173,10 @@ export default function Room(props) {
 
     sendData({ route: "/join", data: { username: props.username, room_id: params.room_id } }).then(data => {
       setShowModal(false);
-      setUsers(data.users)
+      setUsers(data.users);
+      props.setUserId(data.user_id);
+      props.setRoomId(data.romm_id);
+      props.setUsername(data.username);
     })
 
   };
@@ -204,7 +211,7 @@ export default function Room(props) {
         <div className="d-flex flex-column w-100 h-100 justify-content-center">
           {isGameStarted ?
             <>
-              <MiddleScene {...props} data={data}/>
+              <MiddleScene {...props} data={data} userFoundAnswer={userFoundAnswer}/>
             </>
             :
             props.isLeader ?

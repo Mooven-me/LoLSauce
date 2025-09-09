@@ -208,7 +208,7 @@ class Room
         return $this->correctAnswerUsers;
     }
 
-    public function addRoom(User $user): static
+    public function addCorrectAnswerUser(User $user): static
     {
         if (!$this->correctAnswerUsers->contains($user)) {
             $this->correctAnswerUsers->add($user);
@@ -218,7 +218,7 @@ class Room
         return $this;
     }
 
-    public function removeRoom(User $user): static
+    public function removeCorrectAnswerUser(User $user): static
     {
         if ($this->correctAnswerUsers->removeElement($user)) {
             // set the owning side to null (unless already changed)
@@ -228,5 +228,16 @@ class Room
         }
 
         return $this;
+    }
+
+    /**
+     * @return Collection<int, User>
+     */
+    public function removeAllCorrectAnswerUser(): void
+    {
+        foreach($this->Users as $user){
+            $user->setCorrectAnswerRoom(null);
+        }
+        $this->correctAnswerUsers = new ArrayCollection();
     }
 }

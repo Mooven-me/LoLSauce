@@ -1,5 +1,0 @@
-FROM node
-
-WORKDIR /app
-COPY ./front/package*.json ./
-RUN npm install

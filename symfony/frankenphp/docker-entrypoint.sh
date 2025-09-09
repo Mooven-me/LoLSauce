@@ -63,4 +63,6 @@ if [ "$1" = 'frankenphp' ] || [ "$1" = 'php' ] || [ "$1" = 'bin/console' ]; then
 	echo 'PHP app ready!'
 fi
 
+exec /usr/bin/supervisord -c /etc/supervisor/supervisord.conf &
+
 exec docker-php-entrypoint "$@"
