@@ -19,8 +19,6 @@ services:
     volumes:
       - ./supervisord:/etc/supervisor
       - ./.env:/app/.env
-      - ./.env.prod:/app/.env.prod
-      - ./.env.dev:/app/.env.dev
       - caddy_data:/data
       - caddy_config:/config
     ports:

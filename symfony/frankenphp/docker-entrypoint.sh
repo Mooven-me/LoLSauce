@@ -61,8 +61,10 @@ if [ "$1" = 'frankenphp' ] || [ "$1" = 'php' ] || [ "$1" = 'bin/console' ]; then
 	setfacl -dR -m u:www-data:rwX -m u:"$(whoami)":rwX var
 
 	echo 'PHP app ready!'
-fi
 
 exec /usr/bin/supervisord -c /etc/supervisor/supervisord.conf &
+
+fi
+
 
 exec docker-php-entrypoint "$@"

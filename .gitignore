@@ -4,4 +4,5 @@ symfony/frankenphp/certs/*
 symfony/files/*
 /.env.dev
 /.env.prod
+/.env.local
 /deployToAzure.sh
