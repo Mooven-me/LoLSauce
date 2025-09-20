@@ -1,10 +1,8 @@
 {% extends 'base.html.twig' %}
-
 {% block title %}LoLSauce{% endblock %}
-
 {% block head %}
     {% if app.debug %}
-        {# Vite React Refresh - equivalent to Laravel's @viteReactRefresh #}
+        {# Vite React Refresh - Development mode #}
         <script type="module">
             import RefreshRuntime from 'http://{{ app.request.server.get('SERVER_NAME') }}:5173/@react-refresh'
             RefreshRuntime.injectIntoGlobalHook(window)
@@ -12,19 +10,15 @@
             window.$RefreshSig$ = () => (type) => type
             window.__vite_plugin_react_preamble_installed__ = true
         </script>
+    {% else %}
+        {% include '/app/public/index.html' %}
     {% endif %}
 {% endblock %}
-
 {% block body %}
     <div id="root"></div>
-    
     {% if app.debug %}
         {# Development mode - load from Vite dev server #}
         <script type="module" src="http://{{ app.request.server.get('SERVER_NAME') }}:5173/@vite/client"></script>
         <script type="module" src="http://{{ app.request.server.get('SERVER_NAME') }}:5173/src/main.jsx"></script>
-    {% else %}
-        {# Production mode - load built assets #}
-        {{ encore_entry_link_tags('app') }}
-        {{ encore_entry_script_tags('app') }}
     {% endif %}
 {% endblock %}

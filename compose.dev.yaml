@@ -1,0 +1,12 @@
+# compose.dev.yaml
+# Dev environment override
+services:
+  php:
+    build:
+      target: frankenphp_dev
+
+  lolsauce-node:
+    ports:
+      - "5173:5173"
+    build:
+      target: react_dev

@@ -4,6 +4,13 @@ import UserCard from './UserCard';
 export function RoomPlayerMenu(props) {
 
     const handleRenderUsers = () => {
+        props.users.sort(function(x,y){
+            if(x.score > y.score){
+                return -1
+            }else{
+                return 1
+            }
+        })
         return props.users.map((user, index) => (
             <UserCard key={index} index={index} user={user}/>
         ))

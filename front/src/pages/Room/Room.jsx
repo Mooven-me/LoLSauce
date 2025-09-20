@@ -132,7 +132,9 @@ export default function Room(props) {
                 }
                 : user
         ))
-        if(data.user_id === props.userId){
+        console.log("user_id",data.user_id)
+        console.log("userId",userIdRef.current)
+        if(data.user_id === userIdRef.current){
           setUserFoundAnswer(true)
         }
         break;
@@ -175,11 +177,16 @@ export default function Room(props) {
       setShowModal(false);
       setUsers(data.users);
       props.setUserId(data.user_id);
-      props.setRoomId(data.romm_id);
+      console.log("icicicicicicicicici",data.user_id)
+      props.setRoomId(data.room_id);
       props.setUsername(data.username);
     })
 
   };
+
+  React.useEffect(() => {
+    console.log("user Id a change : ", props.userId)
+  },[props.userId])
 
   return (
     <>

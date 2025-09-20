@@ -52,14 +52,15 @@ RUN install-php-extensions pdo_mysql
 ###< doctrine/doctrine-bundle ###
 ###< recipes ###
 
-COPY --link ./symfony/frankenphp/conf.d/10-app.ini $PHP_INI_DIR/app.conf.d/
-COPY --link --chmod=755 ./symfony/frankenphp/docker-entrypoint.sh /usr/local/bin/docker-entrypoint
-COPY --link ./symfony/frankenphp/Caddyfile /etc/frankenphp/Caddyfile
+COPY --link ./frankenphp/conf.d/10-app.ini $PHP_INI_DIR/app.conf.d/
+COPY --link --chmod=755 ./frankenphp/docker-entrypoint.sh /usr/local/bin/docker-entrypoint
+COPY --link ./frankenphp/Caddyfile /etc/frankenphp/Caddyfile
 
 ENTRYPOINT ["docker-entrypoint"]
 
 HEALTHCHECK --start-period=60s CMD curl -f http://localhost:2019/metrics || exit 1
 CMD [ "frankenphp", "run", "--config", "/etc/frankenphp/Caddyfile" ]
+
 
 # Dev FrankenPHP image
 FROM frankenphp_base AS frankenphp_dev
@@ -70,12 +71,17 @@ ENV FRANKENPHP_WORKER_CONFIG=watch
 
 RUN mv "$PHP_INI_DIR/php.ini-development" "$PHP_INI_DIR/php.ini"
 
+# prevent the reinstallation of vendors at every changes in the source code
+COPY --link ./composer.* .* ./
+RUN set -eux; \
+	composer install --no-cache --prefer-dist --no-autoloader --no-scripts --no-progress
+
 RUN set -eux; \
 	install-php-extensions \
 		xdebug \
 	;
 
-COPY --link ./symfony/frankenphp/conf.d/20-app.dev.ini $PHP_INI_DIR/app.conf.d/
+COPY --link ./frankenphp/conf.d/20-app.dev.ini $PHP_INI_DIR/app.conf.d/
 
 CMD [ "frankenphp", "run", "--config", "/etc/frankenphp/Caddyfile", "--watch" ]
 
@@ -88,16 +94,21 @@ RUN mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini"
 
 COPY --link ./.env.prod ./.env.prod
 
-COPY --link ./symfony/frankenphp/conf.d/20-app.prod.ini $PHP_INI_DIR/app.conf.d/
+COPY --link ./frankenphp/conf.d/20-app.prod.ini $PHP_INI_DIR/app.conf.d/
+
+# copy sources
+COPY --link ./ ./
+RUN rm -Rf frankenphp/
 
 # prevent the reinstallation of vendors at every changes in the source code
-COPY --link ./symfony/composer.* ./symfony/symfony.* ./
+COPY --link ./composer.* .* ./
 RUN set -eux; \
 	composer install --no-cache --prefer-dist --no-dev --no-autoloader --no-scripts --no-progress
 
-# copy sources
-COPY --link ./symfony/ ./
-RUN rm -Rf frankenphp/
+ARG DATABASE_URL
+ARG MERCURE_URL
+ARG MERCURE_JWT_SECRET
+ARG MERCURE_PUBLIC_URL
 
 RUN set -eux; \
 	mkdir -p var/cache var/log; \
