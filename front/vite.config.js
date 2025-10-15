@@ -25,6 +25,14 @@ export default defineConfig(({mode}) => {
     outDir: 'dist',
     manifest: true,
     emptyOutDir: true,
+    assetsDir: '',
+    rollupOptions: {
+      output: {
+        entryFileNames: '[name].js',
+        chunkFileNames: '[name].js',
+        assetFileNames: '[name].[ext]'
+      }
+    }
   },
   resolve: {
     alias: {

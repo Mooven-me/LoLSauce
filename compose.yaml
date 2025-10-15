@@ -5,6 +5,12 @@ services:
     restart: unless-stopped
     build:
       context: ./symfony
+      target: frankenphp_dev
+      args:
+        DATABASE_URL: mysql://${MYSQL_USER:-app}:${MYSQL_PASSWORD:-!ChangeMe!}@database:3306/${MYSQL_DATABASE:-app}?serverVersion=${MYSQL_VERSION:-8}&charset=${MYSQL_CHARSET:-utf8mb4}
+        MERCURE_URL: ${MERCURE_URL:-http://php/.well-known/mercure}
+        MERCURE_JWT_SECRET: ${MERCURE_JWT_SECRET:-!ChangeThisMercureHubJWTSecretKey!}
+        MERCURE_PUBLIC_URL: ${MERCURE_PUBLIC_URL:-https://${SERVER_NAME:-localhost}:${HTTPS_PORT:-80}/.well-known/mercure}
     environment:
       SERVER_NAME: ${SERVER_NAME:-localhost}, php:80
       MERCURE_PUBLISHER_JWT_KEY: ${MERCURE_JWT_SECRET:-!ChangeThisMercureHubJWTSecretKey!}
@@ -17,11 +23,17 @@ services:
       # The two next lines can be removed after initial installation
       SYMFONY_VERSION: ${SYMFONY_VERSION:-}
       STABILITY: ${STABILITY:-stable}
+      CADDY_GLOBAL_OPTIONS: "auto_https off"
+      FRANKENPHP_WORKER_CONFIG: ""
+      MERCURE_EXTRA_DIRECTIVES: demo
     volumes:
       - ./supervisord:/etc/supervisor
       - ./.env:/app/.env
       - caddy_data:/data
       - caddy_config:/config
+      - ./symfony:/app
+      - ./symfony/frankenphp/Caddyfile:/etc/frankenphp/Caddyfile:ro
+      - ./symfony/frankenphp/conf.d/20-app.dev.ini:/usr/local/etc/php/app.conf.d/20-app.dev.ini:ro
     ports:
       # HTTP
       - target: 80
@@ -35,6 +47,8 @@ services:
       - target: 443
         published: ${HTTP3_PORT:-443}
         protocol: udp
+    extra_hosts:
+      - host.docker.internal:host-gateway
 
   ###> doctrine/doctrine-bundle ###
   database:
@@ -54,6 +68,8 @@ services:
       #- database_data:/var/lib/mysql:rw
       # You may use a bind-mounted host directory instead, so that it is harder to accidentally remove the volume and lose all your data!
       - ./database:/var/lib/mysql:rw
+    ports:
+      - "3306"
 ###< doctrine/doctrine-bundle ###
 
   lolsauce-phpmyadmin: 
@@ -67,12 +83,14 @@ services:
       - database
 
   lolsauce-node:
+    ports:
+      - "5173:5173"
     environment:
       VITE_SERVER_NAME: ${SERVER_NAME:-localhost}
       VITE_MERCURE_PUBLIC_URL: ${MERCURE_PUBLIC_URL:-{SERVER_NAME:-localhost}:${HTTPS_PORT:-80}/.well-known/mercure}
     build:
       context: ./front
-      target: react_prod
+      target: react_dev
     volumes:
       - ./symfony/public/build:/app/dist
       - ./front:/app

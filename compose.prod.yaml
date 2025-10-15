@@ -14,6 +14,9 @@ services:
       APP_SECRET: ${APP_SECRET}
       MERCURE_PUBLISHER_JWT_KEY: ${MERCURE_JWT_SECRET}
       MERCURE_SUBSCRIBER_JWT_KEY: ${MERCURE_JWT_SECRET}
+  lolsauce-node:
+    build:
+      target: react_prod
   
   lolsauce-phpmyadmin:
     environment:
