@@ -4,10 +4,10 @@
 namespace App\Service;
 
 use App\Entity\Questions;
+use App\Service\enums\QuestionsTypes;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 use PharData;
-use QuestionsTypes;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Process\Exception\ProcessFailedException;
 use Symfony\Component\Process\Process;
