@@ -11,7 +11,11 @@
 }
 
 {$CADDY_EXTRA_CONFIG}
-# External HTTPS server
+
+:443 {
+    redir http://{host}{uri} permanent
+}
+
 {$SERVER_NAME:localhost} {
     log {
         {$CADDY_SERVER_LOG_OPTIONS}

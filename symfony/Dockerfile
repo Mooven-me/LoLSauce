@@ -10,7 +10,6 @@ FROM dunglas/frankenphp:1-php8.4 AS frankenphp_upstream
 
 # Base FrankenPHP image
 FROM frankenphp_upstream AS frankenphp_base
-ENV APP_ENV=prod
 
 WORKDIR /app
 
@@ -67,7 +66,7 @@ CMD [ "frankenphp", "run", "--config", "/etc/frankenphp/Caddyfile" ]
 FROM frankenphp_base AS frankenphp_dev
 
 ENV APP_ENV=dev
-ENV XDEBUG_MODE=off
+ENV XDEBUG_MODE=debug,develop,coverage
 ENV FRANKENPHP_WORKER_CONFIG=watch
 
 RUN mv "$PHP_INI_DIR/php.ini-development" "$PHP_INI_DIR/php.ini"
@@ -89,9 +88,9 @@ CMD [ "frankenphp", "run", "--config", "/etc/frankenphp/Caddyfile", "--watch" ]
 # Prod FrankenPHP image
 FROM frankenphp_base AS frankenphp_prod
 
+ENV APP_ENV=prod
+ENV XDEBUG_MODE=off
 RUN mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini"
-
-COPY --link ./.env.prod ./.env.prod
 
 COPY --link ./frankenphp/conf.d/20-app.prod.ini $PHP_INI_DIR/app.conf.d/
 
