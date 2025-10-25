@@ -11,7 +11,16 @@ services:
   lolsauce-node:
     build:
       target: react_prod
+    env_file:
+      - .env
+      - .env.prod
   
   lolsauce-phpmyadmin:
-    environment:
-      MYSQL_RANDOM_ROOT_PASSWORD: "true"
+    env_file:
+      - .env
+      - .env.prod
+
+  database:
+    env_file:
+      - .env
+      - .env.prod

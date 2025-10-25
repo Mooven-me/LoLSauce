@@ -12,10 +12,6 @@
 
 {$CADDY_EXTRA_CONFIG}
 
-:443 {
-    redir http://{host}{uri} permanent
-}
-
 {$SERVER_NAME:localhost} {
     log {
         {$CADDY_SERVER_LOG_OPTIONS}
@@ -57,6 +53,11 @@
     
     # Disable Topics tracking if not enabled explicitly: https://github.com/jkarlin/topics
     header ?Permissions-Policy "browsing-topics=()"
+
+    @fonts {
+		path *.woff *.woff2 *.ttf *.eot
+	}
+	header @fonts Access-Control-Allow-Origin *
     
     @phpRoute {
         not path /.well-known/mercure*

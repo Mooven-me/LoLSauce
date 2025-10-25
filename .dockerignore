@@ -3,7 +3,6 @@ compose*.yaml
 *.md
 .git/
 front/node_modules/
-/deployToAzure.sh
 #symfony part
 symfony/public/
 symfony/config/secrets/prod/prod.decrypt.private.php

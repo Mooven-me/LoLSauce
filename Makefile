@@ -9,10 +9,10 @@ start: copy-env
 	docker compose $(COMPOSE_FILES) up
 
 start-prod: copy-env
-	docker compose $(COMPOSE_PROD_FILES) up
+	docker compose --env-file .env --env-file .env.prod $(COMPOSE_PROD_FILES) up
 
 build-prod: copy-env
-	docker compose $(COMPOSE_PROD_FILES) build
+	docker compose --env-file .env --env-file .env.prod $(COMPOSE_PROD_FILES) build
 
 build: copy-env
 	docker compose $(COMPOSE_FILES) build
@@ -22,7 +22,7 @@ build-start-prod: build-prod start-prod
 build-start: build start
 
 reset-database:
-	rm -rf ./database/*
+	sudo rm -rf ./database/*
 
 stop:
 	docker compose $(COMPOSE_FILES) down || true
