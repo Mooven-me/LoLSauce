@@ -6,6 +6,8 @@ services:
     build:
       context: ./symfony
       target: frankenphp_dev
+    env_file:
+      - .env
     volumes:
       - ./supervisord:/etc/supervisor
       - ./.env:/app/.env
@@ -35,7 +37,7 @@ services:
     image: mysql:${MYSQL_VERSION:-8}
     environment:
       MYSQL_DATABASE: ${MYSQL_DATABASE:-app}
-      # You should definitely change the password in production
+      # You should definitely change the password in production in the .env.prod file 
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
       MYSQL_PASSWORD: ${MYSQL_PASSWORD:-!ChangeMe!}
       MYSQL_USER: ${MYSQL_USER:-app}
@@ -45,12 +47,10 @@ services:
       retries: 5
       start_period: 60s
     volumes:
-      #- database_data:/var/lib/mysql:rw
-      # You may use a bind-mounted host directory instead, so that it is harder to accidentally remove the volume and lose all your data!
       - ./database:/var/lib/mysql:rw
     ports:
       - "3306"
-###< doctrine/doctrine-bundle ###
+  ###< doctrine/doctrine-bundle ###
 
   lolsauce-phpmyadmin: 
     image: phpmyadmin
@@ -65,9 +65,6 @@ services:
   lolsauce-node:
     ports:
       - "5173:5173"
-    environment:
-      VITE_SERVER_NAME: ${SERVER_NAME:-localhost}
-      VITE_MERCURE_PUBLIC_URL: ${MERCURE_PUBLIC_URL:-{SERVER_NAME:-localhost}:${HTTPS_PORT:-80}/.well-known/mercure}
     build:
       context: ./front
       target: react_dev
@@ -82,8 +79,3 @@ services:
 volumes:
   caddy_data:
   caddy_config:
-###> symfony/mercure-bundle ###
-###< symfony/mercure-bundle ###
-
-###> doctrine/doctrine-bundle ###
-###< doctrine/doctrine-bundle ###

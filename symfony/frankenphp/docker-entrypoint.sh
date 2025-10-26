@@ -58,6 +58,10 @@ if [ "$1" = 'frankenphp' ] || [ "$1" = 'php' ] || [ "$1" = 'bin/console' ]; then
 	echo 'PHP app ready!'
 
 exec /usr/bin/supervisord -c /etc/supervisor/supervisord.conf &
+echo $SERVER_NAME
+echo $MERCURE_JWT_SECRET
+echo $MERCURE_SUBSCRIBER_JWT_KEY
+echo $MERCURE_PUBLISHER_JWT_KEY
 
 fi
 

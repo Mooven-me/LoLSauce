@@ -1,6 +1,7 @@
 COMPOSE_FILES := -f compose.yaml
 COMPOSE_PROD_FILES := -f compose.yaml -f compose.prod.yaml
 SYMFONY_DIR := ./symfony
+FRONT_DIR := ./front
 
 ###> Dev part
 
@@ -37,3 +38,4 @@ stop:
 
 copy-env:
 	@cp -vf .env* $(SYMFONY_DIR) 2>/dev/null
+	@cp -vf .env* $(FRONT_DIR) 2>/dev/null

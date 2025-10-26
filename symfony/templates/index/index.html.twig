@@ -4,7 +4,7 @@
     {% if app.environment == 'dev' %}
         {# Vite React Refresh - Development mode #}
         <script type="module">
-            import RefreshRuntime from 'http://{{ app.request.server.get('SERVER_NAME') }}:5173/@react-refresh'
+            import RefreshRuntime from 'http://{{ app.request.server.get('SERVER_NAME') }}:5173/build/@react-refresh'
             RefreshRuntime.injectIntoGlobalHook(window)
             window.$RefreshReg$ = () => {}
             window.$RefreshSig$ = () => (type) => type
@@ -18,8 +18,8 @@
     <div id="root"></div>
     {% if app.environment == 'dev' %}
         {# Development mode - load from Vite dev server #}
-        <script type="module" src="http://{{ app.request.server.get('SERVER_NAME') }}:5173/@vite/client"></script>
-        <script type="module" src="http://{{ app.request.server.get('SERVER_NAME') }}:5173/src/main.jsx"></script>
+        <script type="module" src="http://{{ app.request.server.get('SERVER_NAME') }}:5173/build/@vite/client"></script>
+        <script type="module" src="http://{{ app.request.server.get('SERVER_NAME') }}:5173/build/src/main.jsx"></script>
     {% else %}
         <script type="module" src="http://{{ app.request.server.get('SERVER_NAME') }}/build/index.js"></script>
     {% endif %}

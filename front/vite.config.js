@@ -34,6 +34,7 @@ export default defineConfig(({mode}) => {
       }
     }
   },
+  base: '/build/',
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src')

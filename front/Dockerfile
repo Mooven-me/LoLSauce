@@ -10,4 +10,4 @@ CMD ["npm", "run", "dev", "--", "--host"]
 
 FROM react_build AS react_prod
 
-CMD ["npm", "run", "build"]
+CMD ["npm", "run", "build-prod"]
