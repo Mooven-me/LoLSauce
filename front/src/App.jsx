@@ -23,7 +23,7 @@ function App() {
     <>
       <BrowserRouter>
         <div className='d-flex flex-column h-100'>
-          <Badge style={{position:'absolute', top:'10px', left:'10px'}} color='danger'>Beta</Badge>
+          <Badge style={{position:'absolute', top:'10px', left:'10px'}} color='danger'>Beta 0.1</Badge>
           <CustomNavbar {...{roomId}}/>
           <ToastContainer />
           <Routes>
