@@ -36,6 +36,16 @@ class QuestionsRepository extends ServiceEntityRepository
             return $query;
     }
 
+    public function countByType(string $type): int
+    {
+        return $this->createQueryBuilder('q')
+            ->select('COUNT(q)')
+            ->andWhere('q.type = :type')
+            ->setParameter('type', $type)
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
+
     public function findOneRandomly(){
 
         return $this->createQueryBuilder('q')

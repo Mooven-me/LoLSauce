@@ -213,13 +213,13 @@ class DataGenerator
     public function generateChampionPixelImages(){
 
         $targetFolder = $this->mainPath.'/assets/'.QuestionsTypes::pixel_image->value;
+        $questionsRepository = $this->em->getRepository(Questions::class);
 
-        // check if it is up to date
-        if($this->isVersionFileUpToDate($targetFolder)){
+        // check if it is up to date and not database empty
+        if($this->isVersionFileUpToDate($targetFolder) && $questionsRepository->countByType(QuestionsTypes::pixel_image->value) > 0){
             return;
         }
 
-        $questionsRepository = $this->em->getRepository(Questions::class);
         $questionsRepository->deleteByType(QuestionsTypes::pixel_image->value);
 
         $fullFilePath = $this->mainPath.'/dragontail-'.$this->getVersion();
@@ -266,13 +266,13 @@ class DataGenerator
     public function generateChampionSkins(){
 
         $targetFolder = $this->mainPath.'/assets/'.QuestionsTypes::skin_image->value;
+        $questionsRepository = $this->em->getRepository(Questions::class);
 
-        // check if it is up to date
-        if($this->isVersionFileUpToDate($targetFolder)){
+        // check if it is up to date and not database empty
+        if($this->isVersionFileUpToDate($targetFolder) && $questionsRepository->countByType(QuestionsTypes::skin_image->value) > 0){
             return;
         }
 
-        $questionsRepository = $this->em->getRepository(Questions::class);
         $questionsRepository->deleteByType(QuestionsTypes::skin_image->value);
 
         $fullFilePath = $this->mainPath.'/dragontail-'.$this->getVersion();
@@ -317,13 +317,13 @@ class DataGenerator
     public function generateChampionSpellsIcons(){
 
         $targetFolder = $this->mainPath.'/assets/'.QuestionsTypes::spell_image->value;
+        $questionsRepository = $this->em->getRepository(Questions::class);
 
-        // check if it is up to date
-        if($this->isVersionFileUpToDate($targetFolder)){
+        // check if it is up to date and not database empty
+        if($this->isVersionFileUpToDate($targetFolder) && $questionsRepository->countByType(QuestionsTypes::spell_image->value) > 0){
             return;
         }
 
-        $questionsRepository = $this->em->getRepository(Questions::class);
         $questionsRepository->deleteByType(QuestionsTypes::spell_image->value);
 
         $version = $this->getVersion();
@@ -382,15 +382,16 @@ class DataGenerator
 
         $targetFolder = $this->mainPath.'/assets/'.QuestionsTypes::passive_image->value;
 
-        // check if it is up to date
-        if($this->isVersionFileUpToDate($targetFolder)){
+        $questionsRepository = $this->em->getRepository(Questions::class);
+
+        // check if it is up to date and not database empty
+        if($this->isVersionFileUpToDate($targetFolder) && $questionsRepository->countByType(QuestionsTypes::passive_image->value) > 0){
             return;
         }
 
-        $version = $this->getVersion();
-
-        $questionsRepository = $this->em->getRepository(Questions::class);
         $questionsRepository->deleteByType(QuestionsTypes::passive_image->value);
+
+        $version = $this->getVersion();
 
         $fullFilePath = $this->mainPath.'/dragontail-'.$version;
 
