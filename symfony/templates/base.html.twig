@@ -9,9 +9,11 @@
         {% block head %}{% endblock %}
         
         {% block stylesheets %}
+            {{ vite_entry_link_tags('app') }}
         {% endblock %}
 
         {% block javascripts %}
+            {{ vite_entry_script_tags('app') }}
         {% endblock %}
     </head>
     <body>

@@ -3,6 +3,16 @@ COMPOSE_PROD_FILES := -f compose.yaml -f compose.prod.yaml
 SYMFONY_DIR := ./symfony
 FRONT_DIR := ./front
 
+ifeq ($(OS),Windows_NT)
+	SYMFONY_DIR_WIN := $(subst /,\,$(SYMFONY_DIR))
+	FRONT_DIR_WIN := $(subst /,\,$(FRONT_DIR))
+	COPY_ENV = cmd /C "copy /Y .env* $(SYMFONY_DIR_WIN) && copy /Y .env* $(FRONT_DIR_WIN)"
+	RESET_DB = DEL /S /Q .\database\*
+else
+	COPY_ENV = cp -vf .env* $(SYMFONY_DIR) 2>/dev/null && cp -vf .env* $(FRONT_DIR) 2>/dev/null
+	RESET_DB = sudo rm -rf ./database/*
+endif
+
 ###> Dev part
 
 start: copy-env
@@ -30,12 +40,11 @@ start-prod-bg: copy-env
 ###> Utils part
 
 reset-database:
-	sudo rm -rf ./database/*
+	@$(RESET_DB)
 
 stop:
 	docker compose $(COMPOSE_FILES) down || true
 	docker compose $(COMPOSE_PROD_FILES) down || true
 
 copy-env:
-	@cp -vf .env* $(SYMFONY_DIR) 2>/dev/null
-	@cp -vf .env* $(FRONT_DIR) 2>/dev/null
+	@$(COPY_ENV)
