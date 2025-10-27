@@ -11,5 +11,4 @@ return [
     Symfony\Bundle\SecurityBundle\SecurityBundle::class => ['all' => true],
     Lexik\Bundle\JWTAuthenticationBundle\LexikJWTAuthenticationBundle::class => ['all' => true],
     Intervention\Image\Symfony\InterventionImageBundle::class => ['all' => true],
-    Pentatrion\ViteBundle\PentatrionViteBundle::class => ['all' => true],
 ];
