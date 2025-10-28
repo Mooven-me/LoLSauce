@@ -79,8 +79,8 @@ export default function Main(props) {
                 <div className="flex-row-column align-self-center align-items-center gap-5 computer-600 h-25" style={{width:"40vw"}}>
                     <Card style={{padding:0, backgroundColor:"rgb(107, 114, 150)", width:"100%", minWidth:"180px"}}>
                         <CardBody className='flex-row-column'>
-                            <FormGroup className={"formulaire"}>
-                                <ButtonGroup vertical={size<682}>
+                            <FormGroup className="formulaire w-100">
+                                <ButtonGroup className="w-100" vertical={size<682}>
                                     <Button color="info" className='shadow-sm border-0' onClick={() =>handleNavigateToRoom()}>
                                         <b style={{color:"rgb(255, 255, 255)", textWrap:"nowrap"}}>Rejoindre</b>
                                     </Button>
@@ -100,8 +100,8 @@ export default function Main(props) {
                     </Card>
                     <Card style={{padding:0, backgroundColor:"rgb(107, 114, 150)", width:"100%", minWidth:"180px"}}>
                         <CardBody className='flex-row-column'>
-                            <FormGroup className={"formulaire"}>
-                                <ButtonGroup vertical={size<682}>
+                            <FormGroup className="formulaire w-100">
+                                <ButtonGroup className="w-100" vertical={size<682}>
                                     <LoadingButton color="info" className='shadow-sm border-0' onClick={createRoom} loading={loading==="create"}>
                                         <b style={{color:"rgb(255, 255, 255)", textWrap:"nowrap"}}>Créer</b>
                                     </LoadingButton>

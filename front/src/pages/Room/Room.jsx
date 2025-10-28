@@ -5,14 +5,15 @@ import { sendData } from '../../utils/utils';
 import { useParams, useNavigate } from 'react-router-dom';
 import MiddleScene from './MiddleScene/MiddleScene.jsx';
 import LoadingButton from '../../utils/LoadingButton.jsx';
+import Chat from './Chat/Chat.jsx';
 
 export default function Room(props) {
   let params = useParams()
   let navigate = useNavigate();
   const eventSourceRef = React.useRef(null);
   const [isGameStarted, setIsGameStarted] = React.useState(false);
-  const usersRef = React.useRef([]); // Add this ref to avoid problems bro
-  const userIdRef = React.useRef(null); // Add this ref to handle disconnected users
+  const usersRef = React.useRef([]);
+  const userIdRef = React.useRef(null);
   const [users, _setUsers] = React.useState([]);
   const [showModal, setShowModal] = React.useState(false)
   const [usernameError, setUsernameError] = React.useState(false)
@@ -20,6 +21,13 @@ export default function Room(props) {
   const dataRef = React.useRef({})
   const [startGameLoading, setStartGameLoading] = React.useState(false);
   const [userFoundAnswer, setUserFoundAnswer] = React.useState(false)
+  const messagesRef = React.useRef([]);
+  const [messages, _setMessages] = React.useState([]);
+
+  const setMessages = (messages) => {
+    messagesRef.current = messages;
+    _setMessages(messages);
+  }
 
   const setData = (data) => {
     dataRef.current = data;
@@ -104,8 +112,20 @@ export default function Room(props) {
     setUserFoundAnswer(false)
   }
 
+  const handleUserMessage = (message) => {
+    setMessages([...messagesRef.current, 
+      {
+        "message":message.message,
+        "user_id":message.user_id
+      }
+    ])
+  }
+
   const handleDispatcher = (data) => {
     switch (data.type) {
+      case "userMessage":
+        handleUserMessage(data);
+        break;
       case "usersUpdate":
         handleUsersUpdate(data)
         break;
@@ -121,6 +141,8 @@ export default function Room(props) {
         break;
       case "success":
         let time = data.time.s + data.time.f
+        console.log("time 1 : " + data.time.s)
+        console.log("time 2 : " + data.time.f)
         setUsers(usersRef.current.map(user => 
             user.user_id === data.user_id 
                 ? { 
@@ -132,8 +154,6 @@ export default function Room(props) {
                 }
                 : user
         ))
-        console.log("user_id",data.user_id)
-        console.log("userId",userIdRef.current)
         if(data.user_id === userIdRef.current){
           setUserFoundAnswer(true)
         }
@@ -177,16 +197,11 @@ export default function Room(props) {
       setShowModal(false);
       setUsers(data.users);
       props.setUserId(data.user_id);
-      console.log("icicicicicicicicici",data.user_id)
       props.setRoomId(data.room_id);
       props.setUsername(data.username);
     })
 
   };
-
-  React.useEffect(() => {
-    console.log("user Id a change : ", props.userId)
-  },[props.userId])
 
   return (
     <>
@@ -214,7 +229,7 @@ export default function Room(props) {
         </Form>
       </Modal>
 
-      <div className='d-flex flex-row border border-info h-100'>
+      <div className='d-flex flex-row border border-info h-100' style={{maxHeight: "calc(100% - 24px)"}}>
         <div className="d-flex flex-column w-100 h-100 justify-content-center">
           {isGameStarted ?
             <>
@@ -232,6 +247,7 @@ export default function Room(props) {
           }
         </div>
         <RoomPlayerMenu users={users} />
+        <Chat messages={messages} userId={props.userId} users={users}/>
       </div>
     </>
   );

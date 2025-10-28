@@ -5,7 +5,7 @@ export function RoomPlayerMenu(props) {
 
     const handleRenderUsers = () => {
         props.users.sort(function(x,y){
-            if(x.score > y.score){
+            if(x.score >= y.score){
                 return -1
             }else{
                 return 1

@@ -26,11 +26,17 @@ use function PHPSTORM_META\map;
 final class PartyController extends AbstractController
 {
     private PusherNotificationHandler $questionHandler;
+    private EntityManagerInterface $em;
+    private HubInterface $hub;
 
     public function __construct(
         PusherNotificationHandler $questionHandler,
+        EntityManagerInterface $em,
+        HubInterface $hub
     ){
         $this->questionHandler = $questionHandler;
+        $this->em = $em;
+        $this->hub = $hub;
     }
 
     #[Route('/create_room', name: 'app_party')]
@@ -248,6 +254,38 @@ final class PartyController extends AbstractController
                 array(
                         'type' => 'usersUpdate',
                         'users' => $room->getFormattedUsers()
+                    )
+                )
+        );
+        $hub->publish($update);
+
+        return new JsonResponse(array('error' => 0), 200);
+    }
+
+    #[Route('/sendMessage', name: 'send_message', methods: ['POST'])]
+    public function sendMessage(Request $request, HubInterface $hub){
+        $data = json_decode($request->getContent(), true);
+
+        $userId = $data['user_id']??null;
+        $message = $data['message']??null;
+
+        $user = $this->em->getRepository(User::class)->findOneById($userId);
+
+        if(!$userId){
+            return new JsonResponse(['error' => '1',  'error_message' => 'user_id is required'], 400);
+        }
+
+        if(!$message){
+            return new JsonResponse(['error' => '1',  'error_message' => 'message is required'], 400);
+        }
+
+        $update = new Update(
+            topics: 'https://subrscribed.channel/'.$user->getRoom()->getId().'/room',
+            data: json_encode(
+                array(
+                        'type' => 'userMessage',
+                        'user_id' => $userId,
+                        'message' => $message,
                     )
                 )
         );
