@@ -205,6 +205,7 @@ final class PartyController extends AbstractController
             'user_id'   => $user->getId(),
             'username'  => $username,
             'users'     =>  $room->getFormattedUsers(),
+            'gameStarted'   => !empty($room->getCurrentQuestion())
         );
 
         return new JsonResponse(array('error' => 0, 'data' => $result), 200);

@@ -26,6 +26,12 @@ export default function MiddleScene(props) {
                     </div>
                 </div>
                 break;
+            default:
+                result = 
+                <em>
+                    ça arrive ...
+                </em>
+                break;
         }
         return result
     }

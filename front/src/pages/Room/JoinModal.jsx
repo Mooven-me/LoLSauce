@@ -5,6 +5,7 @@ import React from "react";
 import { setRoomId, setUsers } from "../../store/roomSlice";
 import { sendData } from "../../utils/utils";
 import { useParams } from "react-router-dom";
+import { start } from "../../store/gameSlice";
 
 export default function JoinModal() {
 
@@ -31,6 +32,10 @@ export default function JoinModal() {
                 dispatch(setUsername(usernameRef.current))
                 dispatch(setAuth({userId: data.user_id, username: data.username}))
                 dispatch(setRoomId(data.room_id))
+                console.log(data)
+                if(data.gameStarted){
+                    dispatch(start())
+                }
             })
         }
     }
