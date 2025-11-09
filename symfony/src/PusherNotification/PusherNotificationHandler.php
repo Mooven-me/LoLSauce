@@ -7,6 +7,7 @@ use App\Entity\Room;
 use DateInterval;
 use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
+use Exception;
 use Symfony\Component\Mercure\HubInterface;
 use Symfony\Component\Mercure\Update;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
@@ -115,6 +116,10 @@ class PusherNotificationHandler{
             $questionRepository = $this->entityManager->getRepository(Questions::class);
 
             $question = $questionRepository->findOneRandomEqualy();
+
+            if($question === null){
+                throw new Exception("Database empty");
+            }
 
             $room->setCurrentQuestion($question);
             $this->entityManager->flush();

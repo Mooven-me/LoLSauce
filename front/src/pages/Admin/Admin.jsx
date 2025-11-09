@@ -1,24 +1,19 @@
-import { Button, Col } from "reactstrap";
+import { Col } from "reactstrap";
 import { sendData } from "../../utils/utils";
 import LoadingButton from "../../utils/LoadingButton";
-import React from "react";
 
 export default function Admin(props) {
 
-    const [loading, setLoading] = React.useState()
-
-    const handleDataGeneration = () => {
-        setLoading(true)
-        sendData({route:'/generateData'}).then((data) => {
-            setLoading(false)
+    const handleDataGeneration = async () => {
+        await sendData({route:'/generateData'}).then((data) => {
             console.log(data)
             console.log("fin du webserv")
         })
     }
 
     return(
-        <Col className="justify-content-center d-flex align-items-center">
-            <LoadingButton size='lg' onClick={handleDataGeneration} loading={loading}> générer les données</LoadingButton>
+        <Col className="justify-content-center d-flex align-items-center h-100">
+            <LoadingButton size='lg' onClick={handleDataGeneration}> générer les données</LoadingButton>
         </Col>
     )
 }

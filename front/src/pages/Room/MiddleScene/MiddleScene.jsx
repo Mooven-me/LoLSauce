@@ -1,21 +1,18 @@
 import React from 'react'
 import QuestionDispatcher from './Questions/QuestionDispatcher';
 import { Card } from 'reactstrap';
+import { useSelector } from 'react-redux';
 
 export default function MiddleScene(props) {
 
-    const [data, setData] = React.useState(false);
-
-    React.useEffect(() => {
-        setData(props.data);
-    }, [props.data])
+    const questionData  = useSelector((state) => state.game.questionData)
 
     const handleRenderScene = () => {
         let result
-        switch(data.type){
+        switch(questionData.type){
             case 'question':
                 console.log("%MiddleSCene : handleRenderScene")
-                result = <QuestionDispatcher {...props} data={data.question} />
+                result = <QuestionDispatcher data={questionData.question} />
                 break;
             case 'answer':
                 result = 
@@ -23,7 +20,7 @@ export default function MiddleScene(props) {
                     <div className="mx-auto" style={{width:"fit-content"}}>
                         <Card className="gap-4 align-items-center" style={{backgroundColor:"rgb(74, 81, 117)", color:"white", fontWeight: "bold"}}>
                             <div className="fs-2">
-                                {data.answer}
+                                {questionData.answer}
                             </div>
                         </Card>
                     </div>
@@ -34,6 +31,6 @@ export default function MiddleScene(props) {
     }
 
     return (
-        handleRenderScene(props.data)
+        handleRenderScene()
     )
 }

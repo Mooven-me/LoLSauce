@@ -1,52 +1,48 @@
 import React from 'react';
 import { Button, ButtonGroup, Card, CardBody, Fade, FormFeedback, FormGroup, Input, Navbar } from 'reactstrap';
-import { useNavigate } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import { useNavigate, useParams } from 'react-router-dom';
 import { sendData } from '../utils/utils';
 import LoadingButton from '../utils/LoadingButton';
+import { setIsLeader, setRoomId, setUsers } from '../store/roomSlice';
+import { setAuth, setUsername } from '../store/authSlice';
 
 export default function Main(props) {
     const navigate = useNavigate();
     const [usernameError, setUsernameError] = React.useState(false);
     const [joinRoomError, setJoinRoomError] = React.useState(false);
     const [size, setSize] = React.useState(window.innerWidth);
-    const [loading, setLoading] = React.useState(null);
-    const roomId = React.useRef(null);
+    const usernameRef = React.useRef(null);
+    const roomId = React.useRef(null)
 
-    //permet quand quand on est dans une game et qu'on fait retour, le RoomId est vidé
+    const dispatch = useDispatch();
+
     React.useEffect(() =>{
-        props.setRoomId(null)
-        props.setUsername(null)
+        dispatch(setUsername(""));
         window.addEventListener('resize', () => {
             setSize(window.innerWidth)
         })
-
         return () => {
             removeEventListener('resize', window)
         }
     },[])
     
-    const createRoom = () => {
-        if(!loading){
-            if(!props.username || props.username.trim() === ""){
-                setUsernameError(true);
-                return;
-            } else {
-                setLoading('create')
-                setUsernameError(false);
-                sendData({route: '/create_room', method: "POST", data: {"username": props.username}}).then((data) => {
-                    console.log(data)
-                    navigate('/'+data.room_id)
-                    props.setUserId(data.user_id)
-                    props.setRoomId(data.room_id)
-                    props.setIsLeader(true)
-                    setLoading(null)
-                })
-            }
+    const createRoom = async () => {
+        if(!usernameError){
+            await sendData({route: '/create_room', method: "POST", data: {"username": usernameRef.current}}).then((data) => {
+                dispatch(setIsLeader(true));
+                dispatch(setRoomId(data.room_id));
+                dispatch(setUsers([{user_id:data.user_id, username: usernameRef.current, is_leader:true}]));
+                dispatch(setAuth({
+                    userId: data.user_id,
+                    username: usernameRef.current
+                }));
+                navigate('/'+data.room_id)
+            })
         }
     }
 
     const handleNavigateToRoom =() => {
-        console.log(roomId)
         if(!roomId.current){
             setJoinRoomError(true)
         }else{
@@ -56,7 +52,7 @@ export default function Main(props) {
 
     const handleUsernameChange = (e) => {
         if(e.target.value.length <=15){
-            props.setUsername(() => e.target.value);
+            usernameRef.current = e.target.value
             if(usernameError && e.target.value.trim() !== "") {
                 setUsernameError(false);
             }
@@ -65,11 +61,11 @@ export default function Main(props) {
     
     return (
     <>
-        <div className='d-flex flex-column h-100 align-items-center'>
-            <Navbar dark fixed={"top"} className='align-items-end'>
+        <div className='d-flex flex-column h-100 align-items-center '>
+            <Navbar fixed={"top"} className='align-items-end'>
                 <div className='w-100 d-flex justify-content-end gap-3'>
-                    <Button onClick={() => navigate('/register')}>Inscription</Button>
-                    <Button onClick={() => navigate('/login')}>Connexion</Button>
+                    <Button className='shadow' onClick={() => navigate('/register')}>Inscription</Button>
+                    <Button className='shadow' onClick={() => navigate('/login')}>Connexion</Button>
                 </div>
             </Navbar>
             <div className='' style={{fontSize: "10vw", marginTop:"50px"}}>
@@ -81,18 +77,17 @@ export default function Main(props) {
                         <CardBody className='flex-row-column'>
                             <FormGroup className="formulaire w-100">
                                 <ButtonGroup className="w-100" vertical={size<682}>
-                                    <Button color="info" className='shadow-sm border-0' onClick={() =>handleNavigateToRoom()}>
+                                    <Button color="info" className='shadow border-0' onClick={() =>handleNavigateToRoom()}>
                                         <b style={{color:"rgb(255, 255, 255)", textWrap:"nowrap"}}>Rejoindre</b>
                                     </Button>
                                     <Input 
-                                        className='shadow-sm arrondi-gauche'
-                                        onChange={(e) => {
-                                            roomId.current = e.target.value
-                                        }}
+                                        className='shadow- arrondi-gauche'
+                                        onChange={(e) => {roomId.current = e.target.value}}
                                         type={"number"}
                                         onKeyUpCapture={(e) => e.key === 'Enter' && handleNavigateToRoom()} 
                                         placeholder='Code de la salle'
                                         invalid={joinRoomError}
+                                        min={"0"}
                                     />
                                 </ButtonGroup>
                             </FormGroup>
@@ -102,11 +97,11 @@ export default function Main(props) {
                         <CardBody className='flex-row-column'>
                             <FormGroup className="formulaire w-100">
                                 <ButtonGroup className="w-100" vertical={size<682}>
-                                    <LoadingButton color="info" className='shadow-sm border-0' onClick={createRoom} loading={loading==="create"}>
+                                    <LoadingButton color="info" className='shadow border-0' onClick={createRoom}>
                                         <b style={{color:"rgb(255, 255, 255)", textWrap:"nowrap"}}>Créer</b>
                                     </LoadingButton>
                                     <Input 
-                                        className='shadow-sm arrondi-gauche'
+                                        className='shadow arrondi-gauche'
                                         placeholder='Pseudo' 
                                         onKeyUpCapture={(e) => e.key === 'Enter' && createRoom()} 
                                         onChange={(e) => handleUsernameChange(e)}

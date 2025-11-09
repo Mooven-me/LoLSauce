@@ -2,26 +2,30 @@ import { Card, Input } from "reactstrap";
 import PixelQuestion from "./PixelQuestion";
 import React from "react";
 import { sendData } from "../../../../utils/utils";
+import { useSelector } from "react-redux";
 
 
 export default function QuestionDispatcher(props) {
 
     const [time, setTime] = React.useState(15)
     const [inputValue, setInputValue] = React.useState()
+    const foundAnswer  = useSelector((state) => state.game.foundAnswer)
+    const userId  = useSelector((state) => state.auth.userId)
 
     React.useEffect(() => {
-            const interval = setInterval(() => {
-                setTime(prevIndex => {
-                    return prevIndex -=1;
-                });
-            }, 1000); 
-            
-            // Cleanup interval on component unmount
-            return () => clearInterval(interval)
-        }, []);
+        const interval = setInterval(() => {
+            setTime(prevIndex => {
+                return prevIndex -=1;
+            });
+        }, 1000); 
+        
+        // Cleanup interval on component unmount
+        return () => clearInterval(interval)
+    }, []);
 
-    const handleQuestionDispatch = (data) => {
+    const handleQuestionDispatch = React.useMemo(() => {
         let result;
+        let data = props.data
         switch(data.type){
             case "spell_image":
             case "passive_image":
@@ -48,13 +52,14 @@ export default function QuestionDispatcher(props) {
                 </div>
                 break;
         }
+
         return result
-    }
+    },[props.data])
 
     const handleAnswerSending = () => {
         if(inputValue.trim()){
             let data = {
-                'user_id': props.userId,
+                'user_id': userId,
                 'word': inputValue.trim()
             }
             setInputValue('')
@@ -71,20 +76,17 @@ export default function QuestionDispatcher(props) {
                         <div className="fs-2">
                             {props.data.title}
                         </div>
-                        {handleQuestionDispatch(props.data)}
+                        {handleQuestionDispatch}
                     </Card>
                 </div>
             </div>
             <div className="my-5 align-self-center" style={{width:"300px"}}>
-                {!props.userFoundAnswer &&
+                {!foundAnswer &&
                     <Input 
                         style={{textAlign: 'center'}} 
                         autoFocus 
                         value={inputValue}
-                        onChange={(e) => {
-                            setInputValue(e.target.value) 
-                            console.log(e.target.value)
-                        }}
+                        onChange={(e) => {setInputValue(e.target.value)}}
                         onKeyUpCapture={(e) => e.key === 'Enter' && handleAnswerSending()} 
                     />
                 }

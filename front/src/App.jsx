@@ -11,43 +11,27 @@ import { ToastContainer } from 'react-toastify';
 import {
     Badge
 } from 'reactstrap'
+import { useSelector } from 'react-redux';
 
 function App() {
 
-  const [userId, setUserId] = React.useState(null)
-  const [username, setUsername] = React.useState(null)
-  const [roomId, setRoomId] = React.useState(null)
-  const [isLeader, setIsLeader] = React.useState(false)
+  const roomId = useSelector((state) => state.room.roomId);
 
   return (
     <>
       <BrowserRouter>
         <div className='d-flex flex-column h-100'>
           <Badge style={{position:'absolute', top:'10px', left:'10px'}} color='danger'>Beta 0.1</Badge>
-          <CustomNavbar {...{roomId}}/>
           <ToastContainer />
-          <Routes>
-            <Route 
-              path="/"
-              element={<Main {...{userId, setUserId, roomId, setRoomId, isLeader, setIsLeader, username, setUsername}} />}
-            />
-            <Route 
-              path="/register"
-              element={<Register {...{userId, setUserId, roomId, setRoomId, isLeader, setIsLeader, username, setUsername}} />}
-            />
-             <Route 
-              path="/login"
-              element={<Login {...{userId, setUserId, roomId, setRoomId, isLeader, setIsLeader, username, setUsername}} />}
-            />
-            <Route 
-              path="/:room_id"
-              element={<Room {...{userId, setUserId, roomId, setRoomId, isLeader, setIsLeader, username, setUsername}} />}
-            />
-            <Route 
-              path="/admin"
-              element={<Admin />}
-            />
-          </Routes>
+            <div className='flex-grow-1 h-100'>
+              <Routes>
+              <Route path="/" element={<Main />} />
+              <Route path="/register" element={<Register />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/:room_id" element={<Room />} />
+              <Route path="/admin" element={<Admin />} />
+            </Routes>
+          </div>
         </div>
       </BrowserRouter>
     </>

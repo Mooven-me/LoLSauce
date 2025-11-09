@@ -23,6 +23,11 @@ export const sendData = async ({route = "/", data = {}, method="POST", isFileDow
             logout();
             return { error: true, error_message: "Votre session à expiré" };
         }
+
+        if(response.status === 500){
+            let result = await response.json()
+            throw new Error(result.detail)
+        }
         
         // Handle file download
         if (isFileDownload) {
@@ -73,10 +78,8 @@ export const sendData = async ({route = "/", data = {}, method="POST", isFileDow
         return result.data;
         
     } catch (error) {
-        console.error('Request failed:', error);
-        const errorResult = { error: true, error_message: "Network error" };
-        showErrorNotification(errorResult.error_message);
-        return errorResult;
+        showErrorNotification(error.message);
+        return { error: true, error_message: error };;
     }
 }
 

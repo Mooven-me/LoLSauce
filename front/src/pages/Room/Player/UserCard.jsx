@@ -16,7 +16,7 @@ export default function UserCard(props) {
             <div className='position-absolute' style={{top:"1.90em", fontSize:"1rem", backgroundColor:"black", borderRadius:"0.1rem", lineHeight:"1", paddingInline:"2px"}}>{props.user.score}</div>
             <i className="bi bi-person-circle" style={{color:(props.user.is_leader?"Khaki":"lightblue")}}></i>
             <div className='text-start w-100'>
-                <div className='text-truncate w-100' id={"name_"+props.index} style={{fontSize:"0.55em",fontWeight:"800"}}>
+                <div className='text-truncate w-100' id={"name_"+props.index} style={{fontSize:"0.55em",fontWeight:props.isCurrentUser?"900":"500"}}>
                     {props.user.username}
                 </div>
                 <div style={{fontSize:"0.55em", fontStyle:"italic"}}>
