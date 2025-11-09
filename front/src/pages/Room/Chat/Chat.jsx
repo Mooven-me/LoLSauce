@@ -38,7 +38,7 @@ const renderMessages = React.useMemo(() => {
       className='d-flex flex-column h-100'
       style={{
         minWidth:"150px",
-        backgroundColor: "rgba(34, 37, 61, 1)",
+        backgroundColor: "rgba(34, 37, 61, 0.8)",
         width:"25vw",
         border: "2px solid #444"
       }}

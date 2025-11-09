@@ -5,6 +5,7 @@ import React from 'react';
 function LoadingButton({
     loadingColor = 'primary',
     className = '',
+    forceLoading = false,
     ...props    
 }) {
 
@@ -19,16 +20,14 @@ function LoadingButton({
 
     const newClassName = className + " d-flex gap-2"
 
-    console.log(newClassName)
-
     return (
-        <Button {...props} onClick={handleOnClick} className={newClassName} disabled={loading}>
-            {!loading?
-            <Fade appear={false} in={!loading}>
+        <Button {...props} onClick={handleOnClick} className={newClassName} disabled={loading || forceLoading}>
+            {(!loading && !forceLoading)?
+            <Fade appear={false} in={!loading && !forceLoading}>
                 {props.children}
             </Fade>
             :
-            <Fade in={loading} >
+            <Fade in={loading || forceLoading} >
                 <Spinner color={loadingColor} size={'sm'}/>
             </Fade>
         }
@@ -40,6 +39,7 @@ LoadingButton.propTypes = {
     loadingColor: PropTypes.string,
     className: PropTypes.string,
     onClick: PropTypes.func,
+    forceLoading: PropTypes.bool
 }
 
 export default LoadingButton

@@ -20,6 +20,9 @@ export default defineConfig(({mode}) => {
       origin: env.VITE_SERVER_NAME,
       credentials: true,
     },
+    watch: {
+      usePolling: true,
+    }
   },
   build: {
     outDir: 'dist',

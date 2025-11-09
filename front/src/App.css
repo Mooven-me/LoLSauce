@@ -83,3 +83,29 @@
 h5 {
   color: white !important
 }
+
+.animated-background {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  transform: rotate(25deg);
+  background-image: 
+    linear-gradient(rgba(11, 0, 70, 0.808), rgba(11, 0, 70, 0.808)),
+    url('./assets/background.png');
+  background-size: 1536px 906px;
+  width: 220%;
+  height: 220%; 
+  top: -60%;
+  left: -60%;
+  background-repeat: repeat;
+  animation: scroll-diag 60s linear infinite;
+}
+
+@keyframes scroll-diag {
+  from {
+    background-position: 0 0;
+  }
+  to {
+    background-position: 1536px 906px
+  }
+}

@@ -2,8 +2,6 @@ import './App.css'
 import Room from './pages/Room/Room'
 import {BrowserRouter, Route, Routes} from 'react-router';
 import Main from './pages/Main';
-import CustomNavbar from './utils/CustomNavbar';
-import React from 'react';
 import Login from './pages/Login/Login';
 import Register from './pages/Register/Register';
 import Admin from './pages/Admin/Admin';
@@ -15,11 +13,10 @@ import { useSelector } from 'react-redux';
 
 function App() {
 
-  const roomId = useSelector((state) => state.room.roomId);
-
   return (
     <>
       <BrowserRouter>
+        <div className='animated-background'/>
         <div className='d-flex flex-column h-100'>
           <Badge style={{position:'absolute', top:'10px', left:'10px'}} color='danger'>Beta 0.1</Badge>
           <ToastContainer />

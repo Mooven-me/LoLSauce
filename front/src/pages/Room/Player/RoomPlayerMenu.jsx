@@ -22,7 +22,7 @@ export function RoomPlayerMenu(props) {
     }
 
     return (
-        <div className="d-flex flex-column align-items-start gap-2 p-1 overflow-y-scroll overflow-x-hidden h-100" style={{backgroundColor:"rgb(41, 45, 70)", width:"30vw", minWidth:"150px", maxWidth:"300px"}}>
+        <div className="d-flex flex-column align-items-start gap-2 p-1 overflow-y-scroll overflow-x-hidden h-100" style={{backgroundColor:"rgba(41, 45, 70, 0.8)", width:"30vw", minWidth:"150px", maxWidth:"300px"}}>
             {handleRenderUsers()}
         </div>
     )

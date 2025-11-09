@@ -11,9 +11,10 @@ export default function Main(props) {
     const navigate = useNavigate();
     const [usernameError, setUsernameError] = React.useState(false);
     const [joinRoomError, setJoinRoomError] = React.useState(false);
+    const [roomCreationLoading, setRoomCreationLoading] = React.useState(false);
     const [size, setSize] = React.useState(window.innerWidth);
-    const usernameRef = React.useRef(null);
-    const roomId = React.useRef(null)
+    const usernameRef = React.useRef("");
+    const roomId = React.useRef("")
 
     const dispatch = useDispatch();
 
@@ -28,8 +29,10 @@ export default function Main(props) {
     },[])
     
     const createRoom = async () => {
-        if(!usernameError){
+        if(!usernameError && usernameRef.current.trim() !== ""){
+            setRoomCreationLoading(true)
             await sendData({route: '/create_room', method: "POST", data: {"username": usernameRef.current}}).then((data) => {
+                setRoomCreationLoading(false)
                 dispatch(setIsLeader(true));
                 dispatch(setRoomId(data.room_id));
                 dispatch(setUsers([{user_id:data.user_id, username: usernameRef.current, is_leader:true}]));
@@ -39,6 +42,9 @@ export default function Main(props) {
                 }));
                 navigate('/'+data.room_id)
             })
+        }else{
+            console.log("erreur")
+            setUsernameError(true)
         }
     }
 
@@ -53,8 +59,10 @@ export default function Main(props) {
     const handleUsernameChange = (e) => {
         if(e.target.value.length <=15){
             usernameRef.current = e.target.value
-            if(usernameError && e.target.value.trim() !== "") {
+            if(usernameError || e.target.value.trim() !== "") {
                 setUsernameError(false);
+            }else{
+                setUsernameError(true)
             }
         }
     }
@@ -97,7 +105,7 @@ export default function Main(props) {
                         <CardBody className='flex-row-column'>
                             <FormGroup className="formulaire w-100">
                                 <ButtonGroup className="w-100" vertical={size<682}>
-                                    <LoadingButton color="info" className='shadow border-0' onClick={createRoom}>
+                                    <LoadingButton color="info" className='shadow border-0' onClick={createRoom} forceLoading={roomCreationLoading}>
                                         <b style={{color:"rgb(255, 255, 255)", textWrap:"nowrap"}}>Créer</b>
                                     </LoadingButton>
                                     <Input 
