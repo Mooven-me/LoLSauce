@@ -28,15 +28,18 @@ final class PartyController extends AbstractController
     private PusherNotificationHandler $questionHandler;
     private EntityManagerInterface $em;
     private HubInterface $hub;
+    private MessageBusInterface $bus;
 
     public function __construct(
         PusherNotificationHandler $questionHandler,
         EntityManagerInterface $em,
-        HubInterface $hub
+        HubInterface $hub,
+        MessageBusInterface $bus
     ){
         $this->questionHandler = $questionHandler;
         $this->em = $em;
         $this->hub = $hub;
+        $this->bus = $bus;
     }
 
     #[Route('/create_room', name: 'app_party')]
@@ -103,10 +106,30 @@ final class PartyController extends AbstractController
             $room->addCorrectAnswerUser($user);
             $em->flush();
 
+            $allUsersFound = count($room->getCorrrectAnswerUsers()) === count($room->getUsers()) && count($room->getCorrrectAnswerUsers()) > 0;
+
+            if($allUsersFound){
+                $answer = $question->getAnswer();
+                
+                $result = [
+                    'type' => 'answer',
+                    'answer' => $answer,
+                    'question_id' => $question->getId() 
+                ];
+                
+                $this->bus->dispatch(
+                    new PusherNotification(
+                        $roomId, 
+                        $result, 
+                        'create_question'
+                    )
+                );
+            }
+
             $currentDate = new DateTime();
 
             $update = new Update(
-                'https://subrscribed.channel/'.$roomId.'/room',
+                'https://subscribed.channel/'.$roomId.'/room',
                 json_encode([
                     'type' => 'success',
                     'user_id' => $userId,
@@ -116,7 +139,7 @@ final class PartyController extends AbstractController
             );
         }else{
             $update = new Update(
-            topics: 'https://subrscribed.channel/'.$roomId.'/room',
+            topics: 'https://subscribed.channel/'.$roomId.'/room',
             data: json_encode([
                     'type' => 'try',
                     'user_id' => $userId,
@@ -151,7 +174,7 @@ final class PartyController extends AbstractController
         $this->questionHandler->handleCreateQuestion($roomId);
 
         $update = new Update(
-            topics: 'https://subrscribed.channel/'.$roomId.'/room',
+            topics: 'https://subscribed.channel/'.$roomId.'/room',
             data: json_encode(['type' => 'start'])
         );
         $hub->publish($update);
@@ -190,7 +213,7 @@ final class PartyController extends AbstractController
         $em->flush();
 
         $update = new Update(
-            topics: 'https://subrscribed.channel/'.$room->getId().'/room',
+            topics: 'https://subscribed.channel/'.$room->getId().'/room',
             data: json_encode(
                 array(
                     'type' => 'usersUpdate',
@@ -250,7 +273,7 @@ final class PartyController extends AbstractController
         $em->flush();
 
         $update = new Update(
-            topics: 'https://subrscribed.channel/'.$room->getId().'/room',
+            topics: 'https://subscribed.channel/'.$room->getId().'/room',
             data: json_encode(
                 array(
                         'type' => 'usersUpdate',
@@ -281,7 +304,7 @@ final class PartyController extends AbstractController
         }
 
         $update = new Update(
-            topics: 'https://subrscribed.channel/'.$user->getRoom()->getId().'/room',
+            topics: 'https://subscribed.channel/'.$user->getRoom()->getId().'/room',
             data: json_encode(
                 array(
                         'type' => 'userMessage',

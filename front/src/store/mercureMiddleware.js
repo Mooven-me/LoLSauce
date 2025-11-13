@@ -14,7 +14,7 @@ export const mercureMiddleware = (store) => (next) => (action) => {
     }
     
     const url = new URL(import.meta.env.VITE_MERCURE_PUBLIC_URL);
-    url.searchParams.append('topic', `https://subrscribed.channel/${roomId}/room`);
+    url.searchParams.append('topic', `https://subscribed.channel/${roomId}/room`);
     eventSource = new EventSource(url.toString(), { withCredentials: true });
     
     eventSource.onopen = () => {

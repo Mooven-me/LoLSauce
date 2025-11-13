@@ -30,9 +30,18 @@ class PusherNotificationHandler{
     public function __invoke(PusherNotification $pn){
 
         $roomId = $pn->getRoomId();
+        $room = $this->entityManager->getRepository(Room::class)->findOneById($roomId);
+
+        // shorcut disable the incoming answer when shorcuted
+        if($pn->getQuestionId() !== null){
+            $currentQuestion = $room->getCurrentQuestion();
+            if($currentQuestion->getId() !== $pn->getQuestionId()){
+                return; // we do nothing because the answer has been shorcuted
+            }
+        }
 
         $update = new Update(
-            topics: 'https://subrscribed.channel/'.$roomId.'/room',
+            topics: 'https://subscribed.channel/'.$roomId.'/room',
             data: json_encode($pn->getContent())
         );
 
@@ -63,7 +72,8 @@ class PusherNotificationHandler{
             new PusherNotification(
                 $roomId, 
                 $result, 
-                'create_question'
+                'create_question',
+                $room->getCurrentQuestion()->getId()
                 ),
             [new DelayStamp(15000)]
         );
@@ -134,7 +144,8 @@ class PusherNotificationHandler{
                 new PusherNotification(
                     $roomId, 
                     $result, 
-                    'show_answer'
+                    'show_answer',
+                    $question->getId()
                     ),
                 [new DelayStamp(5000 )]
             );

@@ -10,7 +10,8 @@ class PusherNotification {
     public function __construct(
         private int $roomId,
         private array $content,
-        private ?string $type = null
+        private ?string $type = null,
+        private ?int $questionId = null
     ){}
 
     public function getRoomId(): int {
@@ -23,5 +24,9 @@ class PusherNotification {
 
     public function getType(): ?string {
         return $this->type;
+    }
+
+    public function getQuestionId(): ?int {
+        return $this->questionId;
     }
 }
