@@ -58,8 +58,15 @@ const roomSlice = createSlice({
         word: "",
       }));
     },
+
+    resetScores: (state) => {
+      state.users = state.users.map(user => ({
+        ...user,
+        score: 0
+      }))
+    }
   },
 });
 
-export const { setUsers, setRoomId, userSuccess, userTry, resetUsersWord, setIsLeader } = roomSlice.actions;
+export const { setUsers, setRoomId, userSuccess, userTry, resetUsersWord, setIsLeader, resetScores } = roomSlice.actions;
 export default roomSlice.reducer;

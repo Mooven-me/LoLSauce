@@ -10,6 +10,7 @@ const gameSlice = createSlice({
   reducers: {
     start: (state) => {
       state.isStarted = true;
+      state.questionData = {}
     },
     
     setQuestionData: (state, action) => {

@@ -79,6 +79,14 @@
 .modal-grey div.modal-content{
   background-color: rgb(34, 37, 61);
 }
+
+.darkblue {
+  background-color: rgb(34, 37, 61) !important;
+}
+
+.opaque-dark-blue{
+  background-color: rgba(34, 37, 61, 0.8) !important;
+}
   
 h5 {
   color: white !important

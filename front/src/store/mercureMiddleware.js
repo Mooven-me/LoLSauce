@@ -1,5 +1,5 @@
 import { connect, disconnect, connected, connectionError } from './mercureSlice';
-import { resetUsersWord, setUsers, userSuccess, userTry } from './roomSlice';
+import { resetScores, resetUsersWord, setUsers, userSuccess, userTry } from './roomSlice';
 import { start, setQuestionData, stop, setUserFoundAnswer } from './gameSlice';
 import { messageReceived } from './chatSlice';
 
@@ -34,15 +34,15 @@ export const mercureMiddleware = (store) => (next) => (action) => {
           break;
           
         case "question":
-          store.dispatch(setQuestionData(data));
+        case "end":
           store.dispatch(resetUsersWord());
-          break;
         case "answer":
           store.dispatch(setQuestionData(data));
           break;
           
         case "start":
           store.dispatch(start());
+          store.dispatch(resetScores())
           break;
           
         case "success":
@@ -58,7 +58,7 @@ export const mercureMiddleware = (store) => (next) => (action) => {
           store.dispatch(userTry(data));
           break;
 
-        case "stop":
+        case "end":
           store.dispatch(stop())
           break;
       }

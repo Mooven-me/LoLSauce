@@ -33,10 +33,10 @@ class PusherNotificationHandler{
         $room = $this->entityManager->getRepository(Room::class)->findOneById($roomId);
 
         // shorcut disable the incoming answer when shorcuted
-        if($pn->getQuestionId() !== null){
+        if($pn->getQuestionId() !== null && $pn->getType() !== "end_game"){
             $currentQuestion = $room->getCurrentQuestion();
-            if($currentQuestion->getId() !== $pn->getQuestionId()){
-                return; // we do nothing because the answer has been shorcuted
+            if(empty($currentQuestion) || $currentQuestion->getId() !== $pn->getQuestionId()){
+                return;
             }
         }
 
@@ -105,16 +105,20 @@ class PusherNotificationHandler{
         $room->removeAllCorrectAnswerUser();
 
         if($stopGame){
+
             // generate the end of the game
-            $this->entityManager->flush();
             $result = array(
                 'type' => 'end',
             );
-            
+
+            $room->setCurrentQuestion(null);
+            $this->entityManager->flush();
+
             $this->bus->dispatch(
                 new PusherNotification(
                     $roomId, 
-                    $result
+                    $result,
+                    "end_game"
                     ),
                 [new DelayStamp(5000 )]
             );

@@ -8,7 +8,7 @@ const mercureSlice = createSlice({
   },
   reducers: {
     connect: (state, action) => {
-      // Le reducer ne fait rien ici, c'est le middleware qui agit Mais on peut mettre un flag si on veut
+      // Le reducer ne fait rien ici, c'est le middleware qui agit
       state.connected = false;
     },
     disconnect: (state) => {

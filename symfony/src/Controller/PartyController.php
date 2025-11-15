@@ -100,7 +100,7 @@ final class PartyController extends AbstractController
                 $foundedAnswersCount = 9;
             }
 
-            $score = 10 - $foundedAnswersCount;
+            $score = 150 - $foundedAnswersCount;
             
             $user->setScore($user->getScore() + $score);
             $room->addCorrectAnswerUser($user);
@@ -166,9 +166,15 @@ final class PartyController extends AbstractController
             return new JsonResponse(['error' => 'userId is required'], 400);
         }
 
+        /** @var User|null */
         $user = $em->getRepository(User::class)->findOneById($userId);
         $room = $user->getRoom();
         $roomId = $room->getId();
+
+        // reset the game in case some users have still some points locale_filter_matches
+        foreach($room->getUsers() as $user){
+            $user->setScore(0);
+        }
 
         //wait a little bit to start the game
         $this->questionHandler->handleCreateQuestion($roomId);
