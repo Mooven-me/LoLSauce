@@ -50,3 +50,7 @@ copy-env:
 	@$(COPY_ENV)
 
 restart-prod: stop build-start-prod-bg
+
+update-prod: stop
+	git pull
+	$(MAKE) build-start-prod-bg
