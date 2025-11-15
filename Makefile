@@ -48,3 +48,5 @@ stop:
 
 copy-env:
 	@$(COPY_ENV)
+
+restart-prod: stop build-start-prod-bg
