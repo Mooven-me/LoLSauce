@@ -100,7 +100,7 @@ final class PartyController extends AbstractController
                 $foundedAnswersCount = 9;
             }
 
-            $score = 150 - $foundedAnswersCount;
+            $score = 10 - $foundedAnswersCount;
             
             $user->setScore($user->getScore() + $score);
             $room->addCorrectAnswerUser($user);
