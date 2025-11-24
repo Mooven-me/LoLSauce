@@ -88,13 +88,14 @@ final class PartyController extends AbstractController
             return new JsonResponse(['error' => '1',  'error_message' => 'word is required'], 400);
         }
 
+        /** @var User|null */
         $user = $em->getRepository(User::class)->findOneById($userId);
 
         $room = $user->getRoom();
         $roomId = $room->getId();
         $question = $room->getCurrentQuestion();
 
-        if($this->toUpperWithoutAccents($word) == $question->getAnswer()){ //check si la réponse est bonne
+        if(in_array($this->toUpperWithoutAccents($word), $question->getAnswers())){ //check si la réponse est bonne
             $foundedAnswersCount = count($room->getCorrrectAnswerUsers());
             if($foundedAnswersCount >= 10){
                 $foundedAnswersCount = 9;
@@ -109,7 +110,7 @@ final class PartyController extends AbstractController
             $allUsersFound = count($room->getCorrrectAnswerUsers()) === count($room->getUsers()) && count($room->getCorrrectAnswerUsers()) > 0;
 
             if($allUsersFound){
-                $answer = $question->getAnswer();
+                $answer = $question->getAnswer('fr_FR');
                 
                 $result = [
                     'type' => 'answer',

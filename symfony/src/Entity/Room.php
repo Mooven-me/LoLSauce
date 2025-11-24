@@ -28,6 +28,7 @@ class Room
     private Collection $Users;
 
     #[ORM\ManyToOne]
+    #[ORM\JoinColumn(nullable: true, onDelete: 'SET NULL')]
     private ?Questions $currentQuestion = null;
 
     /**

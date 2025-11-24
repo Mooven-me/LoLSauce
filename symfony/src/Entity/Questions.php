@@ -24,11 +24,12 @@ class Questions
     #[ORM\Column(length: 1200)]
     private ?string $content = null;
 
-    #[ORM\Column(length: 255)]
-    private ?string $answer = null;
-
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $data1 = null;
+
+    #[ORM\Column]
+    private array $answers = [];
+
     public function getId(): ?int
     {
         return $this->id;
@@ -70,18 +71,6 @@ class Questions
         return $this;
     }
 
-    public function getAnswer(): ?string
-    {
-        return $this->answer;
-    }
-
-    public function setAnswer(string $answer): static
-    {
-        $this->answer = $answer;
-
-        return $this;
-    }
-
     public function getData1(): ?string
     {
         return $this->data1;
@@ -94,11 +83,34 @@ class Questions
         return $this;
     }
 
+    public function getAnswer(string $language): string{
+        if(!empty($this->answers) && array_key_exists($language, $this->answers)){
+            return $this->answers[$language];
+        }
+        return "error egtAnswer('language')";
+    }
+
+    public function getAnswers(): array
+    {
+        if(!empty($language)){
+            
+        }
+        return array_values($this->answers);
+    }
+
+    public function setAnswers(array $answers): static
+    {
+        $this->answers = $answers;
+
+        return $this;
+    }
+
     public function toArray(){
 
         $content = null;
 
         switch($this->type){
+            case QuestionsTypes::item_image->value:
             case QuestionsTypes::passive_image->value:
             case QuestionsTypes::skin_image->value:
             case QuestionsTypes::spell_image->value:

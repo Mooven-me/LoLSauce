@@ -27,6 +27,7 @@ export default function QuestionDispatcher(props) {
         let result;
         let data = props.data
         switch(data.type){
+            case "item_image":
             case "spell_image":
             case "passive_image":
             case "skin_image":

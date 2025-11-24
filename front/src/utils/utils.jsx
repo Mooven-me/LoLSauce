@@ -5,7 +5,6 @@ export const sendData = async ({route = "/", data = {}, method="POST", isFileDow
         method: method,
         headers: {}
     }
-    console.log(data)
     // For file downloads, don't set Accept header to application/json
     if (!isFileDownload) {
         options.headers['Accept'] = 'application/json';
@@ -71,7 +70,8 @@ export const sendData = async ({route = "/", data = {}, method="POST", isFileDow
         const result = await response.json();
         
         // Check if the response has an error and show notification
-        if (result.error === true && result.error_message) {
+        console.log(result)
+        if (result.error === 1 && result.error_message) {
             showErrorNotification(result.error_message);
         }
         

@@ -8,6 +8,7 @@ use DateInterval;
 use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\Mercure\HubInterface;
 use Symfony\Component\Mercure\Update;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
@@ -21,7 +22,8 @@ class PusherNotificationHandler{
     public function __construct(
         private HubInterface $hub,
         EntityManagerInterface $entityManager, 
-        MessageBusInterface $bus
+        MessageBusInterface $bus,
+        private LoggerInterface $logger
     ){
         $this->bus = $bus;
         $this->entityManager = $entityManager;
@@ -29,6 +31,7 @@ class PusherNotificationHandler{
 
     public function __invoke(PusherNotification $pn){
 
+        $this->logger->info("je suis ici");
         $roomId = $pn->getRoomId();
         $room = $this->entityManager->getRepository(Room::class)->findOneById($roomId);
 
@@ -61,7 +64,7 @@ class PusherNotificationHandler{
     public function handleShowNotification(int $roomId){
 
         $room = $this->entityManager->getRepository(Room::class)->findOneById($roomId);
-        $answer = $room->getCurrentQuestion()->getAnswer();
+        $answer = $room->getCurrentQuestion()->getAnswer('fr_FR');
 
         $result = array(
             'type' => 'answer',

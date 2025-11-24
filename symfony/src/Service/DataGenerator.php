@@ -8,6 +8,7 @@ use App\Service\enums\QuestionsTypes;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 use PharData;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Process\Exception\ProcessFailedException;
 use Symfony\Component\Process\Process;
@@ -32,6 +33,7 @@ class DataGenerator
             Filesystem $filesystem,
             ImageEffect $imageEffect,
             EntityManagerInterface $em,
+            private LoggerInterface $logger
         ){
         $this->httpClient = $httpClient;
         $this->filesystem = $filesystem;
@@ -72,13 +74,28 @@ class DataGenerator
      * @param string $path
      * @return string
      */
-    private function isVersionFileUpToDate(string $path): bool{
+    private function isAssetsFileUpToDate(string $path): bool{
         $path = ($path[strlen($path)-1] == '/' ? $path.'version.txt' : $path.'/version.txt');
         
         return $this->filesystem->exists($path) ? $this->filesystem->readFile($path) === $this->getVersion() : false;
     }
 
-        public function removeAccentsAndUpper($string) {
+    public function isDragonFileUpToDate(){
+        $onlineVersion = $this->httpClient->request('GET', 'https://ddragon.leagueoflegends.com/api/versions.json')->toArray()[0];
+        $dragonFileName = null;
+        foreach(scandir($this->mainPath) as $folder){
+            if(str_contains($folder, 'dragontail')){
+                $dragonFileName = $folder;
+            }
+        }
+        if(!empty($dragonFileName)){
+            $localVersion = explode('-', $dragonFileName)[1];
+            return $localVersion === $onlineVersion;
+        }
+        return false;
+    }
+
+    public function removeAccentsAndUpper($string) {
         // Convert accented characters to ASCII equivalents
         $string = iconv('UTF-8', 'ASCII//TRANSLIT//IGNORE', $string);
 
@@ -131,6 +148,21 @@ class DataGenerator
     }
 
     /**
+     * to get the content of a josn file per languages
+     */
+    public function fileGetContentByLanguage(string $type, ...$languages){
+        $version = $this->getVersion();
+        $result = array();
+        foreach($languages as $language){
+            $fileContent = file_get_contents($this->mainPath.'/dragontail-'.$version.'/'.$version.'/data/'.$language.'/'.$type.'.json');
+            $content = json_decode($fileContent, true);
+            $result[$language] = $content['data'];
+        }
+            
+        return $result;
+    }
+
+    /**
      * handle all the generation file and download file process
      * @throws \Symfony\Component\Process\Exception\ProcessFailedException
      * @return void
@@ -145,12 +177,9 @@ class DataGenerator
         if(!$this->filesystem->exists($this->mainPath)){
             $this->filesystem->mkdir($this->mainPath);
         }
-        
-        $upToDate = $this->isVersionFileUpToDate($this->mainPath.'/assets');
 
         // to download the latest part of the file if needed
-        if(!$upToDate){
-
+        if(!$this->isDragonFileUpToDate()){
             $fileName = 'dragontail-'.$this->getVersion();
             $fullFilePath = $this->mainPath.'/'.$fileName;
 
@@ -206,6 +235,8 @@ class DataGenerator
         $this->generateChampionPassive();
 
         $this->generateChampionLore();
+
+        $this->generateItemTitle();
     }
 
 
@@ -216,7 +247,7 @@ class DataGenerator
         $questionsRepository = $this->em->getRepository(Questions::class);
 
         // check if it is up to date and not database empty
-        if($this->isVersionFileUpToDate($targetFolder) && $questionsRepository->countByType(QuestionsTypes::pixel_image->value) > 0){
+        if($this->isAssetsFileUpToDate($targetFolder) && $questionsRepository->countByType(QuestionsTypes::pixel_image->value) > 0){
             return;
         }
 
@@ -253,7 +284,7 @@ class DataGenerator
             $question->setTitle('Qui est ce champion ?');
             $question->setType(QuestionsTypes::pixel_image->value);
             $question->setData1($champion);
-            $question->setAnswer($this->removeAccentsAndUpper($championData['name']));
+            $question->setAnswers(array('fr_FR'=>$this->removeAccentsAndUpper($championData['name'])));
 
             $this->em->persist($question);
         }
@@ -269,7 +300,7 @@ class DataGenerator
         $questionsRepository = $this->em->getRepository(Questions::class);
 
         // check if it is up to date and not database empty
-        if($this->isVersionFileUpToDate($targetFolder) && $questionsRepository->countByType(QuestionsTypes::skin_image->value) > 0){
+        if($this->isAssetsFileUpToDate($targetFolder) && $questionsRepository->countByType(QuestionsTypes::skin_image->value) > 0){
             return;
         }
 
@@ -303,7 +334,7 @@ class DataGenerator
                     $question->setContent($championFolderPath.'/'.$fileName);
                     $question->setTitle('Quel est ce skin ?');
                     $question->setType(QuestionsTypes::skin_image->value);
-                    $question->setAnswer($this->removeAccentsAndUpper($skin['name']));
+                    $question->setAnswers(array('fr_FR'=>$this->removeAccentsAndUpper($skin['name'])));
 
                     $this->em->persist($question);
                 }
@@ -320,7 +351,7 @@ class DataGenerator
         $questionsRepository = $this->em->getRepository(Questions::class);
 
         // check if it is up to date and not database empty
-        if($this->isVersionFileUpToDate($targetFolder) && $questionsRepository->countByType(QuestionsTypes::spell_image->value) > 0){
+        if($this->isAssetsFileUpToDate($targetFolder) && $questionsRepository->countByType(QuestionsTypes::spell_image->value) > 0){
             return;
         }
 
@@ -357,7 +388,7 @@ class DataGenerator
                     $question->setContent($championFolderPath.'/difficult/'.$spell['id'].'_'.$rotation.'.png');
                     $question->setTitle('Quel champion à cette compétence ?');
                     $question->setType(QuestionsTypes::spell_image->value);
-                    $question->setAnswer($this->removeAccentsAndUpper($championData['name']));
+                    $question->setAnswers(array('fr_FR'=>$this->removeAccentsAndUpper($championData['name'])));
 
                     $this->em->persist($question);
                 }
@@ -367,7 +398,7 @@ class DataGenerator
                 $question->setContent($championFolderPath.'/'.$fileName);
                 $question->setTitle('Quel champion à cette compétence ?');
                 $question->setType(QuestionsTypes::spell_image->value);
-                $question->setAnswer($this->removeAccentsAndUpper($championData['name']));
+                $question->setAnswers(array('fr_FR'=>$this->removeAccentsAndUpper($championData['name'])));
 
                 $this->em->persist($question);
             }
@@ -385,7 +416,7 @@ class DataGenerator
         $questionsRepository = $this->em->getRepository(Questions::class);
 
         // check if it is up to date and not database empty
-        if($this->isVersionFileUpToDate($targetFolder) && $questionsRepository->countByType(QuestionsTypes::passive_image->value) > 0){
+        if($this->isAssetsFileUpToDate($targetFolder) && $questionsRepository->countByType(QuestionsTypes::passive_image->value) > 0){
             return;
         }
 
@@ -415,14 +446,14 @@ class DataGenerator
 
             $this->filesystem->mkdir($championFolderPath.'/difficult');
             foreach(array(0,90,180,270) as $rotation){
-                $this->imageEffect->createImageRotation($imagesDirectory.$fileName, $championFolderPath.'/difficult/'.(substr($fileName, 0 -4)).'_'.$rotation.'.png', $rotation);
+                $this->imageEffect->createImageRotation($imagesDirectory.$fileName, $championFolderPath.'/difficult/'.(substr($fileName, 0, -4)).'_'.$rotation.'.png', $rotation);
             
                 // create a new Questions object to the data base
                 $question = new Questions();
-                $question->setContent($championFolderPath.'/difficult/'.(substr($fileName, 0 -4)).'_'.$rotation.'.png');
+                $question->setContent($championFolderPath.'/difficult/'.(substr($fileName, 0, -4)).'_'.$rotation.'.png');
                 $question->setTitle('Quel champion à ce passif ?');
                 $question->setType(QuestionsTypes::passive_image->value);
-                $question->setAnswer($this->removeAccentsAndUpper($championData['name']));
+                $question->setAnswers(array('fr_FR'=>$this->removeAccentsAndUpper($championData['name'])));
 
                 $this->em->persist($question);
             }
@@ -432,7 +463,7 @@ class DataGenerator
             $question->setContent($championFolderPath.'/'.$fileName);
             $question->setTitle('Quel champion à ce passif ?');
             $question->setType(QuestionsTypes::passive_image->value);
-            $question->setAnswer($this->removeAccentsAndUpper($championData['name']));
+            $question->setAnswers(array('fr_FR'=>$this->removeAccentsAndUpper($championData['name'])));
 
             $this->em->persist($question);
             
@@ -469,11 +500,87 @@ class DataGenerator
             $question->setContent($lore);
             $question->setTitle('Quel champion à ce lore ?');
             $question->setType(QuestionsTypes::lore->value);
-            $question->setAnswer($this->removeAccentsAndUpper($championData['name']));
+            $question->setAnswers(array('fr_FR'=>$this->removeAccentsAndUpper($championData['name'])));
 
             $this->em->persist($question);
             
         }
+
+        $this->em->flush();
+    }
+
+    public function generateItemTitle(){
+
+        $targetFolder = $this->mainPath.'/assets/'.QuestionsTypes::item_image->value;
+
+        $questionsRepository = $this->em->getRepository(Questions::class);
+
+        // check if it is up to date and not database empty
+        if($this->isAssetsFileUpToDate($targetFolder) && $questionsRepository->countByType(QuestionsTypes::item_image->value) > 0 && false){
+            return;
+        }
+
+        $questionsRepository->deleteByType(QuestionsTypes::item_image->value);
+        $this->em->flush();
+
+        $version = $this->getVersion();
+
+        $fullFilePath = $this->mainPath.'/dragontail-'.$version;
+
+        $imagesDirectory = $fullFilePath.'/'.$version.'/img/item/';
+        $itemsLanguages = $this->fileGetContentByLanguage('item', 'fr_FR', 'en_GB');
+
+        if($this->filesystem->exists($targetFolder)){
+            $this->filesystem->remove($targetFolder);
+        }
+        $this->filesystem->mkdir($targetFolder);
+
+        foreach($itemsLanguages as $language => $items){
+        }
+        
+        $items = $itemsLanguages['fr_FR'];
+        $itemsEN = $itemsLanguages['en_GB'];
+        foreach($items as $name => $item){
+            if(!key_exists('requiredChampion', $item) && (strlen((string)$name) === 4 && ((string)$name)[0] !== 9) && (!$item['gold']['purchasable'] || $item['gold']['total'] > 0)){
+                $folderPath = $targetFolder.'/'.$name;
+                $this->filesystem->mkdir($folderPath);
+                $fileName = $item['image']['full'];
+                $this->filesystem->copy($imagesDirectory.$fileName, $folderPath.'/'.$fileName);
+                $this->filesystem->mkdir($folderPath.'/difficult');
+
+                foreach(array(0,90,180,270) as $rotation){
+                    $this->imageEffect->createImageRotation($imagesDirectory.$fileName, $folderPath.'/difficult/'.(substr($fileName, 0, -4)).'_'.$rotation.'.png', $rotation);
+                
+                    // create a new Questions object to the data base
+                    $question = new Questions();
+                    $this->logger->info("file name : ".$fileName);
+                    $this->logger->info("file name substr: ".(substr($fileName, 0, -4)));
+                    $this->logger->info($folderPath.'/difficult/'.(substr($fileName, 0, -4)).'_'.$rotation.'.png');
+                    $question->setContent($folderPath.'/difficult/'.(substr($fileName, 0, -4)).'_'.$rotation.'.png');
+                    $question->setTitle('Quel est le nom de cet item ?');
+                    $question->setType(QuestionsTypes::item_image->value);
+                    $question->setAnswers(array(
+                        'fr_FR'=>$this->removeAccentsAndUpper($item['name']),
+                        'en_GB'=>$this->removeAccentsAndUpper($itemsEN[$name]['name'])
+                    ));
+
+                    $this->em->persist($question);
+                }
+
+                // create a new Questions object to the data base
+                $question = new Questions();
+                $question->setContent($folderPath.'/'.$fileName);
+                $question->setTitle('Quel est le nom de cet item ?');
+                $question->setType(QuestionsTypes::item_image->value);
+                $question->setAnswers(array(
+                    'fr_FR'=>$this->removeAccentsAndUpper($item['name']),
+                    'en_GB'=>$this->removeAccentsAndUpper($itemsEN[$name]['name'])
+                ));
+
+                $this->em->persist($question);
+            }
+        }
+        $this->createVersionFile($targetFolder);
 
         $this->em->flush();
     }
