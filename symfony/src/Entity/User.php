@@ -25,7 +25,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column]
     private int $score = 0;
 
-    #[ORM\Column(length: 255, nullable: true)]
+    #[ORM\Column(length: 255, unique: true, nullable: true)]
     private ?string $email = null;
 
     #[ORM\Column(length: 255, nullable: true)]
@@ -39,6 +39,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     #[ORM\ManyToOne(inversedBy: 'Room')]
     private ?Room $CorrectAnswerRoom = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?bool $anonymous = null;
 
     public function getId(): ?int
     {
@@ -148,7 +151,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return (string) $this->email;
     }
 
-    public function eraseCredentials(): void 
+    public function eraseCredentials(): void
     {
         //Later
     }
@@ -173,6 +176,18 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setCorrectAnswerRoom(?Room $CorrectAnswersUsers): static
     {
         $this->CorrectAnswerRoom = $CorrectAnswersUsers;
+
+        return $this;
+    }
+
+    public function isAnonymous(): ?bool
+    {
+        return $this->anonymous;
+    }
+
+    public function setAnonymous(?bool $anonymous): static
+    {
+        $this->anonymous = $anonymous;
 
         return $this;
     }

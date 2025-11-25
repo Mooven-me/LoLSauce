@@ -9,7 +9,6 @@ import { ToastContainer } from 'react-toastify';
 import {
     Badge
 } from 'reactstrap'
-import { useSelector } from 'react-redux';
 
 function App() {
 

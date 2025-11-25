@@ -2,20 +2,28 @@ lexik_jwt_authentication:
     secret_key: '%env(resolve:JWT_SECRET_KEY)%'
     public_key: '%env(resolve:JWT_PUBLIC_KEY)%'
     pass_phrase: '%env(JWT_PASSPHRASE)%'
+    user_id_claim: email
     token_ttl: 3600
 
     # token extraction settings
     token_extractors:
         # look for a token as Authorization Header
         authorization_header:
-            enabled: true
+            enabled: false
         
         cookie:
-            enabled: false
+            enabled: true
             name: LOLSAUCE_JWT_COOKIE
 
     set_cookies:
-        LOLSAUCE_JWT_COOKIE: ~
+        LOLSAUCE_JWT_COOKIE:
+            lifetime: 3600
+            samesite: lax
+            path: /
+            secure: true
+            httpOnly: true
+            split:
+                enabled: false
 
     # remove the token from the response body when using cookies
     remove_token_from_body_when_cookies_used: true

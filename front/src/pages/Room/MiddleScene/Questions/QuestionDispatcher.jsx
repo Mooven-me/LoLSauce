@@ -15,7 +15,7 @@ export default function QuestionDispatcher(props) {
     React.useEffect(() => {
         const interval = setInterval(() => {
             setTime(prevIndex => {
-                return prevIndex -=1;
+                return prevIndex-1;
             });
         }, 1000); 
         
@@ -30,19 +30,28 @@ export default function QuestionDispatcher(props) {
             case "item_image":
             case "spell_image":
             case "passive_image":
-            case "skin_image":
+            case "skin_image": {
                 const imageSrc = `data:image/jpeg;base64,${data.content}`;
 
-                result = 
-                    <img src={imageSrc} 
-                    className="w-100 h-100"
-                    style={{
-                        borderRadius:"10px",
-                        objectFit: "cover",
-                        maxHeight: "50vh"
-                    }}/>
+                result =
+                    <img
+                        alt={"image"}
+                        src={imageSrc}
+                        // 1. Remove "h-100" so height isn't forced
+                        // 2. Use "img-fluid" (Bootstrap) or just max-width: 100%
+                        className="w-100"
+                        style={{
+                            borderRadius: "10px",
+                            // 3. CHANGE "cover" to "contain"
+                            objectFit: "contain",
+                            maxHeight: "50vh",
+                            // 4. Ensure the height adjusts automatically
+                            height: "auto"
+                        }}
+                    />
 
                 break;
+            }
             case "pixel_image":
                 result = <PixelQuestion content={data.content}/>
                 break;

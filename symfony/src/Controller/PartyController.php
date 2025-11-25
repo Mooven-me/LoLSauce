@@ -57,7 +57,7 @@ final class PartyController extends AbstractController
             $room->addUser($user);
             $user->setRoom($room);
             $user->setUsername($username);
-            
+
             $em->persist($room);
             $em->persist($user);
 
@@ -65,7 +65,7 @@ final class PartyController extends AbstractController
 
             $result['data'] = array(
                 'room_id' => $room->getId(),
-                'user_id' => $user->getId(), 
+                'user_id' => $user->getId(),
             );
         } catch (\Exception $e) {
             $result['error'] = 1;
@@ -88,7 +88,7 @@ final class PartyController extends AbstractController
             return new JsonResponse(['error' => '1',  'error_message' => 'word is required'], 400);
         }
 
-        /** @var User|null */
+        /** @var User|null $user */
         $user = $em->getRepository(User::class)->findOneById($userId);
 
         $room = $user->getRoom();
@@ -102,7 +102,7 @@ final class PartyController extends AbstractController
             }
 
             $score = 10 - $foundedAnswersCount;
-            
+
             $user->setScore($user->getScore() + $score);
             $room->addCorrectAnswerUser($user);
             $em->flush();
@@ -111,17 +111,17 @@ final class PartyController extends AbstractController
 
             if($allUsersFound){
                 $answer = $question->getAnswer('fr_FR');
-                
+
                 $result = [
                     'type' => 'answer',
                     'answer' => $answer,
-                    'question_id' => $question->getId() 
+                    'question_id' => $question->getId()
                 ];
-                
+
                 $this->bus->dispatch(
                     new PusherNotification(
-                        $roomId, 
-                        $result, 
+                        $roomId,
+                        $result,
                         'create_question'
                     )
                 );
@@ -159,7 +159,7 @@ final class PartyController extends AbstractController
     }
 
     #[Route('/start', name: 'start', methods: ['POST'])]
-    public function startRoom(Request $request, EntityManagerInterface $em, HubInterface $hub){
+    public function startRoom(Request $request, EntityManagerInterface $em){
         $data = json_decode($request->getContent(), true);
         $userId = $data['user_id']??null;
 
@@ -167,7 +167,7 @@ final class PartyController extends AbstractController
             return new JsonResponse(['error' => 'userId is required'], 400);
         }
 
-        /** @var User|null */
+        /** @var User|null $user */
         $user = $em->getRepository(User::class)->findOneById($userId);
         $room = $user->getRoom();
         $roomId = $room->getId();
@@ -184,8 +184,8 @@ final class PartyController extends AbstractController
             topics: 'https://subscribed.channel/'.$roomId.'/room',
             data: json_encode(['type' => 'start'])
         );
-        $hub->publish($update);
-        
+        $this->hub->publish($update);
+
         return new JsonResponse(array('error' => 0), 200);
     }
 

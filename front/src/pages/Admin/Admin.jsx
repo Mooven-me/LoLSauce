@@ -2,13 +2,10 @@ import { Col } from "reactstrap";
 import { sendData } from "../../utils/utils";
 import LoadingButton from "../../utils/LoadingButton";
 
-export default function Admin(props) {
+export default function Admin() {
 
     const handleDataGeneration = async () => {
-        await sendData({route:'/generateData'}).then((data) => {
-            console.log(data)
-            console.log("fin du webserv")
-        })
+        await sendData({route:'/admin/generateData'})
     }
 
     return(

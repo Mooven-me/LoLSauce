@@ -56,12 +56,8 @@ if [ "$1" = 'frankenphp' ] || [ "$1" = 'php' ] || [ "$1" = 'bin/console' ]; then
 	setfacl -dR -m u:www-data:rwX -m u:"$(whoami)":rwX var
 
 	echo 'PHP app ready!'
-
-exec /usr/bin/supervisord -c /etc/supervisor/supervisord.conf &
-echo $SERVER_NAME
-echo $MERCURE_JWT_SECRET
-echo $MERCURE_SUBSCRIBER_JWT_KEY
-echo $MERCURE_PUBLISHER_JWT_KEY
+	php bin/console lexik:jwt:generate-keypair --skip-if-exists --no-interaction
+	exec /usr/bin/supervisord -c /etc/supervisor/supervisord.conf &
 
 fi
 
