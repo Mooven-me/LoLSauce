@@ -28,7 +28,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 	libgd-dev \
 	&& docker-php-ext-install gd\
 	&& rm -rf /var/lib/apt/lists/*
-	
+
 RUN set -eux; \
 	install-php-extensions \
 		@composer \
@@ -68,7 +68,8 @@ FROM frankenphp_base AS frankenphp_dev
 ENV APP_ENV=dev
 ENV XDEBUG_MODE=debug,develop,coverage
 ENV FRANKENPHP_WORKER_CONFIG=watch
-
+ENV FRANKENPHP_WORKER_COUNT="num 1"
+ENV PHP_IDE_CONFIG="serverName=symfony"
 RUN mv "$PHP_INI_DIR/php.ini-development" "$PHP_INI_DIR/php.ini"
 
 # prevent the reinstallation of vendors at every changes in the source code
