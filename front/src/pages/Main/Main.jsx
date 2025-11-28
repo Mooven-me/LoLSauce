@@ -1,11 +1,12 @@
 import React from 'react';
-import { Button, ButtonGroup, Card, CardBody, Fade, FormFeedback, FormGroup, Input, Navbar } from 'reactstrap';
-import { useDispatch, useSelector } from 'react-redux';
-import { useNavigate, useParams } from 'react-router-dom';
-import { sendData } from '../utils/utils';
-import LoadingButton from '../utils/LoadingButton';
-import { setIsLeader, setRoomId, setUsers } from '../store/roomSlice';
-import { setAuth, setUsername } from '../store/authSlice';
+import { Button, ButtonGroup, Card, CardBody, FormGroup, Input } from 'reactstrap';
+import { useDispatch } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
+import { sendData } from '../../utils/utils.jsx';
+import LoadingButton from '../../utils/LoadingButton.jsx';
+import { setIsLeader, setRoomId, setUsers } from '../../store/roomSlice.js';
+import { setAuth, setUsername } from '../../store/authSlice.js';
+import MainNavbar from "./MainNavbar.jsx";
 
 export default function Main(props) {
     const navigate = useNavigate();
@@ -43,7 +44,6 @@ export default function Main(props) {
                 navigate('/'+data.room_id)
             })
         }else{
-            console.log("erreur")
             setUsernameError(true)
         }
     }
@@ -70,30 +70,25 @@ export default function Main(props) {
     return (
     <>
         <div className='d-flex flex-column h-100 align-items-center '>
-            <Navbar fixed={"top"} className='align-items-end'>
-                <div className='w-100 d-flex justify-content-end gap-3'>
-                    <Button className='shadow' onClick={() => navigate('/register')}>Inscription</Button>
-                    <Button className='shadow' onClick={() => navigate('/login')}>Connexion</Button>
-                </div>
-            </Navbar>
+            <MainNavbar />
             <div className='' style={{fontSize: "10vw", marginTop:"50px"}}>
                 LoLSauce
             </div>
             <div className='d-flex flex-column h-100 w-100 align-items-center'>
                 <div className="flex-row-column align-self-center align-items-center gap-5 computer-600 h-25" style={{width:"40vw"}}>
-                    <Card style={{padding:0, backgroundColor:"rgb(107, 114, 150)", width:"100%", minWidth:"180px"}}>
+                    <Card className={"opaque-grey"} style={{padding:0, width:"100%", minWidth:"180px"}}>
                         <CardBody className='flex-row-column'>
-                            <FormGroup className="formulaire w-100">
+                            <FormGroup className="formulaire w-100 ">
                                 <ButtonGroup className="w-100" vertical={size<682}>
-                                    <Button color="info" className='shadow border-0' onClick={() =>handleNavigateToRoom()}>
+                                    <Button className='shadow opaque-light-blue border-info' onClick={() =>handleNavigateToRoom()}>
                                         <b style={{color:"rgb(255, 255, 255)", textWrap:"nowrap"}}>Rejoindre</b>
                                     </Button>
-                                    <Input 
-                                        className='shadow- arrondi-gauche'
+                                    <Input
+                                        className='shadow arrondi-gauche opaque-light-blue placeholder-white'
                                         onChange={(e) => {roomId.current = e.target.value}}
                                         type={"number"}
-                                        onKeyUpCapture={(e) => e.key === 'Enter' && handleNavigateToRoom()} 
-                                        placeholder='Code de la salle'
+                                        onKeyUpCapture={(e) => e.key === 'Enter' && handleNavigateToRoom()}
+                                        placeholder='Code'
                                         invalid={joinRoomError}
                                         min={"0"}
                                     />
@@ -101,15 +96,15 @@ export default function Main(props) {
                             </FormGroup>
                         </CardBody>
                     </Card>
-                    <Card style={{padding:0, backgroundColor:"rgb(107, 114, 150)", width:"100%", minWidth:"180px"}}>
+                    <Card className={"opaque-grey"} style={{padding:0, width:"100%", minWidth:"180px"}}>
                         <CardBody className='flex-row-column'>
                             <FormGroup className="formulaire w-100">
                                 <ButtonGroup className="w-100" vertical={size<682}>
-                                    <LoadingButton color="info" className='shadow border-0' onClick={createRoom} forceLoading={roomCreationLoading}>
+                                    <LoadingButton className='shadow shadow opaque-light-blue border-info' onClick={createRoom} forceLoading={roomCreationLoading}>
                                         <b style={{color:"rgb(255, 255, 255)", textWrap:"nowrap"}}>Créer</b>
                                     </LoadingButton>
                                     <Input 
-                                        className='shadow arrondi-gauche'
+                                        className='shadow arrondi-gauche opaque-light-blue placeholder-white'
                                         placeholder='Pseudo' 
                                         onKeyUpCapture={(e) => e.key === 'Enter' && createRoom()} 
                                         onChange={(e) => handleUsernameChange(e)}
@@ -122,7 +117,7 @@ export default function Main(props) {
                     </Card>
                 </div>
             </div>
-        <div className="w-100 opaque-dark-blue py-1" >
+        <div className="w-100 opaque-dark-blue py-1 px-3" >
             LoLSauce is not endorsed by Riot Games and does not reflect the views or opinions of Riot Games or anyone officially involved in producing or managing Riot Games properties. Riot Games and all associated properties are trademarks or registered trademarks of Riot Games, Inc
         </div>
         </div>

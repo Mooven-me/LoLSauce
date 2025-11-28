@@ -1,7 +1,7 @@
 import './App.css'
 import Room from './pages/Room/Room'
 import {BrowserRouter, Route, Routes} from 'react-router';
-import Main from './pages/Main';
+import Main from './pages/Main/Main.jsx';
 import Login from './pages/Login/Login';
 import Register from './pages/Register/Register';
 import Admin from './pages/Admin/Admin';
@@ -17,7 +17,7 @@ function App() {
       <BrowserRouter>
         <div className='animated-background'/>
         <div className='d-flex flex-column h-100'>
-          <Badge style={{position:'absolute', top:'10px', left:'10px'}} color='danger'>Beta 0.1</Badge>
+          <Badge style={{position:'absolute', top:'10px', left:'10px', zIndex:"1040"}} color='danger'>Update UI</Badge>
           <ToastContainer />
             <div className='flex-grow-1 h-100'>
               <Routes>

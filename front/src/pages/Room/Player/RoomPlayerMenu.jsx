@@ -1,7 +1,6 @@
 import React from 'react';
 import UserCard from './UserCard';
 import { useSelector } from 'react-redux';
-import pentaKillMP3 from '../../../assets/sounds/Killstreak_SFX_Multikill_Melody_Penta.mp3';
 import firstKillMP3 from '../../../assets/sounds/Killstreak_SFX_Multikill_Point_First.mp3';
 
 export function RoomPlayerMenu(props) {
@@ -33,10 +32,6 @@ export function RoomPlayerMenu(props) {
             setAlreadyPlayedUsersAudio([])
         }
         return usersCopy.map((user, index) => {
-            if(user.success && userId === user.user_id && alreadyPlayedUsersAudio.length === 0){
-                let audio = new Audio(pentaKillMP3);
-                audio.play();!alreadyPlayedUsersAudio.includes(user.user_id)
-            }
             if(user.success && !alreadyPlayedUsersAudio.includes(user.user_id)){
                 let audio = new Audio(firstKillMP3);
                 audio.play();
@@ -47,7 +42,7 @@ export function RoomPlayerMenu(props) {
     },[users])
 
     return (
-        <div className="d-flex flex-column align-items-start gap-2 p-1 overflow-y-scroll overflow-x-hidden h-100" style={{backgroundColor:"rgba(41, 45, 70, 0.8)", width:"30vw", minWidth:"150px", maxWidth:"300px"}}>
+        <div className="d-flex flex-column align-items-start gap-2 p-1 overflow-y-scroll overflow-x-hidden opaque-dark-blue border border rounded-start-3 border-secondary my-3" style={{width:"30vw", minWidth:"150px", maxWidth:"300px"}}>
             {handleRenderUsers}
         </div>
     )

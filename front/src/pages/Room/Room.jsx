@@ -9,8 +9,9 @@ import Chat from './Chat/Chat';
 import LoadingButton from '../../utils/LoadingButton';
 import JoinModal from './JoinModal';
 import { sendData } from '../../utils/utils';
-import CustomNavbar from '../../utils/CustomNavbar';
+import CustomNavbar from './CustomNavbar.jsx';
 import { stop } from '../../store/gameSlice';
+import Settings from "./Settings.jsx";
 
 export default function Room() {
   const dispatch = useDispatch();
@@ -40,17 +41,20 @@ export default function Room() {
       <CustomNavbar roomId={roomId} />
       <JoinModal />
       <div 
-        className='flex-grow-1 d-flex flex-row border border-info mh-0'
-        style={{ minHeight: 0 }}
+        className='flex-grow-1 d-flex flex-row border border-primary mh-0'
+        style={{ minHeight: 0, marginRight: "1px" }}
       >
-        <div className="d-flex flex-column w-100 h-100 justify-content-center">
+        <div className="d-flex flex-column w-100 h-100 justify-content-center position-relative">
           {isGameStarted ? (
             <MiddleScene />
           ) : (
             isLeader ? (
-              <LoadingButton onClick={handleStartGame} className={"align-self-center"}>
-                lancer la partie
-              </LoadingButton>
+              <>
+                <Settings />
+                <LoadingButton onClick={handleStartGame} className={"align-self-center opaque-dark-blue"}>
+                    lancer la partie
+                </LoadingButton>
+              </>
             ) : (
               <div><i>Le chef configure la game ...</i></div>
             )

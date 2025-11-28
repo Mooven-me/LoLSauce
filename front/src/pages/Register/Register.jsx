@@ -1,5 +1,5 @@
 import React from 'react'
-import { Button, Card, Col, Form, FormGroup, Input, Label } from 'reactstrap'
+import {  Card, FormGroup, Input, Label } from 'reactstrap'
 import LoadingButton from '../../utils/LoadingButton'
 import { sendData } from '../../utils/utils'
 import { useNavigate } from 'react-router-dom'
@@ -63,7 +63,7 @@ export default function Register(props) {
         }))
     }
 
-    const handleFormSubmit = (e) => {
+    const handleFormSubmit = () => {
         if (loading) return
 
         if (verifyForm()) {
@@ -75,7 +75,7 @@ export default function Register(props) {
                 password: form.password.data
             }
             
-            sendData({ route: '/create', data: formData, baseURL: 'auth'}).then((data) => {
+            sendData({ route: '/create', data: formData, baseURL: 'auth'}).then(() => {
                 navigate('/')
             })
         }
@@ -91,13 +91,14 @@ export default function Register(props) {
             </div>
             
             <Card 
-                className='text-white position-absolute p-4' 
-                style={{ fontWeight: 600, backgroundColor: "rgb(107, 114, 150)" }}
+                className='text-white position-absolute p-4 opaque-grey border-grey'
+                style={{ fontWeight: 600}}
             >
                 <div className='d-flex flex-column align-items-center'>
                     <FormGroup>
                         <Label>Pseudo</Label>
                         <Input
+                            className={"opaque-light-blue placeholder-white"}
                             valid={form.username.valid}
                             invalid={form.username.invalid}
                             type="text"
@@ -110,6 +111,7 @@ export default function Register(props) {
                     <FormGroup>
                         <Label>Email</Label>
                         <Input
+                            className={"opaque-light-blue placeholder-white"}
                             valid={form.email.valid}
                             invalid={form.email.invalid}
                             type="email"
@@ -122,6 +124,7 @@ export default function Register(props) {
                     <FormGroup>
                         <Label>Mot de passe</Label>
                         <Input
+                            className={"opaque-light-blue placeholder-white"}
                             valid={form.password.valid}
                             invalid={form.password.invalid}
                             type="password"
@@ -133,7 +136,7 @@ export default function Register(props) {
                     
                     <LoadingButton 
                         color='info' 
-                        className='text-white mt-2 w-100' 
+                        className='text-white mt-2 w-100 opaque-light-blue justify-content-center'
                         onClick={handleFormSubmit}
                         loading={loading}
                         type="submit"

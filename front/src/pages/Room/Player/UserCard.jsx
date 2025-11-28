@@ -6,7 +6,7 @@ export default function UserCard(props) {
     const [tooltipOpen, setTooltipOpen] = React.useState(false)
 
     return (
-        <div className='d-flex d-flex gap-2 w-100 p-2 position-relative' style={{
+        <div className='d-flex d-flex gap-2 w-100 p-2 position-relative opaque-light-blue' style={{
                 backgroundColor: (props.user.success?"#0000e2ff":"darkblue"), 
                 borderRadius:"0.5rem", 
                 fontSize:"1.85em",

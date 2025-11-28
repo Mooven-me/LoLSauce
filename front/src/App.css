@@ -87,6 +87,30 @@
 .opaque-dark-blue{
   background-color: rgba(34, 37, 61, 0.8) !important;
 }
+
+.border-grey {
+    border: 1px #6c757d solid !important;
+}
+
+.opaque-light-blue{
+  background-color: rgba(135, 140, 254, 0.13) !important
+}
+
+.opaque-blue{
+    background-color: rgba(26, 37, 120, 0.8) !important
+}
+
+.opaque-grey{
+    background-color: rgba(50, 52, 69, 0.8) !important
+}
+
+.btn-close {
+    filter: invert(1) !important;
+}
+
+.text-grey {
+    color: #000000;
+}
   
 h5 {
   color: white !important
@@ -116,4 +140,13 @@ h5 {
   to {
     background-position: 1536px 906px
   }
+}
+
+.placeholder-white {
+    color: white !important;
+    background-color: transparent;
+}
+
+.placeholder-white::placeholder {
+    color: white !important;
 }

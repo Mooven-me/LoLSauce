@@ -79,10 +79,10 @@ export default function QuestionDispatcher(props) {
 
     return (
         <>
-            <div className="align-content-center h-100">
+            <div className="align-content-center h-100 mx-2">
                 {time}s
                 <div className="mx-auto" style={{width:"fit-content"}}>
-                    <Card className="gap-4 align-items-center" style={{backgroundColor:"rgb(74, 81, 117)", color:"white", fontWeight: "bold"}}>
+                    <Card className="gap-4 align-items-center opaque-dark-blue border border-secondary" style={{backgroundColor:"rgb(74, 81, 117)", color:"white", fontWeight: "bold"}}>
                         <div className="fs-2">
                             {props.data.title}
                         </div>
@@ -92,7 +92,8 @@ export default function QuestionDispatcher(props) {
             </div>
             <div className="my-5 align-self-center" style={{width:"300px"}}>
                 {!foundAnswer &&
-                    <Input 
+                    <Input
+                        className={"opaque-dark-blue text-white"}
                         style={{textAlign: 'center'}} 
                         autoFocus 
                         value={inputValue}

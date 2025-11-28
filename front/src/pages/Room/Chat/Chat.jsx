@@ -20,7 +20,6 @@ export default function Chat(props) {
   }
 
 const renderMessages = React.useMemo(() => {
-  console.log("messages rendererd")
   let messagesCopy = [...messages]
     return messagesCopy.reverse().map((messageElem) => {
       console.log(messageElem)
@@ -35,7 +34,7 @@ const renderMessages = React.useMemo(() => {
 
   return (
     <div
-      className='d-flex flex-column h-100'
+      className='d-flex flex-column border border-start-0 rounded-end-3 border-secondary my-3 me-3'
       style={{
         minWidth:"150px",
         backgroundColor: "rgba(34, 37, 61, 0.8)",
@@ -48,14 +47,14 @@ const renderMessages = React.useMemo(() => {
         style={{
           flex: 1,
           overflowY: "auto",
-          borderTop: "1px solid #444",
           flexDirection: "column-reverse"
         }}
       >
         {renderMessages}
       </div>
       <div style={{ padding: "10px", borderTop: "1px solid #444"}}>
-        <Input 
+        <Input
+          className='opaque-dark-blue text-white placeholder-white'
           placeholder="chat"
           value={inputMessage}
           onKeyUpCapture={(e) => e.key === 'Enter' && handleMessageSend()} 
