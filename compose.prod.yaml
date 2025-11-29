@@ -7,11 +7,6 @@ services:
     env_file:
       - .env
       - .env.prod
-    volumes:
-      - ./supervisord:/etc/supervisor
-      - ./.env:/app/.env
-      - caddy_data:/data
-      - caddy_config:/config
 
   lolsauce-node:
     build:
@@ -19,8 +14,7 @@ services:
     env_file:
       - .env
       - .env.prod
-    volumes : []
-  
+
   lolsauce-phpmyadmin:
     env_file:
       - .env

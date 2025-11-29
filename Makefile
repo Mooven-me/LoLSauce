@@ -26,7 +26,7 @@ build-start: build start
 ###> Production part
 
 build-prod: copy-env
-	docker compose --env-file .env --env-file .env.prod $(COMPOSE_PROD_FILES) build
+	docker compose --env-file .env --env-file .env.prod $(COMPOSE_PROD_FILES) build --no-cache
 
 build-start-prod: build-prod start-prod
 
