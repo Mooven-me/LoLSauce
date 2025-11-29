@@ -10,7 +10,6 @@ export default function Chat(props) {
   const messages = useSelector(state => state.chat.messages)
   const userId = useSelector(state => state.auth.userId)
   const users = useSelector(state => state.room.users)
-  console.log("uesrs dans le chat component : ", users)
 
   const handleMessageSend = () => {
     if(inputMessage.length > 0){
@@ -22,7 +21,6 @@ export default function Chat(props) {
 const renderMessages = React.useMemo(() => {
   let messagesCopy = [...messages]
     return messagesCopy.reverse().map((messageElem) => {
-      console.log(messageElem)
       return <ChatCard 
         key={messageElem.id}
         message={messageElem.message} 

@@ -4,6 +4,8 @@ WORKDIR /app
 COPY ./package*.json ./
 RUN npm install
 
+COPY . .
+
 FROM react_build AS react_dev
 
 CMD ["npm", "run", "dev", "--", "--host"]

@@ -1,30 +1,13 @@
 {% extends 'base.html.twig' %}
 {% block title %}LoLSauce{% endblock %}
 
-{% set protocol = app.request.scheme %}
-{% set vite_url = protocol ~ '://' ~ app.request.host %}
-
-{% block head %}
-    {% if app.environment == 'dev' %}
-        {# Vite React Refresh - Development mode #}
-        <script type="module">
-            import RefreshRuntime from '{{ vite_url }}:5173/build/@react-refresh'
-            RefreshRuntime.injectIntoGlobalHook(window)
-            window.$RefreshReg$ = () => {}
-            window.$RefreshSig$ = () => (type) => type
-            window.__vite_plugin_react_preamble_installed__ = true
-        </script>
-    {% else %}
-        <link rel="stylesheet" href="{{ '/build//index.css' }}">
-    {% endif %}
+{% block stylesheets %}
+    {{ vite_entry_link_tags('app') }}
 {% endblock %}
+{% block javascripts %}
+    {{ vite_entry_script_tags('app') }}
+{% endblock %}
+
 {% block body %}
     <div id="root"></div>
-    {% if app.environment == 'dev' %}
-        {# Development mode - load from Vite dev server #}
-        <script type="module" src="{{ vite_url }}:5173/build/@vite/client"></script>
-        <script type="module" src="{{ vite_url }}:5173/build/src/main.jsx"></script>
-    {% else %}
-        <script type="module" src="{{ vite_url }}/build/index.js"></script>
-    {% endif %}
 {% endblock %}

@@ -1,5 +1,6 @@
 import { defineConfig, loadEnv } from 'vite'
 import react from '@vitejs/plugin-react'
+import symfonyPlugin from 'vite-plugin-symfony';
 import path from 'path'
 
 export default defineConfig(({mode}) => {
@@ -7,7 +8,12 @@ export default defineConfig(({mode}) => {
   const env = loadEnv(mode, process.cwd(), '')
 
   return {
-  plugins: [react()],
+  plugins: [
+      react(),
+      symfonyPlugin({
+          refresh: true,
+      })
+  ],
 
   root: '.',
 
@@ -29,10 +35,8 @@ export default defineConfig(({mode}) => {
     emptyOutDir: true,
     assetsDir: '',
     rollupOptions: {
-      output: {
-        entryFileNames: '[name].js',
-        chunkFileNames: '[name].js',
-        assetFileNames: '[name].[ext]'
+      input: {
+        app: './src/main.jsx'
       }
     }
   },

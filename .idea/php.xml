@@ -101,6 +101,8 @@
       <path value="$PROJECT_DIR$/symfony/vendor/doctrine/cache" />
       <path value="$PROJECT_DIR$/symfony/vendor/symfony/translation-contracts" />
       <path value="$PROJECT_DIR$/symfony/vendor/doctrine/event-manager" />
+      <path value="$PROJECT_DIR$/symfony/vendor/pentatrion/vite-bundle" />
+      <path value="$PROJECT_DIR$/symfony/vendor/symfony/asset" />
     </include_path>
   </component>
   <component name="PhpProjectSharedConfiguration" php_language_level="8.4" />
@@ -111,6 +113,11 @@
   </component>
   <component name="PhpStanOptionsConfiguration">
     <option name="transferred" value="true" />
+  </component>
+  <component name="PhpUnit">
+    <phpunit_settings>
+      <PhpUnitSettings custom_loader_path="$PROJECT_DIR$/symfony/vendor/autoload.php" />
+    </phpunit_settings>
   </component>
   <component name="Psalm">
     <Psalm_settings>
