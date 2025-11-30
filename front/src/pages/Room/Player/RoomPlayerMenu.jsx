@@ -34,6 +34,7 @@ export function RoomPlayerMenu(props) {
         return usersCopy.map((user, index) => {
             if(user.success && !alreadyPlayedUsersAudio.includes(user.user_id)){
                 let audio = new Audio(firstKillMP3);
+                audio.volume = 0.3;
                 audio.play();
                 setAlreadyPlayedUsersAudio([...alreadyPlayedUsersAudio, user.user_id])
             }
