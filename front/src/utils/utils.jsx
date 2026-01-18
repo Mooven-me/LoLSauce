@@ -1,4 +1,6 @@
 import { toast } from 'react-toastify';
+import {useNavigate} from "react-router-dom";
+
 
 export const sendData = async ({route = "/", data = {}, method="POST", isFileDownload = false, basePath='api'}) => {
     let options = {
@@ -10,17 +12,24 @@ export const sendData = async ({route = "/", data = {}, method="POST", isFileDow
         options.headers['Accept'] = 'application/json';
     }
     
-    if(method == "POST"){
+    if(method === "POST"){
         options.headers['Content-Type'] = 'application/json';
         options.body = JSON.stringify(data);
     }
-    
+
     try {
         const response = await fetch("/"+basePath+route, options);
         
-        if (response.status === 401 && isLogedIn) {
-            logout();
-            return { error: true, error_message: "Votre session à expiré" };
+        if (response.status === 401) {
+            let jwtResponse = await fetch("/api/token/refresh")
+            if (!jwtResponse.ok) {
+                // il faut logout
+                setTimeout(() => {
+                    window.location.href = '/';
+                }, 1500);
+                return { error: true, error_message: "Votre session à expiré" };
+            }
+            return sendData({route:route, method:method, data:data, isFileDownload:isFileDownload});
         }
 
         if(response.status === 500){
@@ -70,12 +79,12 @@ export const sendData = async ({route = "/", data = {}, method="POST", isFileDow
         const result = await response.json();
         
         // Check if the response has an error and show notification
-        console.log(result)
         if (result.error === 1 && result.error_message) {
             showErrorNotification(result.error_message);
+            return result;
         }
         
-        return result.data;
+        return result.data ?? {};
         
     } catch (error) {
         showErrorNotification(error.message);

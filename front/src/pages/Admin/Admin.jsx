@@ -5,7 +5,7 @@ import LoadingButton from "../../utils/LoadingButton";
 export default function Admin() {
 
     const handleDataGeneration = async () => {
-        await sendData({route:'/admin/generateData'})
+        await sendData({route:'/generateData'})
     }
 
     return(

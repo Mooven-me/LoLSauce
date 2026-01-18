@@ -45,12 +45,16 @@ final class PartyController extends AbstractController
     #[Route('/create_room', name: 'app_party')]
     public function createRoom(EntityManagerInterface $em, Request $request): Response
     {
+        $user = $this->getUser();
+
+        if(!$user){
+            return $this->json(['error' => 'User not authenticated'],Response::HTTP_UNAUTHORIZED);
+        }
+
         $data = json_decode($request->getContent(), true);
         $username = $data["username"]??null;
         $result = array('error' => 0);
         try {
-
-            $user = new User();
             $room = new Room();
 
             $room->setLeader($user);
@@ -59,7 +63,6 @@ final class PartyController extends AbstractController
             $user->setUsername($username);
 
             $em->persist($room);
-            $em->persist($user);
 
             $em->flush();
 
@@ -77,19 +80,18 @@ final class PartyController extends AbstractController
 
     #[Route('/send_answer', name: 'send_answer', methods: ['POST'])]
     public function sendAnswer(Request $request, EntityManagerInterface $em, HubInterface $hub){
+        $user = $this->getUser();
+
+        if(!$user){
+            return $this->json(['error' => 'User not authenticated'],Response::HTTP_UNAUTHORIZED);
+        }
+
         $data = json_decode($request->getContent(), true);
-        $userId = $data['user_id']??null;
         $word = $data['word']??null;
 
-        if(!$userId){
-            return new JsonResponse(['error' => '1',  'error_message' => 'userId is required'], 400);
-        }
         if(!$word){
             return new JsonResponse(['error' => '1',  'error_message' => 'word is required'], 400);
         }
-
-        /** @var User|null $user */
-        $user = $em->getRepository(User::class)->findOneById($userId);
 
         $room = $user->getRoom();
         $roomId = $room->getId();
@@ -133,7 +135,7 @@ final class PartyController extends AbstractController
                 'https://subscribed.channel/'.$roomId.'/room',
                 json_encode([
                     'type' => 'success',
-                    'user_id' => $userId,
+                    'user_id' => $user->getId(),
                     'time' => $currentDate->diff($room->getQuestionDate()),
                     'score' => $user->getScore(),
                 ])
@@ -143,7 +145,7 @@ final class PartyController extends AbstractController
             topics: 'https://subscribed.channel/'.$roomId.'/room',
             data: json_encode([
                     'type' => 'try',
-                    'user_id' => $userId,
+                    'user_id' => $user->getId(),
                     'word'  => $word
                 ])
             );
@@ -160,15 +162,12 @@ final class PartyController extends AbstractController
 
     #[Route('/start', name: 'start', methods: ['POST'])]
     public function startRoom(Request $request, EntityManagerInterface $em){
-        $data = json_decode($request->getContent(), true);
-        $userId = $data['user_id']??null;
+        $user = $this->getUser();
 
-        if(!$userId){
-            return new JsonResponse(['error' => 'userId is required'], 400);
+        if(!$user){
+            return $this->json(['error' => 'User not authenticated'],Response::HTTP_UNAUTHORIZED);
         }
 
-        /** @var User|null $user */
-        $user = $em->getRepository(User::class)->findOneById($userId);
         $room = $user->getRoom();
         $roomId = $room->getId();
 
@@ -191,6 +190,12 @@ final class PartyController extends AbstractController
 
     #[Route('/join', name: 'join', methods: ['POST'])]
     public function joinRoom(Request $request, EntityManagerInterface $em, HubInterface $hub){
+        $user = $this->getUser();
+
+        if(!$user){
+            return $this->json(['error' => 'User not authenticated'],Response::HTTP_UNAUTHORIZED);
+        }
+
         $data = json_decode($request->getContent(), true);
         $username = $data['username']??null;
         $room_id = $data['room_id']??null;
@@ -209,12 +214,10 @@ final class PartyController extends AbstractController
             return new JsonResponse(['error' => '1',  'error_message' => 'invalid room_id'], 400);
         }
 
-        $user = new User();
         $user->setUsername($username);
         $user->setRoom($room);
         $room->addUser($user);
 
-        $em->persist($user);
         $em->persist($room);
 
         $em->flush();
@@ -243,22 +246,14 @@ final class PartyController extends AbstractController
 
     #[Route('/leaved', name: 'leaved', methods: ['POST'])]
     public function leavedRoom(Request $request, EntityManagerInterface $em, HubInterface $hub){
-        $data = json_decode($request->getContent(), true);
-        $user_id = $data['user_id']??null;
-
-        if(!$user_id){
-            return new JsonResponse(['error' => '1',  'error_message' => 'user_id is required'], 400);
-        }
-
-        $user = $em->getRepository(User::class)->findOneById($user_id);
+        $user = $this->getUser();
 
         if(!$user){
-            return new JsonResponse(['error' => '1',  'error_message' => 'user not found'], 400);
+            return $this->json(['error' => 'User not authenticated'],Response::HTTP_UNAUTHORIZED);
         }
 
         $room = $user->getRoom();
 
-        $user->setRoom(null);
         $room->removeUser($user);
 
         $users = $room->getUsers();
@@ -275,8 +270,6 @@ final class PartyController extends AbstractController
             $em->remove($room);
         }
 
-        //delete the user and affect the changes
-        $em->remove($user);
         $em->flush();
 
         $update = new Update(
@@ -295,16 +288,15 @@ final class PartyController extends AbstractController
 
     #[Route('/sendMessage', name: 'send_message', methods: ['POST'])]
     public function sendMessage(Request $request, HubInterface $hub){
+        $user = $this->getUser();
+
+        if(!$user){
+            return $this->json(['error' => 'User not authenticated'],Response::HTTP_UNAUTHORIZED);
+        }
+
         $data = json_decode($request->getContent(), true);
 
-        $userId = $data['user_id']??null;
         $message = $data['message']??null;
-
-        $user = $this->em->getRepository(User::class)->findOneById($userId);
-
-        if(!$userId){
-            return new JsonResponse(['error' => '1',  'error_message' => 'user_id is required'], 400);
-        }
 
         if(!$message){
             return new JsonResponse(['error' => '1',  'error_message' => 'message is required'], 400);
@@ -315,7 +307,7 @@ final class PartyController extends AbstractController
             data: json_encode(
                 array(
                         'type' => 'userMessage',
-                        'user_id' => $userId,
+                        'user_id' => $user->getId(),
                         'message' => $message,
                     )
                 )

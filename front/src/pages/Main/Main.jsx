@@ -8,13 +8,13 @@ import { setIsLeader, setRoomId, setUsers } from '../../store/roomSlice.js';
 import { setAuth, setUsername } from '../../store/authSlice.js';
 import MainNavbar from "./MainNavbar.jsx";
 
-export default function Main(props) {
+export default function Main() {
     const navigate = useNavigate();
     const [usernameError, setUsernameError] = React.useState(false);
     const [joinRoomError, setJoinRoomError] = React.useState(false);
     const [roomCreationLoading, setRoomCreationLoading] = React.useState(false);
     const [size, setSize] = React.useState(window.innerWidth);
-    const usernameRef = React.useRef("");
+    const usernameRef = React.useRef(window.IS_LOGGED_IN ? window.USERNAME : "");
     const roomId = React.useRef("")
 
     const dispatch = useDispatch();
@@ -84,7 +84,7 @@ export default function Main(props) {
                                         <b style={{color:"rgb(255, 255, 255)", textWrap:"nowrap"}}>Rejoindre</b>
                                     </Button>
                                     <Input
-                                        className='shadow arrondi-gauche opaque-light-blue placeholder-white'
+                                        className='shadow arrondi-gauche opaque-light-blue placeholder-grey'
                                         onChange={(e) => {roomId.current = e.target.value}}
                                         type={"number"}
                                         onKeyUpCapture={(e) => e.key === 'Enter' && handleNavigateToRoom()}
@@ -104,12 +104,13 @@ export default function Main(props) {
                                         <b style={{color:"rgb(255, 255, 255)", textWrap:"nowrap"}}>Créer</b>
                                     </LoadingButton>
                                     <Input 
-                                        className='shadow arrondi-gauche opaque-light-blue placeholder-white'
+                                        className='shadow arrondi-gauche opaque-light-blue placeholder-grey'
                                         placeholder='Pseudo' 
                                         onKeyUpCapture={(e) => e.key === 'Enter' && createRoom()} 
                                         onChange={(e) => handleUsernameChange(e)}
                                         invalid={usernameError}
                                         maxLength={15}
+                                        defaultValue={window.IS_LOGGED_IN ? window.USERNAME : ""}
                                     />
                                 </ButtonGroup>
                             </FormGroup>

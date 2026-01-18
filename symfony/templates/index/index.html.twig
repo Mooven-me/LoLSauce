@@ -5,6 +5,11 @@
     {{ vite_entry_link_tags('app') }}
 {% endblock %}
 {% block javascripts %}
+    <script>
+        window.IS_LOGGED_IN = {{ user.is_logged_in|json_encode|raw }};
+        window.ROLES = {{ user.roles|json_encode|raw }};
+        window.USERNAME = {{ user.username|json_encode|raw }};
+    </script>
     {{ vite_entry_script_tags('app') }}
 {% endblock %}
 

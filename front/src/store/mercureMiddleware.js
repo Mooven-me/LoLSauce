@@ -57,10 +57,6 @@ export const mercureMiddleware = (store) => (next) => (action) => {
         case "try":
           store.dispatch(userTry(data));
           break;
-
-        case "end":
-          store.dispatch(stop())
-          break;
       }
     };
     

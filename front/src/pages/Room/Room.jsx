@@ -19,7 +19,6 @@ export default function Room() {
   
   const isGameStarted = useSelector(state => state.game.isStarted);
   const isLeader = useSelector(state => state.room.isLeader);
-  const userId = useSelector(state => state.auth.userId);
   const roomId = useSelector(state => state.room.roomId);
 
   useEffect(() => {
@@ -28,12 +27,12 @@ export default function Room() {
     return () => {
       dispatch(disconnect());
       dispatch(stop());
-      sendData({ route: "/leaved", method: "POST", data: { user_id: userId } });
+      sendData({ route: "/leaved", method: "POST" });
     };
   }, []);
 
   const handleStartGame = async () => {
-    await sendData({ route: '/start', method: "POST", data: { user_id: userId } })
+    await sendData({ route: '/start', method: "POST" })
   }
   
   return (

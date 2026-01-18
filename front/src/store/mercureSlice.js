@@ -7,7 +7,7 @@ const mercureSlice = createSlice({
     error: null,
   },
   reducers: {
-    connect: (state, action) => {
+    connect: (state) => {
       // Le reducer ne fait rien ici, c'est le middleware qui agit
       state.connected = false;
     },

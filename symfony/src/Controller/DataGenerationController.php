@@ -22,12 +22,14 @@ class DataGenerationController extends AbstractController
     #[Route('/generateData', name: 'data_generation')]
     public function generateData(DataGenerator $dataGenerator): JsonResponse
     {
+        set_time_limit(0);
+        ini_set('max_execution_time', '0');
         $result = array('error' => 0);
         try {
             $dataGenerator->generateDataProcess();
         } catch (\Exception $e) {
             $result = array(
-                'error' => 1, 
+                'error' => 1,
                 'error_message' => 'A problem occured : '.$e->getMessage(). ' \nstack trace : '.$e->getTraceAsString()
             );
         }

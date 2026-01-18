@@ -32,7 +32,6 @@ export default function JoinModal() {
                 dispatch(setUsername(usernameRef.current))
                 dispatch(setAuth({userId: data.user_id, username: data.username}))
                 dispatch(setRoomId(data.room_id))
-                console.log(data)
                 if(data.gameStarted){
                     dispatch(start())
                 }

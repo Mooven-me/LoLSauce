@@ -3,7 +3,10 @@
 namespace App\Controller;
 
 use App\Entity\User;
+use App\Service\JWTUtilManager;
 use Doctrine\ORM\EntityManagerInterface;
+use Gesdinet\JWTRefreshTokenBundle\Generator\RefreshTokenGeneratorInterface;
+use Gesdinet\JWTRefreshTokenBundle\Model\RefreshTokenManagerInterface;
 use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Cookie;
@@ -16,38 +19,38 @@ final class IndexController extends AbstractController
 
     public function __construct(
         private EntityManagerInterface $em,
+        private JWTUtilManager $jwtUtilManager,
     ){
 
     }
     #[Route('/{reactRouting}', name: 'app_index', requirements: ['reactRouting' => '^(?!api/).*'], defaults: ['reactRouting' => null], priority: -1)]
-    public function index(Request $request, JWTTokenManagerInterface $JWTTokenManager): Response
+    public function index(Request $request): Response
     {
-        $response = $this->render('index/index.html.twig');
 
         // if user already logged in, we send him the page, otherwise we create cookies.
         if ($this->getUser()) {
-            return $response;
+            return $this->render('index/index.html.twig', array('user' => $this->getUser()->getFormattedInformation()));
         }
 
-        $user = new User();
-        $user->setEmail('guest_' . uniqid() . '@no_account.com');
-        $user->setUsername('anonymous');
-        $user->setAnonymous(true);
+        $refreshToken = $this->jwtUtilManager->getRefreshToken($request);
 
-        $this->em->persist($user);
-        $this->em->flush();
+        $user = $this->jwtUtilManager->getUserFromRefreshToken($refreshToken);
 
-        $token = $JWTTokenManager->create($user);
+        // no valid jwt and refresh token
+        // we create an anonymous user
+        if (!$user) {
+            $user = new User();
+            $user->setEmail('guest_' . uniqid() . '@no_account.com');
+            $user->setUsername('anonymous');
+            $user->setAnonymous(true);
 
-        $cookie = Cookie::create('LOLSAUCE_JWT_COOKIE')
-            ->withValue($token)
-            ->withExpires(new \DateTime('+1 hour'))
-            ->withPath('/')
-            ->withSecure(true)
-            ->withHttpOnly(true)
-            ->withSameSite('lax');
+            $this->em->persist($user);
+            $this->em->flush();
+        }
 
-        $response->headers->setCookie($cookie);
+        $response= $this->render('index/index.html.twig', array('user' => $user->getFormattedInformation()));
+
+        $this->jwtUtilManager->createCredentials($response, $user, $refreshToken);
 
         return $response;
     }

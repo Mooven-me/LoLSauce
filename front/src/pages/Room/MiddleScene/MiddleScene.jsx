@@ -6,14 +6,13 @@ import crownImage from '../../../assets/crown.png';
 import LoadingButton from '../../../utils/LoadingButton';
 import { sendData } from '../../../utils/utils';
 
-export default function MiddleScene(props) {
+export default function MiddleScene() {
 
     const users = useSelector((state) => state.room.users);
     const questionData = useSelector((state) => state.game.questionData)
-    const userId = useSelector(state => state.auth.userId)
 
     const handleRestartGame = async () => {
-        await sendData({ route: '/start', method: "POST", data: { user_id: userId } })
+        await sendData({ route: '/start', method: "POST" })
     }
 
     const handleRenderScene = () => {

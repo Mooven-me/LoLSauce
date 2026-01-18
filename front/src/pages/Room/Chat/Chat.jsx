@@ -4,7 +4,7 @@ import { sendData } from '../../../utils/utils'
 import ChatCard from './ChatCard';
 import { useSelector } from 'react-redux';
 
-export default function Chat(props) {
+export default function Chat() {
 
   const [inputMessage, setInputMessage] = React.useState("")
   const messages = useSelector(state => state.chat.messages)
@@ -13,19 +13,19 @@ export default function Chat(props) {
 
   const handleMessageSend = () => {
     if(inputMessage.length > 0){
-      sendData({route: '/sendMessage', method: "POST", data: {"user_id": userId, "message":inputMessage}})
+      sendData({route: '/sendMessage', method: "POST", data: {"message":inputMessage}})
     }
     setInputMessage('')
   }
 
 const renderMessages = React.useMemo(() => {
-  let messagesCopy = [...messages]
+    let messagesCopy = [...messages]
     return messagesCopy.reverse().map((messageElem) => {
       return <ChatCard 
         key={messageElem.id}
         message={messageElem.message} 
         isOwner={messageElem.user_id===userId} 
-        user={users.find((user) => user.user_id===messageElem.user_id)}
+        user={users.find((user) => user.user_id === messageElem.user_id)}
       />
     })
   }, [messages, userId, users]);
@@ -52,7 +52,7 @@ const renderMessages = React.useMemo(() => {
       </div>
       <div style={{ padding: "10px", borderTop: "1px solid #444"}}>
         <Input
-          className='opaque-dark-blue text-white placeholder-white'
+          className='opaque-dark-blue text-white placeholder-white placeholder-grey'
           placeholder="chat"
           value={inputMessage}
           onKeyUpCapture={(e) => e.key === 'Enter' && handleMessageSend()} 

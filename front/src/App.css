@@ -150,3 +150,12 @@ h5 {
 .placeholder-white::placeholder {
     color: white !important;
 }
+
+.placeholder-grey {
+    color: white !important;
+    background-color: transparent;
+}
+
+.placeholder-grey::placeholder {
+    color: #FFFFFF8F !important;
+}

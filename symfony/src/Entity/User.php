@@ -182,7 +182,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function isAnonymous(): ?bool
     {
-        return $this->anonymous;
+        return $this->anonymous ?? false;
     }
 
     public function setAnonymous(?bool $anonymous): static
@@ -190,6 +190,14 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->anonymous = $anonymous;
 
         return $this;
+    }
+
+    public function getFormattedInformation(): array {
+        return array(
+            'username' => $this->username,
+            'is_logged_in' => (!$this->anonymous) ?? true,
+            'roles' => $this->roles,
+        );
     }
 }
 

@@ -13,17 +13,15 @@ lexik_jwt_authentication:
         
         cookie:
             enabled: true
-            name: LOLSAUCE_JWT_COOKIE
+            name: jwt_lolsauce
 
     set_cookies:
-        LOLSAUCE_JWT_COOKIE:
+        jwt_lolsauce:
             lifetime: 3600
             samesite: lax
             path: /
             secure: true
             httpOnly: true
-            split:
-                enabled: false
 
     # remove the token from the response body when using cookies
     remove_token_from_body_when_cookies_used: true

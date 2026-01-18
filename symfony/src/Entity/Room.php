@@ -17,7 +17,7 @@ class Room
     #[ORM\Column]
     private int $id;
 
-    #[ORM\OneToOne(cascade: ['persist', 'remove'])]
+    #[ORM\OneToOne(cascade: ['persist'])]
     #[ORM\JoinColumn(nullable: false)]
     private User $leader;
 

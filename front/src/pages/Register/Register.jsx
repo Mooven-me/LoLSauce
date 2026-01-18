@@ -4,9 +4,8 @@ import LoadingButton from '../../utils/LoadingButton'
 import { sendData } from '../../utils/utils'
 import { useNavigate } from 'react-router-dom'
 
-export default function Register(props) {
+export default function Register() {
     const navigate = useNavigate()
-    const [loading, setLoading] = React.useState(false)
     const [form, setForm] = React.useState({
         username: { valid: false, invalid: false, data: '' },
         email: { valid: false, invalid: false, data: '' },
@@ -47,7 +46,6 @@ export default function Register(props) {
         }
 
         setForm(formCopy)
-        console.log(allGood)
         return allGood
     }
 
@@ -63,20 +61,24 @@ export default function Register(props) {
         }))
     }
 
-    const handleFormSubmit = () => {
-        if (loading) return
-
+    const handleFormSubmit = async () => {
         if (verifyForm()) {
-            setLoading(true)
-
             const formData = {
                 username: form.username.data,
                 email: form.email.data,
                 password: form.password.data
             }
             
-            sendData({ route: '/create', data: formData, baseURL: 'auth'}).then(() => {
-                navigate('/')
+            return sendData({ route: '/register', data: formData, basePath: 'auth'}).then((data) => {
+                if(!data.error){
+                    window.IS_LOGGED_IN = data.is_logged_in
+                    window.USERNAME = data.username
+                    window.ROLENAME = data.role
+                    navigate('/')
+                }else if(data.error_type === "email"){
+                    let formCopy = {...form}
+                    setForm({...formCopy, email: {valid: false, invalid: true, data: formCopy.email.data }})
+                }
             })
         }
     }
@@ -98,7 +100,7 @@ export default function Register(props) {
                     <FormGroup>
                         <Label>Pseudo</Label>
                         <Input
-                            className={"opaque-light-blue placeholder-white"}
+                            className={"opaque-light-blue placeholder-white placeholder-grey"}
                             valid={form.username.valid}
                             invalid={form.username.invalid}
                             type="text"
@@ -111,7 +113,7 @@ export default function Register(props) {
                     <FormGroup>
                         <Label>Email</Label>
                         <Input
-                            className={"opaque-light-blue placeholder-white"}
+                            className={"opaque-light-blue placeholder-white placeholder-grey"}
                             valid={form.email.valid}
                             invalid={form.email.invalid}
                             type="email"
@@ -124,7 +126,7 @@ export default function Register(props) {
                     <FormGroup>
                         <Label>Mot de passe</Label>
                         <Input
-                            className={"opaque-light-blue placeholder-white"}
+                            className={"opaque-light-blue placeholder-white placeholder-grey"}
                             valid={form.password.valid}
                             invalid={form.password.invalid}
                             type="password"
@@ -138,7 +140,6 @@ export default function Register(props) {
                         color='info' 
                         className='text-white mt-2 w-100 opaque-light-blue justify-content-center'
                         onClick={handleFormSubmit}
-                        loading={loading}
                         type="submit"
                     >
                         S'inscrire

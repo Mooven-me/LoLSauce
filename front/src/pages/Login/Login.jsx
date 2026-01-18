@@ -4,9 +4,8 @@ import LoadingButton from '../../utils/LoadingButton'
 import { sendData } from '../../utils/utils'
 import { useNavigate } from 'react-router-dom'
 
-export default function Login(props) {
+export default function Login() {
     const navigate = useNavigate()
-    const [loading, setLoading] = React.useState(false)
     const [form, setForm] = React.useState({
         email: { valid: false, invalid: false, data: '' },
         password: { valid: false, invalid: false, data: '' }
@@ -37,6 +36,7 @@ export default function Login(props) {
         }
 
         setForm(formCopy)
+        console.log("allgood", allGood)
         return allGood
     }
 
@@ -52,20 +52,23 @@ export default function Login(props) {
         }))
     }
 
-    const handleFormSubmit = () => {
-        if (loading) return
-
+    const handleFormSubmit = async () => {
         if (verifyForm()) {
-            setLoading(true)
-
             const formData = {
-                username: form.username.data,
                 email: form.email.data,
                 password: form.password.data
             }
             
-            sendData({ route: '/create', data: formData, baseURL: 'auth'}).then(() => {
-                navigate('/')
+            await sendData({ route: '/login', data: formData, basePath: 'auth'}).then((data) => {
+                if(!data.error){
+                    window.IS_LOGGED_IN = data.is_logged_in
+                    window.USERNAME = data.username
+                    window.ROLENAME = data.role
+                    navigate('/')
+                }else if(data.error_type === "auth_failed"){
+                    let formCopy = {...form}
+                    setForm({email: {valid: false, invalid: true, data: formCopy.email.data }, password: {valid: false, invalid: true, data: "" }})
+                }
             })
         }
     }
@@ -87,7 +90,7 @@ export default function Login(props) {
                     <FormGroup>
                         <Label>Email</Label>
                         <Input
-                            className={"opaque-light-blue placeholder-white"}
+                            className={"opaque-light-blue placeholder-white placeholder-grey"}
                             valid={form.email.valid}
                             invalid={form.email.invalid}
                             type="email"
@@ -100,7 +103,7 @@ export default function Login(props) {
                     <FormGroup>
                         <Label>Mot de passe</Label>
                         <Input
-                            className={"opaque-light-blue placeholder-white"}
+                            className={"opaque-light-blue placeholder-white placeholder-grey"}
                             valid={form.password.valid}
                             invalid={form.password.invalid}
                             type="password"
@@ -114,7 +117,6 @@ export default function Login(props) {
                         color='info' 
                         className='text-white mt-2 w-100 opaque-light-blue justify-content-center'
                         onClick={handleFormSubmit}
-                        loading={loading}
                         type="submit"
                     >
                         Connexion
