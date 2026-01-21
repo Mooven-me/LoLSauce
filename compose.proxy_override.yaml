@@ -1,0 +1,14 @@
+# compose.proxy_override.yaml
+services:
+  php:
+    networks:
+      - proxy
+    environment:
+      - APP_TRUSTED_HOSTS=lolsauce.fr
+    ports: !override 
+      []
+
+networks:
+  proxy:
+    name: ${PROXY_NETWORK_NAME}
+    external: true
