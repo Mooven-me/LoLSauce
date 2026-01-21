@@ -6,7 +6,7 @@ services:
     environment:
       - APP_TRUSTED_HOSTS=lolsauce.fr
     ports: !override 
-      []
+      - 80:${PROXY_PORT:-80}
 
 networks:
   proxy:
