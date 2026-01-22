@@ -1,6 +1,6 @@
 COMPOSE_FILES := -f compose.yaml
 COMPOSE_PROD_FILES := -f compose.yaml -f compose.prod.yaml
-COMPOSE_PROD_PROXY_FILES := -f compose.yaml -f compose.prod.yaml
+COMPOSE_PROD_PROXY_FILES := -f compose.yaml -f compose.prod.yaml -f compose.proxy_override.yaml
 SYMFONY_DIR := ./symfony
 FRONT_DIR := ./front
 
