@@ -1,6 +1,6 @@
 import { connect, disconnect, connected, connectionError } from './mercureSlice';
 import { resetScores, resetUsersWord, setUsers, userSuccess, userTry } from './roomSlice';
-import { start, setQuestionData, setUserFoundAnswer } from './gameSlice';
+import { start, setQuestionData } from './gameSlice';
 import { messageReceived } from './chatSlice';
 
 let eventSource = null;
@@ -47,11 +47,6 @@ export const mercureMiddleware = (store) => (next) => (action) => {
           
         case "success":
           store.dispatch(userSuccess(data));
-          
-          const currentUserId = store.getState().auth.userId;
-          if (data.user_id === currentUserId) {
-            store.dispatch(setUserFoundAnswer());
-          }
           break;
           
         case "try":

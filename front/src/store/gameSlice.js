@@ -22,11 +22,8 @@ const gameSlice = createSlice({
       state.questionData = {};
       state.foundAnswer = false;
     },
-    setUserFoundAnswer: (state, action) => {
-      state.foundAnswer = action.payload
-    }
   },
 });
 
-export const { start, setQuestionData, stop, setUserFoundAnswer } = gameSlice.actions;
+export const { start, setQuestionData, stop } = gameSlice.actions;
 export default gameSlice.reducer;

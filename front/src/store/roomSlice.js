@@ -21,9 +21,6 @@ const roomSlice = createSlice({
     userSuccess: (state, action) => {
       const { user_id, time, score } = action.payload;
       const totalTime = time.s + time.f;
-
-      console.log(time.s)
-      console.log(time.f)
       
       state.users = state.users.map(user => 
         user.user_id === user_id 

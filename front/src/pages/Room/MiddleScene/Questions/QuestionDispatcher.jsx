@@ -9,16 +9,16 @@ export default function QuestionDispatcher(props) {
 
     const [time, setTime] = React.useState(15)
     const [inputValue, setInputValue] = React.useState()
-    const foundAnswer  = useSelector((state) => state.game.foundAnswer)
     const userId  = useSelector((state) => state.auth.userId)
+    const users = useSelector((state) => state.room.users);
 
     React.useEffect(() => {
         const interval = setInterval(() => {
             setTime(prevIndex => {
                 return prevIndex-1;
             });
-        }, 1000); 
-        
+        }, 1000);
+
         // Cleanup interval on component unmount
         return () => clearInterval(interval)
     }, []);
@@ -52,7 +52,7 @@ export default function QuestionDispatcher(props) {
                 result = <PixelQuestion content={data.content}/>
                 break;
             case "lore":
-                result = 
+                result =
                 <div>
                     <div>{data.content}</div>
                 </div>
@@ -87,14 +87,14 @@ export default function QuestionDispatcher(props) {
                 </div>
             </div>
             <div className="my-5 align-self-center" style={{width:"300px"}}>
-                {!foundAnswer &&
+                {!users.find(user => user.user_id === userId).success &&
                     <Input
                         className={"opaque-dark-blue text-white"}
-                        style={{textAlign: 'center'}} 
-                        autoFocus 
+                        style={{textAlign: 'center'}}
+                        autoFocus
                         value={inputValue}
                         onChange={(e) => {setInputValue(e.target.value)}}
-                        onKeyUpCapture={(e) => e.key === 'Enter' && handleAnswerSending()} 
+                        onKeyUpCapture={(e) => e.key === 'Enter' && handleAnswerSending()}
                     />
                 }
             </div>
