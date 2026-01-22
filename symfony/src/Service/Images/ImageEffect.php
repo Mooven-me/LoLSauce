@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Service;
+namespace App\Service\Images;
 
 use Intervention\Image\ImageManager;
 
@@ -17,13 +17,13 @@ class ImageEffect
     {
         // Load the image
         $image = $this->imageManager->read($inputPath);
-        
+
         // Convert to grayscale first
         $image->greyscale();
-        
+
         // Resize to the desired pixel size (this creates the pixelation effect)
         $image->pixelate($image->width()/$pixelNumber);
-        
+
         // Save the result
         $image->save($outputPath);
     }
@@ -31,13 +31,13 @@ class ImageEffect
     public function createImageRotation(string $inputPath, string $outputPath, int $degree){
         // Load the image
         $image = $this->imageManager->read($inputPath);
-        
+
         // Convert to grayscale first
         $image->greyscale();
-        
+
         // Resize to the desired pixel size (this creates the pixelation effect)
         $image->rotate($degree);
-        
+
         // Save the result
         $image->save($outputPath);
     }

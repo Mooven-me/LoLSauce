@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Service;
+namespace App\Service\JWT;
 
 use App\Entity\User;
 use Gesdinet\JWTRefreshTokenBundle\Generator\RefreshTokenGeneratorInterface;

@@ -1,13 +1,12 @@
 <?php
 
 
-namespace App\Service;
+namespace App\Service\Questions;
 
 use App\Entity\Questions;
 use App\Service\enums\QuestionsTypes;
+use App\Service\Images\ImageEffect;
 use Doctrine\ORM\EntityManagerInterface;
-use Exception;
-use PharData;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Process\Exception\ProcessFailedException;
@@ -22,14 +21,14 @@ class DataGenerator
     private EntityManagerInterface $em;
     private string $version;
     private string $mainPath = '/app/files';
-    private array $championsMapping = 
+    private array $championsMapping =
         array(
             'Fiddlesticks' => 'FiddleSticks',
         );
-        
+
 
     public function __construct(
-            HttpClientInterface $httpClient, 
+            HttpClientInterface $httpClient,
             Filesystem $filesystem,
             ImageEffect $imageEffect,
             EntityManagerInterface $em,
@@ -55,7 +54,7 @@ class DataGenerator
 
     /**
      * create a version file at the mentionned path.
-     * 
+     *
      * @param string $path the path where the file version will be created
      * @return void
      */
@@ -70,13 +69,13 @@ class DataGenerator
 
     /**
      * tell if the current path is upd to date
-     * 
+     *
      * @param string $path
      * @return string
      */
     private function isAssetsFileUpToDate(string $path): bool{
         $path = ($path[strlen($path)-1] == '/' ? $path.'version.txt' : $path.'/version.txt');
-        
+
         return $this->filesystem->exists($path) ? $this->filesystem->readFile($path) === $this->getVersion() : false;
     }
 
@@ -101,17 +100,17 @@ class DataGenerator
 
         // Convert to uppercase in a multibyte-safe way
         $string = mb_strtoupper($string, 'UTF-8');
-    
+
         return $string;
     }
 
     private function getOriginalChampionName(string $filesystemName): string {
         static $reverseMapping = null;
-        
+
         if ($reverseMapping === null) {
             $reverseMapping = array_flip($this->championsMapping);
         }
-        
+
         return $reverseMapping[$filesystemName] ?? $filesystemName;
     }
 
@@ -121,28 +120,28 @@ class DataGenerator
         $originalChampionName = $this->getOriginalChampionName($championName);
 
         $fileContent = file_get_contents($this->mainPath.'/dragontail-'.$version.'/'.$version.'/data/fr_FR/champion/'.$originalChampionName.'.json');
-        
+
         return json_decode($fileContent, true)['data'][$originalChampionName];
     }
 
     public function getChampions(): array {
         static $champions = null;
-        
+
         if ($champions !== null) {
             return $champions;
         }
-        
+
         $version = $this->getVersion();
         $fileContent = file_get_contents($this->mainPath.'/dragontail-'.$version.'/'.$version.'/data/fr_FR/champion.json');
         $content = json_decode($fileContent, true);
         $result = array_keys($content['data']);
-        
+
         foreach ($result as $key => $champion) {
             if (isset($this->championsMapping[$champion])) {
                 $result[$key] = $this->championsMapping[$champion];
             }
         }
-        
+
         $champions = $result;
         return $champions;
     }
@@ -158,7 +157,7 @@ class DataGenerator
             $content = json_decode($fileContent, true);
             $result[$language] = $content['data'];
         }
-            
+
         return $result;
     }
 
@@ -169,7 +168,7 @@ class DataGenerator
      */
     public function generateDataProcess(): void {
         set_time_limit(-1);
-        ini_set('memory_limit', '-1'); 
+        ini_set('memory_limit', '-1');
 
         // check if we have the newest version of the file
         $this->updateVersion();
@@ -192,7 +191,7 @@ class DataGenerator
             }
 
             $response = $this->httpClient->request('GET', 'https://ddragon.leagueoflegends.com/cdn/'.$fileName.'.tgz');
-            
+
             // store the new file (this method allow streaming directly)
             $fileHandle = fopen($fullFilePath.'.tgz', 'w');
             foreach ($this->httpClient->stream($response) as $chunk) {
@@ -213,7 +212,7 @@ class DataGenerator
             $process = Process::fromShellCommandline('tar -xzf ' . escapeshellarg($fullFilePath.'.tgz') . ' -C ' . escapeshellarg($fullFilePath) . ' --no-same-owner --no-same-permissions');
             $process->setTimeout(3600);
             $process->run();
-            
+
             if (!$process->isSuccessful()) {
                 throw new ProcessFailedException($process);
             }
@@ -264,12 +263,12 @@ class DataGenerator
         $champions = $this->getChampions();
 
         foreach($champions as $champion){
-            
+
             $championData = $this->getChampionData($champion);
 
             // create new folder name
             $folderPath = $targetFolder.'/'.$champion;
-            $image = $championData['image']['full']; 
+            $image = $championData['image']['full'];
 
             $this->filesystem->mkdir($folderPath);
 
@@ -382,7 +381,7 @@ class DataGenerator
                 $this->filesystem->mkdir($championFolderPath.'/difficult');
                 foreach(array(0,90,180,270) as $rotation){
                     $this->imageEffect->createImageRotation($imagesDirectory.$fileName, $championFolderPath.'/difficult/'.$spell['id'].'_'.$rotation.'.png', $rotation);
-                
+
                     // create a new Questions object to the data base
                     $question = new Questions();
                     $question->setContent($championFolderPath.'/difficult/'.$spell['id'].'_'.$rotation.'.png');
@@ -405,7 +404,7 @@ class DataGenerator
         }
 
         $this->createVersionFile($targetFolder);
-        
+
         $this->em->flush();
     }
 
@@ -447,7 +446,7 @@ class DataGenerator
             $this->filesystem->mkdir($championFolderPath.'/difficult');
             foreach(array(0,90,180,270) as $rotation){
                 $this->imageEffect->createImageRotation($imagesDirectory.$fileName, $championFolderPath.'/difficult/'.(substr($fileName, 0, -4)).'_'.$rotation.'.png', $rotation);
-            
+
                 // create a new Questions object to the data base
                 $question = new Questions();
                 $question->setContent($championFolderPath.'/difficult/'.(substr($fileName, 0, -4)).'_'.$rotation.'.png');
@@ -466,7 +465,7 @@ class DataGenerator
             $question->setAnswers(array('fr_FR'=>$this->removeAccentsAndUpper($championData['name'])));
 
             $this->em->persist($question);
-            
+
         }
         $this->createVersionFile($targetFolder);
 
@@ -503,7 +502,7 @@ class DataGenerator
             $question->setAnswers(array('fr_FR'=>$this->removeAccentsAndUpper($championData['name'])));
 
             $this->em->persist($question);
-            
+
         }
 
         $this->em->flush();
@@ -537,7 +536,7 @@ class DataGenerator
 
         foreach($itemsLanguages as $language => $items){
         }
-        
+
         $items = $itemsLanguages['fr_FR'];
         $itemsEN = $itemsLanguages['en_GB'];
         foreach($items as $name => $item){
@@ -550,7 +549,7 @@ class DataGenerator
 
                 foreach(array(0,90,180,270) as $rotation){
                     $this->imageEffect->createImageRotation($imagesDirectory.$fileName, $folderPath.'/difficult/'.(substr($fileName, 0, -4)).'_'.$rotation.'.png', $rotation);
-                
+
                     // create a new Questions object to the data base
                     $question = new Questions();
                     $this->logger->info("file name : ".$fileName);

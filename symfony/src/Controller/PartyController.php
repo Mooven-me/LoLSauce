@@ -2,12 +2,11 @@
 
 namespace App\Controller;
 
-use App\Entity\Questions;
 use App\Entity\Room;
 use App\Entity\User;
 use App\PusherNotification\PusherNotification;
 use App\PusherNotification\PusherNotificationHandler;
-use App\Service\QuestionHandler;
+use App\Service\Room\RoomUtilManager;
 use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -17,44 +16,36 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Mercure\HubInterface;
 use Symfony\Component\Mercure\Update;
 use Symfony\Component\Messenger\MessageBusInterface;
-use Symfony\Component\Messenger\Stamp\DelayStamp;
 use Symfony\Component\Routing\Attribute\Route;
-
-use function PHPSTORM_META\map;
 
 #[Route('/api')]
 final class PartyController extends AbstractController
 {
-    private PusherNotificationHandler $questionHandler;
-    private EntityManagerInterface $em;
     private HubInterface $hub;
     private MessageBusInterface $bus;
 
     public function __construct(
-        PusherNotificationHandler $questionHandler,
         EntityManagerInterface $em,
         HubInterface $hub,
         MessageBusInterface $bus
     ){
-        $this->questionHandler = $questionHandler;
-        $this->em = $em;
         $this->hub = $hub;
         $this->bus = $bus;
     }
 
     #[Route('/create_room', name: 'app_party')]
-    public function createRoom(EntityManagerInterface $em, Request $request): Response
+    public function createRoom(Request $request, EntityManagerInterface $em, RoomUtilManager $roomUtilManager): JsonResponse
     {
+        /** @var User $user */
         $user = $this->getUser();
-
-        if(!$user){
-            return $this->json(['error' => 'User not authenticated'],Response::HTTP_UNAUTHORIZED);
-        }
 
         $data = json_decode($request->getContent(), true);
         $username = $data["username"]??null;
         $result = array('error' => 0);
         try {
+
+            $roomUtilManager->removeUserFromRoom($user);
+
             $room = new Room();
 
             $room->setLeader($user);
@@ -79,7 +70,8 @@ final class PartyController extends AbstractController
     }
 
     #[Route('/send_answer', name: 'send_answer', methods: ['POST'])]
-    public function sendAnswer(Request $request, EntityManagerInterface $em, HubInterface $hub){
+    public function sendAnswer(Request $request, EntityManagerInterface $em, HubInterface $hub) : JsonResponse{
+        /** @var User $user */
         $user = $this->getUser();
 
         if(!$user){
@@ -161,23 +153,19 @@ final class PartyController extends AbstractController
     }
 
     #[Route('/start', name: 'start', methods: ['POST'])]
-    public function startRoom(Request $request, EntityManagerInterface $em){
+    public function startRoom(Request $request, PusherNotificationHandler $pusherNotificationHandler) : JsonResponse{
+        /** @var User $user */
         $user = $this->getUser();
-
-        if(!$user){
-            return $this->json(['error' => 'User not authenticated'],Response::HTTP_UNAUTHORIZED);
-        }
-
         $room = $user->getRoom();
         $roomId = $room->getId();
 
-        // reset the game in case some users have still some points locale_filter_matches
+        // reset the game in case some users have still some points
         foreach($room->getUsers() as $user){
             $user->setScore(0);
         }
 
-        //wait a little bit to start the game
-        $this->questionHandler->handleCreateQuestion($roomId);
+        // wait a little bit to start the game
+        $pusherNotificationHandler->handleCreateQuestion($roomId);
 
         $update = new Update(
             topics: 'https://subscribed.channel/'.$roomId.'/room',
@@ -189,12 +177,9 @@ final class PartyController extends AbstractController
     }
 
     #[Route('/join', name: 'join', methods: ['POST'])]
-    public function joinRoom(Request $request, EntityManagerInterface $em, HubInterface $hub){
+    public function joinRoom(Request $request, EntityManagerInterface $em, HubInterface $hub) : JsonResponse{
+        /** @var User $user */
         $user = $this->getUser();
-
-        if(!$user){
-            return $this->json(['error' => 'User not authenticated'],Response::HTTP_UNAUTHORIZED);
-        }
 
         $data = json_decode($request->getContent(), true);
         $username = $data['username']??null;
@@ -245,33 +230,14 @@ final class PartyController extends AbstractController
     }
 
     #[Route('/leaved', name: 'leaved', methods: ['POST'])]
-    public function leavedRoom(Request $request, EntityManagerInterface $em, HubInterface $hub){
+    public function leavedRoom(Request $request, RoomUtilManager $roomUtilManager, HubInterface $hub) : JsonResponse{
+
+        /** @var User $user */
         $user = $this->getUser();
 
-        if(!$user){
-            return $this->json(['error' => 'User not authenticated'],Response::HTTP_UNAUTHORIZED);
-        }
+        $roomUtilManager->removeUserFromRoom($user);
 
         $room = $user->getRoom();
-
-        $room->removeUser($user);
-
-        $users = $room->getUsers();
-
-        //if the user is leader, set another one leader
-        if ($room->getLeader() === $user && count($users)>0){
-            // if there is other users
-            if(count($users) > 0){
-                $room->setLeader($users[0]);
-            }
-        }
-
-        if(count($users)===0){
-            $em->remove($room);
-        }
-
-        $em->flush();
-
         $update = new Update(
             topics: 'https://subscribed.channel/'.$room->getId().'/room',
             data: json_encode(
@@ -287,12 +253,8 @@ final class PartyController extends AbstractController
     }
 
     #[Route('/sendMessage', name: 'send_message', methods: ['POST'])]
-    public function sendMessage(Request $request, HubInterface $hub){
+    public function sendMessage(Request $request, HubInterface $hub) : JsonResponse{
         $user = $this->getUser();
-
-        if(!$user){
-            return $this->json(['error' => 'User not authenticated'],Response::HTTP_UNAUTHORIZED);
-        }
 
         $data = json_decode($request->getContent(), true);
 

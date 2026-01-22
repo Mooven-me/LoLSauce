@@ -1,6 +1,6 @@
 import { connect, disconnect, connected, connectionError } from './mercureSlice';
 import { resetScores, resetUsersWord, setUsers, userSuccess, userTry } from './roomSlice';
-import { start, setQuestionData, stop, setUserFoundAnswer } from './gameSlice';
+import { start, setQuestionData, setUserFoundAnswer } from './gameSlice';
 import { messageReceived } from './chatSlice';
 
 let eventSource = null;
