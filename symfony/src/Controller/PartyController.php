@@ -41,31 +41,28 @@ final class PartyController extends AbstractController
 
         $data = json_decode($request->getContent(), true);
         $username = $data["username"]??null;
-        $result = array('error' => 0);
-        try {
 
-            $roomUtilManager->removeUserFromRoom($user);
-
-            $room = new Room();
-
-            $room->setLeader($user);
-            $room->addUser($user);
-            $user->setRoom($room);
-            $user->setUsername($username);
-
-            $em->persist($room);
-
-            $em->flush();
-
-            $result['data'] = array(
-                'room_id' => $room->getId(),
-                'user_id' => $user->getId(),
-            );
-        } catch (\Exception $e) {
-            $result['error'] = 1;
-            $result['error_text'] = $e->getMessage();
-            $result['error_stack_trace'] = $e->getTraceAsString();
+        if(empty($username)){
+            new JsonResponse(['error' => 1, 'error_message' => 'no username provided'], 400);
         }
+
+        $roomUtilManager->removeUserFromRoom($user);
+
+        $room = new Room();
+
+        $room->setLeader($user);
+        $room->addUser($user);
+        $user->setRoom($room);
+        $user->setUsername($username);
+
+        $em->persist($room);
+
+        $em->flush();
+
+        $result['data'] = array(
+            'room_id' => $room->getId(),
+            'user_id' => $user->getId(),
+        );
         return new JsonResponse($result, 200);
     }
 

@@ -27,7 +27,7 @@ export const sendData = async ({route = "/", data = {}, method="POST", isFileDow
                 setTimeout(() => {
                     window.location.href = '/';
                 }, 1500);
-                return { error: true, error_message: "Votre session à expiré" };
+                throw new Error("Votre session à expiré");
             }
             return sendData({route:route, method:method, data:data, isFileDownload:isFileDownload});
         }
@@ -40,9 +40,7 @@ export const sendData = async ({route = "/", data = {}, method="POST", isFileDow
         // Handle file download
         if (isFileDownload) {
             if (!response.ok) {
-                const errorResult = { error: true, error_message: `Téléchargement non réussi : ${response.statusText}` };
-                showErrorNotification(errorResult.error_message);
-                return errorResult;
+                throw new Error(`Téléchargement non réussi : ${response.statusText}`);
             }
             
             // Get filename from Content-Disposition header
@@ -80,15 +78,14 @@ export const sendData = async ({route = "/", data = {}, method="POST", isFileDow
         
         // Check if the response has an error and show notification
         if (result.error === 1 && result.error_message) {
-            showErrorNotification(result.error_message);
-            return result;
+            throw new Error(result.error_message);
         }
         
         return result.data ?? {};
         
     } catch (error) {
         showErrorNotification(error.message);
-        return { error: true, error_message: error };;
+        return { error: true, error_message: error };
     }
 }
 
