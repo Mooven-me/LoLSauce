@@ -12,6 +12,7 @@ export const authSlice = createSlice({
     setAuth: (state, action) => {
       state.userId = action.payload.userId;
       state.username = action.payload.username;
+      window.USERNAME = action.payload.username;
     },
     logout: (state) => {
       state.userId = null;

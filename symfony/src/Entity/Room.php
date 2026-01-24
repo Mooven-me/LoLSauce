@@ -95,7 +95,6 @@ class Room
             $this->Users->add($user);
             $user->setRoom($this);
             $user->setScore(0);
-            $user->setUserRoomId(bin2hex(random_bytes(20)));
         }
 
         return $this;
@@ -108,7 +107,6 @@ class Room
             if ($user->getRoom() === $this) {
                 $user->setRoom(null);
                 $user->setScore(0);
-                $user->setUserRoomId(null);
             }
         }
 

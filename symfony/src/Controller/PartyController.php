@@ -6,6 +6,7 @@ use App\Entity\Room;
 use App\Entity\User;
 use App\PusherNotification\PusherNotification;
 use App\PusherNotification\PusherNotificationHandler;
+use App\Repository\RoomRepository;
 use App\Service\Room\RoomUtilManager;
 use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
@@ -174,7 +175,7 @@ final class PartyController extends AbstractController
     }
 
     #[Route('/join', name: 'join', methods: ['POST'])]
-    public function joinRoom(Request $request, EntityManagerInterface $em, HubInterface $hub) : JsonResponse{
+    public function joinRoom(Request $request, EntityManagerInterface $em, HubInterface $hub, RoomUtilManager $roomUtilManager, RoomRepository $roomRepository) : JsonResponse{
         /** @var User $user */
         $user = $this->getUser();
 
@@ -182,27 +183,27 @@ final class PartyController extends AbstractController
         $username = $data['username']??null;
         $room_id = $data['room_id']??null;
 
-        if(!$username){
-            return new JsonResponse(['error' => '1',  'error_message' => 'username is required'], 400);
+        // if the user is not already in a room
+        if(!$user->getRoom() || $user->getRoom()->getId() != $room_id){
+            $roomUtilManager->removeUserFromRoom($user);
+            if(!$username){
+                return new JsonResponse(['error' => '1',  'error_message' => 'username is required'], 400);
+            }
+            if(!$room_id){
+                return new JsonResponse(['error' => '1',  'error_message' => 'room_id is required'], 400);
+            }
+            $room = $roomRepository->findOneById($room_id);
+            if(empty($room)){
+                return new JsonResponse(['error' => '1',  'error_message' => 'invalid room_id'], 400);
+            }
+            $user->setUsername($username);
+            $user->setRoom($room);
+            $room->addUser($user);
+            $em->persist($room);
+            $em->flush();
+        }else{
+            $room = $user->getRoom();
         }
-        if(!$room_id){
-            return new JsonResponse(['error' => '1',  'error_message' => 'room_id is required'], 400);
-        }
-
-
-        $room = $em->getRepository(Room::class)->findOneById($room_id);
-
-        if(empty($room)){
-            return new JsonResponse(['error' => '1',  'error_message' => 'invalid room_id'], 400);
-        }
-
-        $user->setUsername($username);
-        $user->setRoom($room);
-        $room->addUser($user);
-
-        $em->persist($room);
-
-        $em->flush();
 
         $update = new Update(
             topics: 'https://subscribed.channel/'.$room->getId().'/room',
@@ -214,8 +215,8 @@ final class PartyController extends AbstractController
         );
         $hub->publish($update);
 
-
         $result = array(
+            'is_leader' => $user === $room->getLeader(),
             'room_id'   => $room->getId(),
             'user_id'   => $user->getId(),
             'username'  => $username,
@@ -226,15 +227,15 @@ final class PartyController extends AbstractController
         return new JsonResponse(array('error' => 0, 'data' => $result), 200);
     }
 
-    #[Route('/leaved', name: 'leaved', methods: ['POST'])]
-    public function leavedRoom(Request $request, RoomUtilManager $roomUtilManager, HubInterface $hub) : JsonResponse{
+    #[Route('/disconnect', name: 'disconnect', methods: ['POST'])]
+    public function disconnectRoom(Request $request, RoomUtilManager $roomUtilManager, HubInterface $hub) : JsonResponse{
 
         /** @var User $user */
         $user = $this->getUser();
+        $room = $user->getRoom();
 
         $roomUtilManager->removeUserFromRoom($user);
 
-        $room = $user->getRoom();
         $update = new Update(
             topics: 'https://subscribed.channel/'.$room->getId().'/room',
             data: json_encode(

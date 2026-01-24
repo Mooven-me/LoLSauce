@@ -27,7 +27,7 @@ export default function Room() {
     return () => {
       dispatch(disconnect());
       dispatch(stop());
-      sendData({ route: "/leaved", method: "POST" });
+      //sendData({ route: "/disconnected", method: "POST" }); // TODO : mettre l'utilisateur en gris
     };
   }, []);
 

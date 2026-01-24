@@ -1,34 +1,36 @@
 import React from 'react';
-import { Button, ButtonGroup, Card, CardBody, FormGroup, Input } from 'reactstrap';
+import {
+    Alert,
+    Button,
+    ButtonGroup,
+    Card,
+    CardBody,
+    Col,
+    Container,
+    FormGroup,
+    Input,
+    InputGroup,
+    Row, UncontrolledAlert
+} from 'reactstrap';
 import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { sendData } from '../../utils/utils.jsx';
 import LoadingButton from '../../utils/LoadingButton.jsx';
 import { setIsLeader, setRoomId, setUsers } from '../../store/roomSlice.js';
-import { setAuth, setUsername } from '../../store/authSlice.js';
+import { setAuth } from '../../store/authSlice.js';
 import MainNavbar from "./MainNavbar.jsx";
+import JoinBackAlert from "../../utils/JoinBackAlert.jsx";
 
 export default function Main() {
     const navigate = useNavigate();
     const [usernameError, setUsernameError] = React.useState(false);
     const [joinRoomError, setJoinRoomError] = React.useState(false);
     const [roomCreationLoading, setRoomCreationLoading] = React.useState(false);
-    const [size, setSize] = React.useState(window.innerWidth);
     const usernameRef = React.useRef(window.IS_LOGGED_IN ? window.USERNAME : "");
     const roomId = React.useRef("")
 
     const dispatch = useDispatch();
 
-    React.useEffect(() =>{
-        dispatch(setUsername(""));
-        window.addEventListener('resize', () => {
-            setSize(window.innerWidth)
-        })
-        return () => {
-            removeEventListener('resize', window)
-        }
-    },[])
-    
     const createRoom = async () => {
         if(!usernameError && usernameRef.current.trim() !== ""){
             setRoomCreationLoading(true)
@@ -53,7 +55,7 @@ export default function Main() {
             setJoinRoomError(true)
         }else{
             navigate('/'+roomId.current)
-        }   
+        }
     }
 
     const handleUsernameChange = (e) => {
@@ -66,58 +68,64 @@ export default function Main() {
             }
         }
     }
-    
+
     return (
     <>
-        <div className='d-flex flex-column h-100 align-items-center '>
+        <div className='d-flex flex-column h-100'>
             <MainNavbar />
-            <div className='' style={{fontSize: "10vw", marginTop:"50px"}}>
-                LoLSauce
-            </div>
-            <div className='d-flex flex-column h-100 w-100 align-items-center'>
-                <div className="flex-row-column align-self-center align-items-center gap-5 computer-600 h-25" style={{width:"40vw"}}>
-                    <Card className={"opaque-grey"} style={{padding:0, width:"100%", minWidth:"180px"}}>
-                        <CardBody className='flex-row-column'>
-                            <FormGroup className="formulaire w-100 ">
-                                <ButtonGroup className="w-100" vertical={size<682}>
-                                    <Button className='shadow opaque-light-blue border-info' onClick={() =>handleNavigateToRoom()}>
-                                        <b style={{color:"rgb(255, 255, 255)", textWrap:"nowrap"}}>Rejoindre</b>
-                                    </Button>
-                                    <Input
-                                        className='shadow arrondi-gauche opaque-light-blue placeholder-grey'
-                                        onChange={(e) => {roomId.current = e.target.value}}
-                                        type={"number"}
-                                        onKeyUpCapture={(e) => e.key === 'Enter' && handleNavigateToRoom()}
-                                        placeholder='Code'
-                                        invalid={joinRoomError}
-                                        min={"0"}
-                                    />
-                                </ButtonGroup>
-                            </FormGroup>
-                        </CardBody>
-                    </Card>
-                    <Card className={"opaque-grey"} style={{padding:0, width:"100%", minWidth:"180px"}}>
-                        <CardBody className='flex-row-column'>
-                            <FormGroup className="formulaire w-100">
-                                <ButtonGroup className="w-100" vertical={size<682}>
-                                    <LoadingButton className='shadow shadow opaque-light-blue border-info' onClick={createRoom} forceLoading={roomCreationLoading}>
-                                        <b style={{color:"rgb(255, 255, 255)", textWrap:"nowrap"}}>Créer</b>
-                                    </LoadingButton>
-                                    <Input 
-                                        className='shadow arrondi-gauche opaque-light-blue placeholder-grey'
-                                        placeholder='Pseudo' 
-                                        onKeyUpCapture={(e) => e.key === 'Enter' && createRoom()} 
-                                        onChange={(e) => handleUsernameChange(e)}
-                                        invalid={usernameError}
-                                        maxLength={15}
-                                        defaultValue={window.IS_LOGGED_IN ? window.USERNAME : ""}
-                                    />
-                                </ButtonGroup>
-                            </FormGroup>
-                        </CardBody>
-                    </Card>
+            <Container className={"flex-grow-1"}>
+                <div style={{fontSize: "10vw", marginTop:"50px"}}>
+                    LoLSauce
                 </div>
-            </div>
+                <div className='vstack gap-5'>
+                    <Row className="gy-3 justify-content-center">
+                        <Col sm={6} md={5} lg={4}>
+                            <Card color={'dark'} className={"p-0 bg-opacity-50"}>
+                                <CardBody>
+                                    <InputGroup>
+                                        <Button outline color={"info"} style={{width:"101px"}} className='shadow' onClick={handleNavigateToRoom}>
+                                            <b>Rejoindre</b>
+                                        </Button>
+                                        <Input
+                                            className='shadow bg-opacity-25 bg-secondary'
+                                            onChange={(e) => {roomId.current = e.target.value}}
+                                            type={"number"}
+                                            onKeyUpCapture={(e) => e.key === 'Enter' && handleNavigateToRoom()}
+                                            placeholder='Code'
+                                            invalid={joinRoomError}
+                                            min={"0"}
+                                        />
+                                    </InputGroup>
+                                </CardBody>
+                            </Card>
+                        </Col>
+                        <Col sm={6} md={5} lg={4}>
+                            <Card color={'dark'} className={"p-0 bg-opacity-50"}>
+                                <CardBody>
+                                    <InputGroup>
+                                        <LoadingButton color={"info"} style={{width:"101px"}} outline onClick={createRoom} forceLoading={roomCreationLoading}>
+                                            <b>Créer</b>
+                                        </LoadingButton>
+                                        <Input
+                                            className='bg-opacity-25 bg-secondary'
+                                            placeholder='Pseudo'
+                                            onKeyUpCapture={(e) => e.key === 'Enter' && createRoom()}
+                                            onChange={(e) => handleUsernameChange(e)}
+                                            invalid={usernameError}
+                                            maxLength={15}
+                                            defaultValue={window.IS_LOGGED_IN ? window.USERNAME : ""}
+                                        />
+                                    </InputGroup>
+                                </CardBody>
+                            </Card>
+                        </Col>
+                        <Col sm={12} md={10} lg={8}>
+                            <JoinBackAlert leavable />
+                        </Col>
+                    </Row>
+
+                </div>
+            </Container>
         <div className="w-100 opaque-dark-blue py-1 px-3" >
             LoLSauce is not endorsed by Riot Games and does not reflect the views or opinions of Riot Games or anyone officially involved in producing or managing Riot Games properties. Riot Games and all associated properties are trademarks or registered trademarks of Riot Games, Inc
         </div>

@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import React from 'react';
 
 function LoadingButton({
-    loadingColor = 'primary',
+    loadingColor = '',
     className = '',
     forceLoading = false,
     ...props    
@@ -23,12 +23,12 @@ function LoadingButton({
     return (
         <Button {...props} onClick={handleOnClick} className={newClassName} disabled={loading || forceLoading}>
             {(!loading && !forceLoading)?
-            <Fade appear={false} in={!loading && !forceLoading}>
+            <Fade appear={false} className={"w-100"} in={!loading && !forceLoading}>
                 {props.children}
             </Fade>
             :
             <Fade in={loading || forceLoading} >
-                <Spinner color={loadingColor} size={'sm'}/>
+                <Spinner color={loadingColor ?? props.color ?? 'primary'} size={'sm'}/>
             </Fade>
         }
         </Button>

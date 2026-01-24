@@ -76,8 +76,9 @@
   background: rgb(24, 31, 129);
 }
 
-.modal-grey div.modal-content{
-  background-color: rgb(34, 37, 61);
+div.modal-content{
+  background-color: transparent;
+  border: 0
 }
 
 .darkblue {

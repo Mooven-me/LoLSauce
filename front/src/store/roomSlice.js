@@ -10,11 +10,11 @@ const roomSlice = createSlice({
   },
   reducers: {
     setUsers: (state, action) => {
-      console.log("users à changé",action.payload)
       state.users = action.payload;
     },
 
     setRoomId: (state, action) => {
+      window.ROOM_ID = action.payload;
       state.roomId = action.payload;
     },
     
