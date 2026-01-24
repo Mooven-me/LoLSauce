@@ -32,7 +32,7 @@ class JWTUtilManager
         $JWTCookie = Cookie::create('jwt_lolsauce')
             ->withValue($token)
             ->withExpires(new \DateTime('+1 hour'))
-            ->withSameSite('lax');
+            ->withSameSite('none');
 
         // creation du refresh token
         if(empty($refreshToken)){
@@ -45,7 +45,7 @@ class JWTUtilManager
             ->withValue($refreshToken->getRefreshToken())
             ->withExpires($refreshToken->getValid())
             ->withPath('/')
-            ->withSameSite('lax');
+            ->withSameSite('none');
 
         // to attach both to the request
         $response->headers->setCookie($JWTCookie);
