@@ -20,6 +20,7 @@ import { setIsLeader, setRoomId, setUsers } from '../../store/roomSlice.js';
 import { setAuth } from '../../store/authSlice.js';
 import MainNavbar from "./MainNavbar.jsx";
 import JoinBackAlert from "../../utils/JoinBackAlert.jsx";
+import {initDiscordAuth} from "../../utils/DiscordSdk.jsx";
 
 export default function Main() {
     const navigate = useNavigate();
@@ -30,6 +31,17 @@ export default function Main() {
     const roomId = React.useRef("")
 
     const dispatch = useDispatch();
+
+    React.useEffect(() => {
+        initDiscordAuth().then(data => {
+            // if the user is using discord
+            if(data){
+                window.USERNAME = data.user.username;
+                window.ROOM_ID = data.room_id
+                navigate('/'+data.room_id)
+            }
+        });
+    })
 
     const createRoom = async () => {
         if(!usernameError && usernameRef.current.trim() !== ""){
@@ -112,7 +124,7 @@ export default function Main() {
                                             onKeyUpCapture={(e) => e.key === 'Enter' && createRoom()}
                                             onChange={(e) => handleUsernameChange(e)}
                                             invalid={usernameError}
-                                            maxLength={15}
+                                            maxLength={32}
                                             defaultValue={window.IS_LOGGED_IN ? window.USERNAME : ""}
                                         />
                                     </InputGroup>

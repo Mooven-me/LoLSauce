@@ -15,7 +15,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\Column(length: 15)]
+    #[ORM\Column(length: 32)]
     private ?string $username = null;
 
     #[ORM\ManyToOne(inversedBy: 'Users')]
@@ -40,12 +40,18 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(nullable: true)]
     private ?bool $anonymous = null;
 
+    #[ORM\Column(length: 255, unique: true, nullable: true)]
+    private ?string $discordId = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $avatarLink = null;
+
     public function getId(): ?int
     {
         return $this->id;
     }
 
-    public function setId(?int $id): static
+    public function setId(?int $id): self
     {
         $this->id = $id;
         return $this;
@@ -56,7 +62,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this->username;
     }
 
-    public function setUsername(string $username): static
+    public function setUsername(string $username): self
     {
         $this->username = $username;
 
@@ -68,7 +74,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this->room;
     }
 
-    public function setRoom(?Room $room): static
+    public function setRoom(?Room $room): self
     {
         $this->room = $room;
 
@@ -80,18 +86,23 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this->score;
     }
 
-    public function setScore(int $score): static
+    public function setScore(int $score): self
     {
         $this->score = $score;
 
         return $this;
     }
 
+    /**
+     * room related information
+     * @return array
+     */
     public function getFormattedUser(): array {
         return array(
             'user_id'   => $this->id,
             'username'  => $this->username,
-            'score'     => $this->score
+            'score'     => $this->score,
+            'avatar_link' => $this->avatarLink,
         );
     }
 
@@ -100,7 +111,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this->email;
     }
 
-    public function setEmail(?string $email): static
+    public function setEmail(?string $email): self
     {
         $this->email = $email;
 
@@ -112,7 +123,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this->password;
     }
 
-    public function setPassword(?string $password): static
+    public function setPassword(?string $password): self
     {
         $this->password = $password;
 
@@ -158,7 +169,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this->CorrectAnswerRoom;
     }
 
-    public function setCorrectAnswerRoom(?Room $CorrectAnswersUsers): static
+    public function setCorrectAnswerRoom(?Room $CorrectAnswersUsers): self
     {
         $this->CorrectAnswerRoom = $CorrectAnswersUsers;
 
@@ -170,13 +181,34 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this->anonymous ?? false;
     }
 
-    public function setAnonymous(?bool $anonymous): static
+    public function setAnonymous(?bool $anonymous): self
     {
         $this->anonymous = $anonymous;
 
         return $this;
     }
 
+    public function setDiscordId(?int $discordId) : self
+    {
+        $this->discordId = $discordId;
+        return $this;
+    }
+
+    public function setAvatarLink(?string $link) : self
+    {
+        $this->avatarLink = $link;
+        return $this;
+    }
+
+    public function getAvatarLink() : ?string
+    {
+        return $this->avatarLink;
+    }
+
+    /**
+     * sensitive information
+     * @return array
+     */
     public function getFormattedInformation(): array {
         return array(
             'username' => $this->username,
