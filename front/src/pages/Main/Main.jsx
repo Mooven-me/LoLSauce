@@ -41,7 +41,7 @@ export default function Main() {
                 navigate('/'+data.room_id)
             }
         });
-    })
+    },  [])
 
     const createRoom = async () => {
         if(!usernameError && usernameRef.current.trim() !== ""){
