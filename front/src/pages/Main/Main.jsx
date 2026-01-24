@@ -36,6 +36,7 @@ export default function Main() {
         initDiscordAuth().then(data => {
             // if the user is using discord
             if(data){
+                console.log(data)
                 window.USERNAME = data.user.username;
                 window.ROOM_ID = data.room_id
                 navigate('/'+data.room_id)
