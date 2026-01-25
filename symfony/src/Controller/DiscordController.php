@@ -20,62 +20,67 @@ class DiscordController extends AbstractController
     #[Route('/login', name: 'api_discord_login', methods: ['POST'])]
     public function login(Request $request, HttpClientInterface $httpClient, EntityManagerInterface $em, JWTUtilManager $jwtUtilManager, RoomUtilManager $roomUtilManager): JsonResponse
     {
-        $data = json_decode($request->getContent(), true);
-        $code = $data['code'] ?? null;
-        // identifiant du channel discord nou permettant de créer une partie
-        $instanceId = $data['instance_id'] ?? null;
+        try{
+            $data = json_decode($request->getContent(), true);
+            $code = $data['code'] ?? null;
+            // identifiant du channel discord nou permettant de créer une partie
+            $instanceId = $data['instance_id'] ?? null;
 
-        if (!$code) return $this->json(['error' => 'No code'], 400);
+            if (!$code) return $this->json(['error' => 'No code'], 400);
 
-        $response = $httpClient->request('POST', 'https://discord.com/api/oauth2/token', [
-            'body' => [
-                'client_id' => $_ENV['DISCORD_CLIENT_ID'],
-                'client_secret' => $_ENV['DISCORD_CLIENT_SECRET'],
-                'grant_type' => 'authorization_code',
-                'code' => $code,
-            ]
-        ]);
+            $response = $httpClient->request('POST', 'https://discord.com/api/oauth2/token', [
+                'body' => [
+                    'client_id' => $_ENV['DISCORD_CLIENT_ID'],
+                    'client_secret' => $_ENV['DISCORD_CLIENT_SECRET'],
+                    'grant_type' => 'authorization_code',
+                    'code' => $code,
+                ]
+            ]);
 
-        $tokens = $response->toArray(false);
-        if (!isset($tokens['access_token'])) return $this->json(['error' => 'Discord auth failed'], 400);
+            $tokens = $response->toArray(false);
+            if (!isset($tokens['access_token'])) return $this->json(['error' => 'Discord auth failed'], 400);
 
-        $userResponse = $httpClient->request('GET', 'https://discord.com/api/users/@me', [
-            'headers' => ['Authorization' => 'Bearer ' . $tokens['access_token']]
-        ]);
-        $discordUser = $userResponse->toArray();
+            $userResponse = $httpClient->request('GET', 'https://discord.com/api/users/@me', [
+                'headers' => ['Authorization' => 'Bearer ' . $tokens['access_token']]
+            ]);
+            $discordUser = $userResponse->toArray();
 
-        $repo = $em->getRepository(User::class);
+            $repo = $em->getRepository(User::class);
 
-        /** @var User $user */
-        $user = $repo->findOneBy(['discordId' => $discordUser['id']]);
-
-        if (!$user) {
             /** @var User $user */
-            $user = $this->getUser();
-            $user->setDiscordId($discordUser['id']);
-            $user->setUsername($discordUser['username']);
-            $user->setAvatarLink($discordUser['avatar']);
-            $em->persist($user);
-            $em->flush();
+            $user = $repo->findOneBy(['discordId' => $discordUser['id']]);
+
+            if (!$user) {
+                /** @var User $user */
+                $user = $this->getUser();
+                $user->setDiscordId($discordUser['id']);
+                $user->setUsername($discordUser['username']);
+                $user->setAvatarLink($discordUser['avatar']);
+                $em->persist($user);
+                $em->flush();
+            }
+
+            // création / rejoindre la salle
+            $room = $em->getRepository(Room::class)->findOneBy(['discordInstanceId' => $instanceId]);
+            if (empty($room)) {
+                $room = $roomUtilManager->createRoom($user, $instanceId);
+            }else{
+                $roomUtilManager->joinRoom($user, $room);
+            }
+
+            $response = new JsonResponse([
+                'error' => 0,
+                'data' => [
+                    'user' => $user->getFormattedUser(),
+                    'room_id' => $room->getId(),
+                ]
+            ]);
+
+            $jwtUtilManager->createCredentials($response, $user);
+            return $response;
+        }catch(\Exception $e){
+            return $this->json(['error' => 1 , 'error_message' => $e->getMessage() . $e->getTraceAsString()], 400);
         }
 
-        // création / rejoindre la salle
-        $room = $em->getRepository(Room::class)->findOneBy(['discordInstanceId' => $instanceId]);
-        if (empty($room)) {
-            $room = $roomUtilManager->createRoom($user, $instanceId);
-        }else{
-            $roomUtilManager->joinRoom($user, $room);
-        }
-
-        $response = new JsonResponse([
-            'error' => 0,
-            'data' => [
-                'user' => $user->getFormattedUser(),
-                'room_id' => $room->getId(),
-            ]
-        ]);
-
-        $jwtUtilManager->createCredentials($response, $user);
-        return $response;
     }
 }

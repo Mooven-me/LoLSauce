@@ -24,7 +24,7 @@ class RoomUtilManager
 
             //if the user is leader, set another one leader
             if ($room->getLeader() === $user && count($users)>0){
-                $room->setLeader($users[0]);
+                $room->setLeader($users->first());
             }
             else if(count($users)===0){
                 $this->em->remove($room);
