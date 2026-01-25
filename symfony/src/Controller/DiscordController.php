@@ -68,9 +68,13 @@ class DiscordController extends AbstractController
         }
 
         $response = new JsonResponse([
-            'user' => $user->getFormattedUser(),
-            'room_id' => $room->getId(),
+            'error' => 0,
+            'data' => [
+                'user' => $user->getFormattedUser(),
+                'room_id' => $room->getId(),
+            ]
         ]);
+
         $jwtUtilManager->createCredentials($response, $user);
         return $response;
     }
