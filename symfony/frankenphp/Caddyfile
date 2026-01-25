@@ -46,11 +46,11 @@
     }
 
     # Enable CORS for Mercure
-    @mercure path /.well-known/mercure
-    header @mercure Access-Control-Allow-Origin *
-    header @mercure Access-Control-Allow-Methods "GET, POST, OPTIONS"
-    header @mercure Access-Control-Allow-Headers "Authorization, Content-Type"
-    header @mercure Access-Control-Allow-Credentials true
+    # @mercure path /.well-known/mercure
+    # header @mercure Access-Control-Allow-Origin *
+    # header @mercure Access-Control-Allow-Methods "GET, POST, OPTIONS"
+    # header @mercure Access-Control-Allow-Headers "Authorization, Content-Type"
+    # header @mercure Access-Control-Allow-Credentials true
 
     vulcain
 
