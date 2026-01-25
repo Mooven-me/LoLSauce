@@ -9,6 +9,8 @@ import { ToastContainer } from 'react-toastify';
 import {
     Badge
 } from 'reactstrap'
+import TermsOfService from "./pages/Legal/TermsOfServices.jsx";
+import PrivacyPolicy from "./pages/Legal/PrivacyPolicy.jsx";
 
 function App() {
 
@@ -25,6 +27,8 @@ function App() {
               <Route path="/register" element={<Register />} />
               <Route path="/login" element={<Login />} />
               <Route path="/account" element={<Register />} />
+              <Route path="/terms" element={<TermsOfService />} />
+              <Route path="/privacy" element={<PrivacyPolicy />} />
               <Route path="/:room_id" element={<Room />} />
               <Route path="/admin" element={<Admin />} />
             </Routes>

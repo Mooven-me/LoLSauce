@@ -139,9 +139,16 @@ export default function Main() {
 
                 </div>
             </Container>
-        <div className="w-100 opaque-dark-blue py-1 px-3" >
-            LoLSauce is not endorsed by Riot Games and does not reflect the views or opinions of Riot Games or anyone officially involved in producing or managing Riot Games properties. Riot Games and all associated properties are trademarks or registered trademarks of Riot Games, Inc
-        </div>
+            <div className="w-100 opaque-dark-blue py-2 px-3 text-center" style={{fontSize: '0.8rem'}}>
+                <div className="mb-2">
+                    <span className="mx-2" onClick={() => navigate('/terms')} style={{cursor: 'pointer', textDecoration: 'underline'}}>Terms of Service</span>
+                    |
+                    <span className="mx-2" onClick={() => navigate('/privacy')} style={{cursor: 'pointer', textDecoration: 'underline'}}>Privacy Policy</span>
+                </div>
+                <div>
+                    LoLSauce is not endorsed by Riot Games and does not reflect the views or opinions of Riot Games or anyone officially involved in producing or managing Riot Games properties. Riot Games and all associated properties are trademarks or registered trademarks of Riot Games, Inc
+                </div>
+            </div>
         </div>
     </>
     )
