@@ -60,7 +60,7 @@ class DiscordController extends AbstractController
         }
 
         // création / rejoindre la salle
-        $room = $em->getRepository(Room::class)->findOneBy(['id' => $instanceId]);
+        $room = $em->getRepository(Room::class)->findOneBy(['discordInstanceId' => $instanceId]);
         if (empty($room)) {
             $room = $roomUtilManager->createRoom($user, $instanceId);
         }else{

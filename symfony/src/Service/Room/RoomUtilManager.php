@@ -34,14 +34,14 @@ class RoomUtilManager
         }
     }
 
-    public function createRoom(User $user, ?int $forceRoomId = null) : Room
+    public function createRoom(User $user, ?int $instanceId = null) : Room
     {
         $this->removeUserFromRoom($user);
 
         $room = new Room();
         $room->setLeader($user);
         $room->addUser($user);
-        $room->setId($forceRoomId ?? null);
+        $room->setDiscordInstanceId($instanceId);
         $user->setRoom($room);
         $this->em->persist($room);
         $this->em->flush();

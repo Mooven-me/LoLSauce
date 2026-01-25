@@ -1,19 +1,9 @@
 import { DiscordSDK } from "@discord/embedded-app-sdk";
 import {sendData} from "./utils.jsx";
 
-let discordSdkInit
-try{
-    discordSdkInit = new DiscordSDK(import.meta.env.VITE_DISCORD_CLIENT_ID);
-}catch(e){
-    discordSdkInit = null;
-}
-
-export const discordSdk = discordSdkInit;
 export const initDiscordAuth = async () => {
     try {
-        if(!discordSdk){
-            return null;
-        }
+        const discordSdk = new DiscordSDK(import.meta.env.VITE_DISCORD_CLIENT_ID);
         await discordSdk.ready();
 
         const { code } = await discordSdk.commands.authorize({
@@ -33,7 +23,6 @@ export const initDiscordAuth = async () => {
         })
 
     } catch (error) {
-        console.error("Discord init error :", error);
-        return null;
+        return null
     }
 };
