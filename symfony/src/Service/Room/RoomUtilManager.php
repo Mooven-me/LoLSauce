@@ -34,13 +34,14 @@ class RoomUtilManager
         }
     }
 
-    public function createRoom(User $user) : Room
+    public function createRoom(User $user, ?int $forceRoomId = null) : Room
     {
         $this->removeUserFromRoom($user);
 
         $room = new Room();
         $room->setLeader($user);
         $room->addUser($user);
+        $room->setId($forceRoomId ?? null);
         $user->setRoom($room);
         $this->em->persist($room);
         $this->em->flush();
