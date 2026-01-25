@@ -50,8 +50,7 @@ class Room
     private Collection $correctAnswerUsers;
 
     #[ORM\Column(unique: true, nullable: true)]
-    private ?int $discordInstanceId = null;
-
+    private ?string $discordInstanceId = null;
 
     public function __construct()
     {
@@ -244,13 +243,13 @@ class Room
         $this->correctAnswerUsers = new ArrayCollection();
     }
 
-    public function setDiscordInstanceId(?int $instanceId) : self
+    public function setDiscordInstanceId(?string $instanceId) : self
     {
         $this->discordInstanceId = $instanceId;
         return $this;
     }
 
-    public function getDiscordInstanceId() : ?int
+    public function getDiscordInstanceId() : ?string
     {
         return $this->discordInstanceId;
     }

@@ -17,7 +17,7 @@ export const initDiscordAuth = async () => {
         return sendData({
             route:'/discord/login',
             data: {
-                code,
+                code: code,
                 instance_id: discordSdk.instanceId
             },
         })

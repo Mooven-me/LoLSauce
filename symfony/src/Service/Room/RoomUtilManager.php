@@ -34,7 +34,7 @@ class RoomUtilManager
         }
     }
 
-    public function createRoom(User $user, ?int $instanceId = null) : Room
+    public function createRoom(User $user, ?string $instanceId = null) : Room
     {
         $this->removeUserFromRoom($user);
 
