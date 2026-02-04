@@ -1,3 +1,13 @@
+FROM node:20-alpine AS assets_builder
+
+WORKDIR /app
+COPY front/package*.json ./
+RUN npm install
+
+COPY front/ ./
+
+RUN npm run build-prod
+
 #syntax=docker/dockerfile:1
 
 # Versions
@@ -52,9 +62,9 @@ RUN install-php-extensions pdo_mysql
 ###< doctrine/doctrine-bundle ###
 ###< recipes ###
 
-COPY --link ./frankenphp/conf.d/10-app.ini $PHP_INI_DIR/app.conf.d/
-COPY --link --chmod=755 ./frankenphp/docker-entrypoint.sh /usr/local/bin/docker-entrypoint
-COPY --link ./frankenphp/Caddyfile /etc/frankenphp/Caddyfile
+COPY --link ./symfony/frankenphp/conf.d/10-app.ini $PHP_INI_DIR/app.conf.d/
+COPY --link --chmod=755 ./symfony/frankenphp/docker-entrypoint.sh /usr/local/bin/docker-entrypoint
+COPY --link ./symfony/frankenphp/Caddyfile /etc/frankenphp/Caddyfile
 
 ENTRYPOINT ["docker-entrypoint"]
 
@@ -73,16 +83,12 @@ ENV PHP_IDE_CONFIG="serverName=symfony"
 RUN mv "$PHP_INI_DIR/php.ini-development" "$PHP_INI_DIR/php.ini"
 
 # prevent the reinstallation of vendors at every changes in the source code
-COPY --link ./composer.* .* ./
-RUN set -eux; \
-	composer install --no-cache --prefer-dist --no-autoloader --no-scripts --no-progress
-
 RUN set -eux; \
 	install-php-extensions \
 		xdebug \
 	;
 
-COPY --link ./frankenphp/conf.d/20-app.dev.ini $PHP_INI_DIR/app.conf.d/
+COPY --link ./symfony/frankenphp/conf.d/20-app.dev.ini $PHP_INI_DIR/app.conf.d/
 
 CMD [ "frankenphp", "run", "--config", "/etc/frankenphp/Caddyfile", "--watch" ]
 
@@ -90,24 +96,20 @@ CMD [ "frankenphp", "run", "--config", "/etc/frankenphp/Caddyfile", "--watch" ]
 FROM frankenphp_base AS frankenphp_prod
 
 ENV APP_ENV=prod
-ENV XDEBUG_MODE=off
+
 RUN mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini"
 
-COPY --link ./frankenphp/conf.d/20-app.prod.ini $PHP_INI_DIR/app.conf.d/
-
-# copy sources
-COPY --link ./ ./
-RUN rm -Rf frankenphp/
+COPY --link ./symfony/frankenphp/conf.d/20-app.prod.ini $PHP_INI_DIR/app.conf.d/
 
 # prevent the reinstallation of vendors at every changes in the source code
-COPY --link ./composer.* .* ./
+COPY --link ./symfony/composer.* ./symfony/symfony.* ./
 RUN set -eux; \
-	composer install --no-cache --prefer-dist --no-dev --no-autoloader --no-scripts --no-progress
+	composer install --no-cache --prefer-dist --no-dev --no-scripts --no-progress
 
-ARG DATABASE_URL
-ARG MERCURE_URL
-ARG MERCURE_JWT_SECRET
-ARG MERCURE_PUBLIC_URL
+# add the compiled frontend
+COPY --link --from=assets_builder /app/dist public/build
+
+COPY --link symfony/ ./
 
 RUN set -eux; \
 	mkdir -p var/cache var/log; \

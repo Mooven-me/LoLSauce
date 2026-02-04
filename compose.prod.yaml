@@ -7,20 +7,16 @@ services:
     env_file:
       - .env
       - .env.prod
+    volumes: !override 
+      - ./supervisord:/etc/supervisor
+      - ./.env:/app/.env
+      - caddy_data:/data
+      - caddy_config:/config
+      - ./symfony/frankenphp/Caddyfile:/etc/frankenphp/Caddyfile:ro
+      - ./symfony/frankenphp/conf.d/20-app.prod.ini:/usr/local/etc/php/app.conf.d/20-app.prod.ini:ro
 
-  lolsauce-node:
-    build:
-      target: react_prod
-    env_file:
-      - .env
-      - .env.prod
+  lolsauce-node: !reset null
 
-  lolsauce-phpmyadmin:
-    env_file:
-      - .env
-      - .env.prod
+  lolsauce-phpmyadmin: !reset null
 
-  database:
-    env_file:
-      - .env
-      - .env.prod
+  database: !reset null

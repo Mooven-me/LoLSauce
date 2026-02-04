@@ -3,12 +3,8 @@ services:
   php:
     image: ${IMAGES_PREFIX:-}app-php
     restart: unless-stopped
-    environment:
-      XDEBUG_CONFIG: >-
-        client_host=host.docker.internal
-        start_with_request=yes
     build:
-      context: ./symfony
+      dockerfile: symfony/Dockerfile
       target: frankenphp_dev
     env_file:
       - .env
