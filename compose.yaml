@@ -68,7 +68,6 @@ services:
       - "5173:5173"
     build:
       context: ./front
-      target: react_dev
     volumes:
       - ./symfony/public/build:/app/dist
       - ./front:/app
