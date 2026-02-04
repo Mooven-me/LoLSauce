@@ -4,6 +4,8 @@ WORKDIR /app
 COPY front/package*.json ./
 RUN npm install
 
+COPY --link .env ./
+
 COPY front/ ./
 
 RUN npm run build-prod
@@ -108,6 +110,8 @@ RUN set -eux; \
 
 # add the compiled frontend
 COPY --link --from=assets_builder /app/dist public/build
+
+COPY --link .env ./
 
 COPY --link symfony/ ./
 
