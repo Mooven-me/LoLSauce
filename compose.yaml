@@ -67,6 +67,7 @@ services:
     ports:
       - "5173:5173"
     build:
+      dockerfile: front/Dockerfile
       context: ./front
     volumes:
       - ./symfony/public/build:/app/dist
