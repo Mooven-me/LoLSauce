@@ -1,2 +1,2 @@
 # LoLSauce
-PopSauce version League of legend
+PopSauce version League of legends
