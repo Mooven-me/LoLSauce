@@ -10,6 +10,7 @@ services:
     volumes: !override 
       - ./supervisord:/etc/supervisor
       - ./.env:/app/.env
+      - ./.env.prod:/app/.env.prod
       - caddy_data:/data
       - caddy_config:/config
       - ./symfony/frankenphp/Caddyfile:/etc/frankenphp/Caddyfile:ro
