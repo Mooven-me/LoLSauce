@@ -53,7 +53,7 @@ services:
       - "3306"
   ###< doctrine/doctrine-bundle ###
 
-  lolsauce-phpmyadmin: 
+  phpmyadmin: 
     image: phpmyadmin
     environment:
       PMA_HOST: database
@@ -63,11 +63,11 @@ services:
     depends_on:
       - database
 
-  lolsauce-node:
+  node:
+    image: node:latest
     ports:
       - "5173:5173"
     build:
-      dockerfile: front/Dockerfile
       context: ./front
     volumes:
       - ./symfony/public/build:/app/dist
