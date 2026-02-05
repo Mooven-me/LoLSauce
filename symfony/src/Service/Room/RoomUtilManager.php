@@ -7,13 +7,23 @@ use App\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Mercure\HubInterface;
 use Symfony\Component\Mercure\Update;
+use Symfony\Contracts\Service\Attribute\Required;
 
 class RoomUtilManager
 {
-    public function __construct(
-        private EntityManagerInterface $em,
-        private HubInterface $hub
-    ){}
+    private HubInterface $hub;
+    private EntityManagerInterface $em;
+    
+    #[Required]
+    public function setHubInterface(HubInterface $hub){
+        $this->hub = $hub;
+    }
+
+    #[Required]
+    public function setEntityManagerInterface(EntityManagerInterface $em){
+        $this->em = $em;
+    }
+
     public function removeUserFromRoom(User $user) : void
     {
         $room = $user->getRoom();
