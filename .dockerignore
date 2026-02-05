@@ -4,7 +4,6 @@ compose*.yaml
 .git/
 front/node_modules/
 #symfony part
-symfony/public/
 symfony/config/secrets/prod/prod.decrypt.private.php
 symfony/var/
 symfony/vendor
