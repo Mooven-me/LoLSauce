@@ -49,16 +49,10 @@ final class PartyController extends AbstractController
 
         $roomUtilManager->removeUserFromRoom($user);
 
-        $room = new Room();
-
-        $room->setLeader($user);
-        $room->addUser($user);
-        $user->setRoom($room);
         $user->setUsername($username);
 
-        $em->persist($room);
-
-        $em->flush();
+        // create the room
+        $room = $roomUtilManager->createRoom($user);
 
         $result['data'] = array(
             'room_id' => $room->getId(),
@@ -175,7 +169,7 @@ final class PartyController extends AbstractController
     }
 
     #[Route('/join', name: 'join', methods: ['POST'])]
-    public function joinRoom(Request $request, EntityManagerInterface $em, HubInterface $hub, RoomUtilManager $roomUtilManager, RoomRepository $roomRepository) : JsonResponse{
+    public function joinRoom(Request $request, RoomUtilManager $roomUtilManager, RoomRepository $roomRepository) : JsonResponse{
         /** @var User $user */
         $user = $this->getUser();
 
@@ -185,7 +179,6 @@ final class PartyController extends AbstractController
 
         // if the user is not already in a room
         if(!$user->getRoom() || $user->getRoom()->getId() != $room_id){
-            $roomUtilManager->removeUserFromRoom($user);
             if(!$username){
                 return new JsonResponse(['error' => '1',  'error_message' => 'username is required'], 400);
             }
@@ -197,23 +190,10 @@ final class PartyController extends AbstractController
                 return new JsonResponse(['error' => '1',  'error_message' => 'invalid room_id'], 400);
             }
             $user->setUsername($username);
-            $user->setRoom($room);
-            $room->addUser($user);
-            $em->persist($room);
-            $em->flush();
+            $roomUtilManager->joinRoom($user, $room);
         }else{
             $room = $user->getRoom();
         }
-
-        $update = new Update(
-            topics: 'https://subscribed.channel/'.$room->getId().'/room',
-            data: json_encode(
-                array(
-                    'type' => 'usersUpdate',
-                    'users' => $room->getFormattedUsers(),
-                    )),
-        );
-        $hub->publish($update);
 
         $result = array(
             'is_leader' => $user === $room->getLeader(),

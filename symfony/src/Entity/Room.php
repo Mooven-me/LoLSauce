@@ -49,6 +49,9 @@ class Room
     #[ORM\OneToMany(targetEntity: User::class, mappedBy: 'CorrectAnswerRoom')]
     private Collection $correctAnswerUsers;
 
+    #[ORM\Column(unique: true, nullable: true)]
+    private ?string $discordInstanceId = null;
+
     public function __construct()
     {
         $this->id = rand(100000000, 999999999);
@@ -238,5 +241,16 @@ class Room
             $user->setCorrectAnswerRoom(null);
         }
         $this->correctAnswerUsers = new ArrayCollection();
+    }
+
+    public function setDiscordInstanceId(?string $instanceId) : self
+    {
+        $this->discordInstanceId = $instanceId;
+        return $this;
+    }
+
+    public function getDiscordInstanceId() : ?string
+    {
+        return $this->discordInstanceId;
     }
 }

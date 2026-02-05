@@ -18,7 +18,7 @@ lexik_jwt_authentication:
     set_cookies:
         jwt_lolsauce:
             lifetime: 3600
-            samesite: lax
+            samesite: none
             path: /
             secure: true
             httpOnly: true

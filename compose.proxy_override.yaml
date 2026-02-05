@@ -4,8 +4,6 @@ services:
     networks:
       - proxy
       - default
-    environment:
-      - APP_TRUSTED_HOSTS=lolsauce.fr
     ports: !override 
       []
 

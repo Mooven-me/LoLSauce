@@ -32,7 +32,8 @@ class JWTUtilManager
         $JWTCookie = Cookie::create('jwt_lolsauce')
             ->withValue($token)
             ->withExpires(new \DateTime('+1 hour'))
-            ->withSameSite('lax');
+            ->withSameSite('none')
+            ->withSecure();
 
         // creation du refresh token
         if(empty($refreshToken)){
@@ -45,7 +46,9 @@ class JWTUtilManager
             ->withValue($refreshToken->getRefreshToken())
             ->withExpires($refreshToken->getValid())
             ->withPath('/')
-            ->withSameSite('lax');
+            ->withSameSite('none')
+            ->withSecure();
+
 
         // to attach both to the request
         $response->headers->setCookie($JWTCookie);
@@ -53,8 +56,8 @@ class JWTUtilManager
     }
 
     public function clearCredentials(Response $response): void{
-        $response->headers->clearCookie('jwt_lolsauce', '/', null, true, true, 'lax');
-        $response->headers->clearCookie('rt_lolsauce', '/', null, true, true, 'lax');
+        $response->headers->clearCookie('jwt_lolsauce', '/', null, true, true, 'None');
+        $response->headers->clearCookie('rt_lolsauce', '/', null, true, true, 'None');
     }
 
     public function getUserFromRefreshToken(?RefreshTokenInterface $refreshToken): ?User

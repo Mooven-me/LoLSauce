@@ -2,13 +2,17 @@
 
 namespace App\Service\Room;
 
+use App\Entity\Room;
 use App\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\Mercure\HubInterface;
+use Symfony\Component\Mercure\Update;
 
 class RoomUtilManager
 {
     public function __construct(
-        private EntityManagerInterface $em
+        private EntityManagerInterface $em,
+        private HubInterface $hub
     ){}
     public function removeUserFromRoom(User $user) : void
     {
@@ -20,7 +24,7 @@ class RoomUtilManager
 
             //if the user is leader, set another one leader
             if ($room->getLeader() === $user && count($users)>0){
-                $room->setLeader($users[0]);
+                $room->setLeader($users->first());
             }
             else if(count($users)===0){
                 $this->em->remove($room);
@@ -28,5 +32,37 @@ class RoomUtilManager
 
             $this->em->flush();
         }
+    }
+
+    public function createRoom(User $user, ?string $instanceId = null) : Room
+    {
+        $this->removeUserFromRoom($user);
+
+        $room = new Room();
+        $room->setLeader($user);
+        $room->addUser($user);
+        $room->setDiscordInstanceId($instanceId);
+        $user->setRoom($room);
+        $this->em->persist($room);
+        $this->em->flush();
+
+        return $room;
+    }
+
+    public function joinRoom(User $user, Room $room) : void
+    {
+        $this->removeUserFromRoom($user);
+        $room->addUser($user);
+        $this->em->flush();
+
+        $update = new Update(
+            topics: 'https://subscribed.channel/'.$room->getId().'/room',
+            data: json_encode(
+                array(
+                    'type' => 'usersUpdate',
+                    'users' => $room->getFormattedUsers(),
+                )),
+        );
+        $this->hub->publish($update);
     }
 }
