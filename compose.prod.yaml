@@ -16,8 +16,8 @@ services:
       - ./symfony/frankenphp/Caddyfile:/etc/frankenphp/Caddyfile:ro
       - ./symfony/frankenphp/conf.d/20-app.prod.ini:/usr/local/etc/php/app.conf.d/20-app.prod.ini:ro
 
-  lolsauce-node: !reset null
+  node: !reset null
 
-  lolsauce-phpmyadmin: !reset null
+  phpmyadmin: !reset null
 
   database: !reset null
