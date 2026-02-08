@@ -145,7 +145,7 @@ final class PartyController extends AbstractController
     }
 
     #[Route('/start', name: 'start', methods: ['POST'])]
-    public function startRoom(Request $request, PusherNotificationHandler $pusherNotificationHandler) : JsonResponse{
+    public function startRoom(Request $request, PusherNotificationHandler $pusherNotificationHandler) : Response{
         /** @var User $user */
         $user = $this->getUser();
         $room = $user->getRoom();
@@ -232,6 +232,7 @@ final class PartyController extends AbstractController
 
     #[Route('/sendMessage', name: 'send_message', methods: ['POST'])]
     public function sendMessage(Request $request, HubInterface $hub) : JsonResponse{
+        /** @var User $user */
         $user = $this->getUser();
 
         $data = json_decode($request->getContent(), true);
