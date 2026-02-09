@@ -11,17 +11,10 @@ use Symfony\Contracts\Service\Attribute\Required;
 
 class RoomUtilManager
 {
-    private HubInterface $hub;
-    private EntityManagerInterface $em;
-    
-    #[Required]
-    public function setHubInterface(HubInterface $hub){
-        $this->hub = $hub;
-    }
-
-    #[Required]
-    public function setEntityManagerInterface(EntityManagerInterface $em){
-        $this->em = $em;
+    public function __construct(
+        private HubInterface $hub,
+        private EntityManagerInterface $em
+    ) {
     }
 
     public function removeUserFromRoom(User $user) : void
