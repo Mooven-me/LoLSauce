@@ -34,6 +34,13 @@ jobs:
             *.cache-from=type=gha,scope=${{github.ref}}
             *.cache-from=type=gha,scope=refs/heads/main
             *.cache-to=type=gha,scope=${{github.ref}},mode=max
+      - 
+        name: Check container logs
+        if: failure()
+        run: |
+          docker ps -a
+          docker logs lolsauce-php-1
+          docker inspect lolsauce-php-1 --format='{{json .State.Health}}' | jq || docker inspect lolsauce-php-1 --format='{{json .State.Health}}'
       -
         name: Start services
         run: docker compose up --wait --no-build
@@ -65,6 +72,7 @@ jobs:
         name: Doctrine Schema Validator
         if: false 
         run: docker compose exec -T php bin/console -e test doctrine:schema:validate
+
   lint:
     name: Docker Lint
     runs-on: ubuntu-latest
@@ -79,8 +87,8 @@ jobs:
           dockerfile: symfony/Dockerfile
   deploy:
     name: Deploy to Production
-    needs: [tests, lint]      # <--- Waits for previous jobs to pass
-    if: github.ref == 'refs/heads/main' # <--- Only run on main branch
+    needs: [tests, lint]
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     steps:
       -
@@ -113,4 +121,4 @@ jobs:
 
       -
         name: Trigger Portainer Webhook
-        run: curl -k -X POST "${{ secrets.PORTAINER_WEBHOOK }}"
+        run: curl -v -k -X POST "${{ secrets.PORTAINER_WEBHOOK }}"
