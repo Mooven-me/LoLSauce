@@ -41,6 +41,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 	&& docker-php-ext-install gd\
 	&& rm -rf /var/lib/apt/lists/*
 
+COPY --link supervisord/ /etc/supervisor/
+
 RUN set -eux; \
 	install-php-extensions \
 		@composer \
