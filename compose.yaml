@@ -18,7 +18,6 @@ services:
       - caddy_data:/data
       - caddy_config:/config
       - ./symfony:/app
-      - /app/vendor
       - ./symfony/frankenphp/Caddyfile:/etc/frankenphp/Caddyfile:ro
       - ./symfony/frankenphp/conf.d/20-app.dev.ini:/usr/local/etc/php/app.conf.d/20-app.dev.ini:ro
     ports:

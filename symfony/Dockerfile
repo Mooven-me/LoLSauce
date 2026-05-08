@@ -42,7 +42,7 @@ RUN set -eux; \
 ENV COMPOSER_ALLOW_SUPERUSER=1
 
 # Transport to use by Mercure (default to Bolt)
-ENV MERCURE_TRANSPORT_URL=bolt:///data/mercure.db
+ENV MERCURE_EXTRA_DIRECTIVES="transport bolt /data/mercure.db"
 
 ENV PHP_INI_SCAN_DIR=":$PHP_INI_DIR/app.conf.d"
 
@@ -74,8 +74,6 @@ RUN mv "$PHP_INI_DIR/php.ini-development" "$PHP_INI_DIR/php.ini"
 
 # prevent the reinstallation of vendors at every changes in the source code
 COPY --link ./composer.* .* ./
-RUN set -eux; \
-	composer install --no-cache --prefer-dist --no-autoloader --no-scripts --no-progress
 
 RUN set -eux; \
 	install-php-extensions \
