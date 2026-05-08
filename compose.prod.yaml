@@ -7,6 +7,8 @@ services:
     env_file:
       - .env
       - .env.prod
+    volumes:
+      - /app/vendor
     volumes: !override 
       - ./supervisord:/etc/supervisor
       - ./.env:/app/.env

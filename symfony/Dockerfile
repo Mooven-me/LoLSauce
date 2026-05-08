@@ -55,6 +55,9 @@ RUN set -eux; \
 # https://getcomposer.org/doc/03-cli.md#composer-allow-superuser
 ENV COMPOSER_ALLOW_SUPERUSER=1
 
+# Transport to use by Mercure (default to Bolt)
+ENV MERCURE_EXTRA_DIRECTIVES="transport bolt /data/mercure.db"
+
 ENV PHP_INI_SCAN_DIR=":$PHP_INI_DIR/app.conf.d"
 
 ###> recipes ###
@@ -84,6 +87,8 @@ ENV PHP_IDE_CONFIG="serverName=symfony"
 RUN mv "$PHP_INI_DIR/php.ini-development" "$PHP_INI_DIR/php.ini"
 
 # prevent the reinstallation of vendors at every changes in the source code
+COPY --link ./composer.* .* ./
+
 RUN set -eux; \
 	install-php-extensions \
 		xdebug \
