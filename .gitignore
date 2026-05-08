@@ -6,3 +6,4 @@ symfony/files/*
 /.env.prod
 /.env.local
 /deployToAzure.sh
+compose.override.yaml

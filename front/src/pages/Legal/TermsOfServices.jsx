@@ -62,7 +62,7 @@ export default function TermsOfService() {
 
                     <h4>7. Contact</h4>
                     <p>
-                        For any legal inquiries, please contact: gabinlegrand56@gmail.com
+                        For any legal inquiries, please contact: gabin.legrand@lolsauce.fr
                     </p>
                 </CardBody>
             </Card>

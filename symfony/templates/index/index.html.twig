@@ -2,7 +2,6 @@
 {% block title %}LoLSauce{% endblock %}
 
 {% block stylesheets %}
-    {{ vite_entry_link_tags('app') }}
 {% endblock %}
 {% block javascripts %}
     <script>
@@ -11,7 +10,6 @@
         window.USERNAME = {{ user.username|json_encode|raw }};
         window.ROOM_ID = {{ user.room_id|json_encode|raw }}
     </script>
-    {{ vite_entry_script_tags('app') }}
 {% endblock %}
 
 {% block body %}

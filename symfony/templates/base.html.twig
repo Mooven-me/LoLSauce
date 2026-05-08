@@ -5,30 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{% block title %}Welcome!{% endblock %}</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 128 128%22><text y=%221.2em%22 font-size=%2296%22>⚫️</text></svg>">
-
-    {% if app.environment == 'dev' %}
-        {% set protocol = app.request.scheme %}
-        {% set vite_url = protocol ~ '://' ~ app.request.host %}
-        <script type="module">
-            window.global = window;
-            import RefreshRuntime from "{{ vite_url }}:5173/build/@react-refresh"
-            RefreshRuntime.injectIntoGlobalHook(window)
-            window.$RefreshReg$ = () => {}
-            window.$RefreshSig$ = () => (type) => type
-            window.__vite_plugin_react_preamble_installed__ = true
-        </script>
-    {% endif %}
-
     {% block head %}{% endblock %}
-
-    {% block stylesheets %}
-    {% endblock %}
+    {% block stylesheets %}{% endblock %}
 
 </head>
 <body data-bs-theme="dark">
 {% block body %}{% endblock %}
-
+</body>
+{{ vite_entry_script_tags('app', {dependency : 'react'}) }}
+{{ vite_entry_link_tags('app', {dependency : 'react'}) }}
 {% block javascripts %}
 {% endblock %}
-</body>
 </html>
