@@ -1,0 +1,62 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: php-lolsauce-service
+spec:
+  selector:
+    app: php-lolsauce
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: php-lolsauce
+  labels:
+    app: php-lolsauce
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: php-lolsauce
+  template:
+    metadata:
+      name: php-lolsauce
+      labels:
+        app: php-lolsauce
+    spec:
+      containers:
+        - name: php-lolsauce
+          image: lolsauce-php-base:latest # doesn't actually matter
+          imagePullPolicy: IfNotPresent
+          envFrom:
+            - configMapRef:
+                name: env-config
+          env:
+            - name: DATABASE_URL
+              value: "mysql://$(MYSQL_USER):$(MYSQL_PASSWORD)@prod-database/$(MYSQL_DATABASE)"
+            - name: MERCURE_JWT_SECRET
+              value: "key_file $(JWT_SECRET_KEY)"
+            - name: MERCURE_PUBLISHER_JWT_KEY
+              value: "key_file $(JWT_SECRET_KEY)"
+            - name: MERCURE_SUBSCRIBER_JWT_KEY
+              value: "key_file $(JWT_PUBLIC_KEY)"
+            - name: MERCURE_PUBLIC_URL
+              value: "$(PUBLIC_DOMAIN)/.well-known/mercure"
+            - name: VITE_SERVER_NAME
+              value: "$(PUBLIC_DOMAIN)"
+            - name: VITE_PUBLIC_DOMAIN
+              value: "$(PUBLIC_DOMAIN)"
+            - name: VITE_DISCORD_CLIENT_ID
+              value: "$(DISCORD_CLIENT_ID)"
+            - name: APP_TRUSTED_HOSTS
+              value: "$(PUBLIC_DOMAIN)"
+            - name: CADDY_GLOBAL_OPTIONS
+              value: "auto_https off"
+          ports:
+            - containerPort: 80
+              protocol: TCP
+      restartPolicy: Always
+      

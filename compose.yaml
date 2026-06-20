@@ -1,7 +1,7 @@
 # compose.yml
 services:
   php:
-    image: ${IMAGES_PREFIX:-}app-php
+    image: ${IMAGES_PREFIX:-}php-dev
     restart: unless-stopped
     build:
       dockerfile: symfony/Dockerfile
@@ -10,7 +10,6 @@ services:
       - .env
     volumes:
       - ./supervisord:/etc/supervisor
-      - ./.env:/app/.env
       - caddy_data:/data
       - caddy_config:/config
       - ./symfony:/app
@@ -35,12 +34,8 @@ services:
   ###> doctrine/doctrine-bundle ###
   database:
     image: mysql:${MYSQL_VERSION:-8}
-    environment:
-      MYSQL_DATABASE: ${MYSQL_DATABASE:-app}
-      # You should definitely change the password in production in the .env.prod file 
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-!ChangeMe!}
-      MYSQL_USER: ${MYSQL_USER:-app}
+    env_file:
+      - .env
     healthcheck:
       test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
       timeout: 5s
@@ -72,6 +67,7 @@ services:
       - ./symfony/public/build:/app/dist
       - ./front:/app
       - /app/node_modules
+      - ./.env:/app/.env
     working_dir: /app
     tty: true
 

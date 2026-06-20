@@ -1,0 +1,46 @@
+# mysql-db.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: database
+spec:
+  ports:
+    - port: 3306
+  selector:
+    app: database
+  clusterIP: None
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: database
+spec:
+  serviceName: "database"
+  replicas: 1
+  selector:
+    matchLabels:
+      app: database
+  template:
+    metadata:
+      labels:
+        app: database
+    spec:
+      containers:
+        - name: mysql
+          image: mysql:8
+          envFrom:
+            - configMapRef:
+                name: env-config
+          ports:
+            - containerPort: 3306
+          volumeMounts:
+            - name: mysql-data
+              mountPath: /var/lib/mysql
+  volumeClaimTemplates:
+    - metadata:
+        name: mysql-data
+      spec:
+        accessModes: [ "ReadWriteOnce" ]
+        resources:
+          requests:
+            storage: 1Gi

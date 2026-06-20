@@ -1,11 +1,16 @@
 # compose.proxy_override.yaml
 services:
   php:
+    image: ${IMAGES_PREFIX:-}php-prod-proxy
     networks:
       - proxy
       - default
     ports: !override 
       []
+
+  phpmyadmin: !reset null
+
+  database: !reset null
 
 networks:
   proxy:

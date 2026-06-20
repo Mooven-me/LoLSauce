@@ -8,3 +8,4 @@ symfony/config/secrets/prod/prod.decrypt.private.php
 symfony/var/
 symfony/vendor
 symfony/files/
+symfony/config/jwt/*.pem

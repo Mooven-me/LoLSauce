@@ -7,3 +7,5 @@ symfony/files/*
 /.env.local
 /deployToAzure.sh
 compose.override.yaml
+
+k8s/overlays/prod/.env.prod

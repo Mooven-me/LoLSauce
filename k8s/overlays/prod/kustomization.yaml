@@ -1,0 +1,22 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - ../../base
+
+namePrefix: prod-
+
+images:
+  - name: lolsauce-php-base
+    newName: lolsauce-php-prod
+    newTag: latest
+
+replicas:
+  - name: php-lolsauce
+    count: 1
+
+configMapGenerator:
+  - name: env-config
+    behavior: merge
+    envs:
+      - .env.prod #you must need to create this file based on the .env.prod.exmaple given

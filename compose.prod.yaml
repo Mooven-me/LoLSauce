@@ -2,17 +2,14 @@
 # Production environment override
 services:
   php:
+    image: ${IMAGES_PREFIX:-}php-prod
     build:
       target: frankenphp_prod
     env_file:
       - .env
       - .env.prod
-    volumes:
-      - /app/vendor
     volumes: !override 
       - ./supervisord:/etc/supervisor
-      - ./.env:/app/.env
-      - ./.env.prod:/app/.env.prod
       - caddy_data:/data
       - caddy_config:/config
       - ./symfony/frankenphp/Caddyfile:/etc/frankenphp/Caddyfile:ro
@@ -20,6 +17,7 @@ services:
 
   node: !reset null
 
-  phpmyadmin: !reset null
-
-  database: !reset null
+  database:
+    env_file:
+      - .env
+      - .env.prod

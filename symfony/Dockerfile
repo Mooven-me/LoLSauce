@@ -113,11 +113,11 @@ RUN set -eux; \
 	composer install --no-cache --prefer-dist --no-dev --no-scripts --no-progress
 
 # add the compiled frontend
-COPY --link --from=assets_builder /app/dist public/build
-
-COPY --link .env ./
+COPY --link --from=assets_builder /app/public/build public/build
 
 COPY --link symfony/ ./
+
+COPY --link .env ./
 
 RUN set -eux; \
 	mkdir -p var/cache var/log; \
