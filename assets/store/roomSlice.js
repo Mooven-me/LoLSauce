@@ -1,4 +1,4 @@
-// src/store/roomSlice.js
+// assets/store/roomSlice.js
 import { createSlice } from '@reduxjs/toolkit';
 
 const roomSlice = createSlice({
@@ -17,15 +17,15 @@ const roomSlice = createSlice({
       window.ROOM_ID = action.payload;
       state.roomId = action.payload;
     },
-    
+
     userSuccess: (state, action) => {
       const { user_id, time, score } = action.payload;
       const totalTime = time.s + time.f;
-      
-      state.users = state.users.map(user => 
-        user.user_id === user_id 
-          ? { 
-              ...user, 
+
+      state.users = state.users.map(user =>
+        user.user_id === user_id
+          ? {
+              ...user,
               success: true,
               time: totalTime.toFixed(3) + 's',
               word: "",
@@ -39,14 +39,14 @@ const roomSlice = createSlice({
     },
     userTry: (state, action) => {
       const { user_id, word } = action.payload;
-      
-      state.users = state.users.map(user => 
-        user.user_id === user_id 
+
+      state.users = state.users.map(user =>
+        user.user_id === user_id
           ? { ...user, word: word }
           : user
       );
     },
-    
+
     resetUsersWord: (state) => {
       state.users = state.users.map(user => ({
         ...user,

@@ -3,20 +3,12 @@
 services:
   php:
     build:
+      context: .
       target: frankenphp_prod
-    env_file:
-      - .env
-      - .env.prod
-    volumes:
-      - /app/vendor
-    volumes: !override 
-      - ./supervisord:/etc/supervisor
-      - ./.env:/app/.env
-      - ./.env.prod:/app/.env.prod
-      - caddy_data:/data
-      - caddy_config:/config
-      - ./symfony/frankenphp/Caddyfile:/etc/frankenphp/Caddyfile:ro
-      - ./symfony/frankenphp/conf.d/20-app.prod.ini:/usr/local/etc/php/app.conf.d/20-app.prod.ini:ro
+    environment:
+      APP_SECRET: ${APP_SECRET}
+      MERCURE_PUBLISHER_JWT_KEY: ${CADDY_MERCURE_JWT_SECRET}
+      MERCURE_SUBSCRIBER_JWT_KEY: ${CADDY_MERCURE_JWT_SECRET}
 
   node: !reset null
 

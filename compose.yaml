@@ -1,21 +1,10 @@
 # compose.yml
 services:
   php:
-    image: ${IMAGES_PREFIX:-}app-php
     restart: unless-stopped
-    build:
-      dockerfile: symfony/Dockerfile
-      target: frankenphp_dev
-    env_file:
-      - .env
     volumes:
-      - ./supervisord:/etc/supervisor
-      - ./.env:/app/.env
       - caddy_data:/data
       - caddy_config:/config
-      - ./symfony:/app
-      - ./symfony/frankenphp/Caddyfile:/etc/frankenphp/Caddyfile:ro
-      - ./symfony/frankenphp/conf.d/20-app.dev.ini:/usr/local/etc/php/app.conf.d/20-app.dev.ini:ro
     ports:
       # HTTP
       - target: 80
@@ -47,7 +36,7 @@ services:
       retries: 5
       start_period: 60s
     volumes:
-      - ./database:/var/lib/mysql:rw
+      - lolsauce_database:/var/lib/mysql
     ports:
       - "3306"
   ###< doctrine/doctrine-bundle ###
@@ -67,15 +56,16 @@ services:
     ports:
       - "5173:5173"
     build:
-      context: ./front
+        context: .
+        dockerfile: Dockerfile.front
     volumes:
-      - ./symfony/public/build:/app/dist
-      - ./front:/app
+      - ./:/app
       - /app/node_modules
     working_dir: /app
     tty: true
 
 
 volumes:
-  caddy_data:
-  caddy_config:
+    caddy_data:
+    caddy_config:
+    lolsauce_database:

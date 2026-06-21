@@ -81,10 +81,10 @@ jobs:
         name: Checkout
         uses: actions/checkout@v4
       -
-        name: Lint Dockerfile
+        name: Lint Dockerfile.front
         uses: hadolint/hadolint-action@v3.1.0
         with:
-          dockerfile: symfony/Dockerfile
+          dockerfile: symfony/Dockerfile.front
   deploy:
     name: Deploy to Production
     needs: [tests, lint]
@@ -111,7 +111,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: .
-          file: symfony/Dockerfile
+          file: symfony/Dockerfile.front
           target: frankenphp_prod
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/lolsauce:latest

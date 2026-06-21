@@ -39,14 +39,14 @@ export default defineConfig(({mode}) => {
     assetsDir: '',
     rollupOptions: {
       input: {
-        app: './src/main.jsx'
+        app: './assets/main.jsx'
       }
     }
   },
   base: '/build/',
   resolve: {
     alias: {
-      '@': path.resolve(__dirname, './src')
+      '@': path.resolve(__dirname, './assets')
     }
   }
 }})
